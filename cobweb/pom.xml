@@ -1,0 +1,26 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>geonetwork</artifactId>
+    <groupId>org.geonetwork-opensource</groupId>
+    <version>2.11.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Cobweb Customizations</name>
+  <packaging>jar</packaging>
+  <artifactId>cobweb</artifactId>
+  <url>http://cobwebproject.eu</url>
+  <dependencies>
+    <dependency>
+        <groupId>org.geonetwork-opensource</groupId>
+        <artifactId>events</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+    </dependency>
+  </dependencies>
+  <description>Some of the customizatons required for Cobweb project.</description>
+</project>

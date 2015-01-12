@@ -1103,6 +1103,7 @@
     <module>healthmonitor</module>
     <module>services</module>
     <module>wro4j</module>
+    <module>cobweb</module>
   </modules>
 
   <profiles>
