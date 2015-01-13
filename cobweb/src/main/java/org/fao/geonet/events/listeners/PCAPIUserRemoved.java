@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  * 
  *
  */
-@Component
+//@Component
 public class PCAPIUserRemoved implements ApplicationListener<UserDeleted> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;
@@ -35,40 +35,40 @@ public class PCAPIUserRemoved implements ApplicationListener<UserDeleted> {
 
     @Override
     public void onApplicationEvent(UserDeleted event) {
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-
-        CloseableHttpResponse resp = null;
-        try {
-            URIBuilder builder = new URIBuilder(PCAPI_URL + endpoint);
-
-            builder.setParameter("uuid", event.getUser().getUsername());
-            builder.setParameter("action", "REMOVE");
-
-            HttpGet httpGet = new HttpGet(builder.build());
-            resp = httpclient.execute(httpGet);
-            HttpEntity entity1 = resp.getEntity();
-
-            EntityUtils.consume(entity1);
-        } catch (IOException e) {
-            log.error(e);
-        } catch (URISyntaxException e) {
-            log.error(e);
-        } finally {
-            try {
-                if (resp != null) {
-                    resp.close();
-                }
-            } catch (IOException e) {
-                log.error(e);
-            }
-            try {
-                if (httpclient != null) {
-                    httpclient.close();
-                }
-            } catch (IOException e) {
-                log.error(e);
-            }
-        }
+//        CloseableHttpClient httpclient = HttpClients.createDefault();
+//
+//        CloseableHttpResponse resp = null;
+//        try {
+//            URIBuilder builder = new URIBuilder(PCAPI_URL + endpoint);
+//
+//            builder.setParameter("uuid", event.getUser().getUsername());
+//            builder.setParameter("action", "REMOVE");
+//
+//            HttpGet httpGet = new HttpGet(builder.build());
+//            resp = httpclient.execute(httpGet);
+//            HttpEntity entity1 = resp.getEntity();
+//
+//            EntityUtils.consume(entity1);
+//        } catch (IOException e) {
+//            log.error(e);
+//        } catch (URISyntaxException e) {
+//            log.error(e);
+//        } finally {
+//            try {
+//                if (resp != null) {
+//                    resp.close();
+//                }
+//            } catch (IOException e) {
+//                log.error(e);
+//            }
+//            try {
+//                if (httpclient != null) {
+//                    httpclient.close();
+//                }
+//            } catch (IOException e) {
+//                log.error(e);
+//            }
+//        }
     }
 
 }

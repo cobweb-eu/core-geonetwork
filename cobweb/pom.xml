@@ -17,10 +17,6 @@
         <artifactId>events</artifactId>
         <version>${project.version}</version>
     </dependency>
-    <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-    </dependency>
   </dependencies>
   <description>Some of the customizatons required for Cobweb project.</description>
 </project>

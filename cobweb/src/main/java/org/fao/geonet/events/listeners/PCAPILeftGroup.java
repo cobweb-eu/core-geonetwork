@@ -4,16 +4,8 @@ import static org.fao.geonet.repository.specification.UserGroupSpecs.hasGroupId;
 import static org.fao.geonet.repository.specification.UserGroupSpecs.hasProfile;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.fao.geonet.domain.Group;
 import org.fao.geonet.domain.Profile;
 import org.fao.geonet.domain.User;
@@ -41,66 +33,45 @@ public class PCAPILeftGroup implements ApplicationListener<GroupLeft> {
     @Autowired
     private UserGroupRepository userGroupRepo;
 
-    // TODO
-    private String endpoint = "/";
-
     private org.fao.geonet.Logger log = Log.createLogger("cobweb");
 
     @Override
     public void onApplicationEvent(GroupLeft event) {
+
         User user = event.getUserGroup().getUser();
         Group group = event.getUserGroup().getGroup();
-        CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        CloseableHttpResponse resp = null;
-        try {
-            URIBuilder builder = new URIBuilder(PCAPI_URL + endpoint);
+        User coordinator = null;
 
-            builder.setParameter("uuid", user.getUsername());
-            builder.setParameter("action", "LEAVE");
-            User coordinator = null;
+        List<UserGroup> userGroups = userGroupRepo.findAll(Specifications
+                .where(hasGroupId(group.getId())).and(
+                        hasProfile(Profile.UserAdmin)));
 
-            List<UserGroup> userGroups = userGroupRepo.findAll(Specifications
-                    .where(hasGroupId(group.getId())).and(
-                            hasProfile(Profile.UserAdmin)));
-
-            if (userGroups.size() == 0) {
-                log.error("Survey " + group.getName() + " corrupted!");
-                log.error("Assign a coordinator as soon as possible!");
-                log.error("User " + user.getUsername() + " can't join survey "
-                        + group.getName());
-                userGroupRepo.saveAndFlush(event.getUserGroup());
-            } else if (userGroups.size() > 1) {
-                log.error("Survey " + group.getName() + " corrupted!");
-                log.error("Fixing survey " + group.getName()
-                        + " by removing all coordinators except the first one");
-                for (int i = 1; i < userGroups.size(); i++) {
-                    userGroupRepo.delete(userGroups.get(i));
-                }
-                userGroupRepo.flush();
-            } else {
-                coordinator = userGroups.get(0).getUser();
+        if (userGroups.size() == 0) {
+            log.error("Survey " + group.getName() + " corrupted!");
+            log.error("Assign a coordinator as soon as possible!");
+            log.error("User " + user.getUsername() + " can't join survey "
+                    + group.getName());
+            userGroupRepo.saveAndFlush(event.getUserGroup());
+        } else if (userGroups.size() > 1) {
+            log.error("Survey " + group.getName() + " corrupted!");
+            log.error("Fixing survey " + group.getName()
+                    + " by removing all coordinators except the first one");
+            for (int i = 1; i < userGroups.size(); i++) {
+                userGroupRepo.delete(userGroups.get(i));
             }
+            userGroupRepo.flush();
+        } else {
+            coordinator = userGroups.get(0).getUser();
+        }
 
-            builder.setParameter("survey", coordinator.getUsername());
+        String params = " " + user.getUsername() + " "
+                + coordinator.getUsername() + " LEAVE";
 
-            HttpGet httpGet = new HttpGet(builder.build());
-            resp = httpclient.execute(httpGet);
-            HttpEntity entity1 = resp.getEntity();
-            EntityUtils.consume(entity1);
-
+        try {
+            Runtime.getRuntime().exec(PCAPI_URL + params);
         } catch (IOException e) {
             log.error(e);
-        } catch (URISyntaxException e) {
-            log.error(e);
-        } finally {
-            try {
-                if (resp != null) {
-                    resp.close();
-                }
-            } catch (IOException e) {
-                log.error(e);
-            }
         }
     }
 }

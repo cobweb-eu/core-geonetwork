@@ -44,131 +44,99 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
     @Autowired
     private UserGroupRepository userGroupRepo;
 
-    // TODO
-    private String endpoint = "/";
-    private String endpoint_coordinator = "/";
-
     private org.fao.geonet.Logger log = Log.createLogger("cobweb");
 
     @Override
     public void onApplicationEvent(GroupJoined event) {
+
         User user = event.getUserGroup().getUser();
         Group group = event.getUserGroup().getGroup();
-        CloseableHttpClient httpclient = HttpClients.createDefault();
 
-        CloseableHttpResponse resp = null;
-        boolean isCoordinator = false;
-        try {
-            URIBuilder builder = new URIBuilder(PCAPI_URL + endpoint);
+        List<UserGroup> userGroups = userGroupRepo.findAll(Specifications
+                .where(hasGroupId(group.getId()))
+                .and(hasUserId(user.getId()))
+                .and(hasProfile(Profile.UserAdmin)));
 
-            builder.setParameter("uuid", user.getUsername());
-            builder.setParameter("action", "JOIN");
-
-            List<UserGroup> userGroups = userGroupRepo.findAll(Specifications
-                    .where(hasGroupId(group.getId()))
-                    .and(hasUserId(user.getId()))
-                    .and(hasProfile(Profile.UserAdmin)));
-
-            isCoordinator = userGroups.size() > 0;
-
-            if (isCoordinator) {
-                // We have to remove all previous coordinators and make them
-                // normal reviewers
-                userGroupRepo.deleteAll(Specifications
-                        .where(hasGroupId(group.getId()))
-                        .and(Specifications.not(hasUserId(user.getId())))
-                        .and(hasProfile(Profile.UserAdmin)));
-                userGroupRepo.flush();
-
-            }
-
-            userGroups = userGroupRepo.findAll(Specifications.where(
-                    hasGroupId(group.getId())).and(
-                    hasProfile(Profile.UserAdmin)));
-
-            User coordinator = user;
-
-            if (userGroups.size() == 0) {
-                log.error("Survey " + group.getName()
-                        + " corrupted! It has no coordinator. Maybe it is new?");
-                log.error("Fixing survey " + group.getName()
-                        + " by assign coordinator to current user "
-                        + user.getUsername());
-                event.getUserGroup().setProfile(Profile.UserAdmin);
-                userGroupRepo.saveAndFlush(event.getUserGroup());
-                isCoordinator = true;
-            } else if (userGroups.size() > 1) {
-                log.error("Survey " + group.getName()
-                        + " corrupted! It has more than one coordinator!");
-                log.error("Fixing survey " + group.getName()
-                        + " by removing all coordinators except the first one");
-
-                userGroupRepo.deleteAll(Specifications
-                        .where(hasGroupId(group.getId()))
-                        .and(Specifications.not(hasUserId(userGroups.get(0)
-                                .getUser().getId())))
-                        .and(hasProfile(Profile.UserAdmin)));
-                userGroupRepo.flush();
-            } else {
-                coordinator = userGroups.get(0).getUser();
-            }
-
-            builder.setParameter("survey", coordinator.getUsername());
-
-            if (!isCoordinator) {
-                HttpGet httpGet = new HttpGet(builder.build());
-                resp = httpclient.execute(httpGet);
-                HttpEntity entity1 = resp.getEntity();
-                EntityUtils.consume(entity1);
-            }
-        } catch (IOException e) {
-            log.error(e);
-        } catch (URISyntaxException e) {
-            log.error(e);
-        } finally {
-            try {
-                if (resp != null) {
-                    resp.close();
-                }
-            } catch (IOException e) {
-                log.error(e);
-            }
-        }
+        boolean isCoordinator = userGroups.size() > 0;
 
         if (isCoordinator) {
-            try {
-                URIBuilder builder = new URIBuilder(PCAPI_URL
-                        + endpoint_coordinator);
+            // We have to remove all previous coordinators and make them
+            // normal reviewers
+            userGroupRepo.deleteAll(Specifications
+                    .where(hasGroupId(group.getId()))
+                    .and(Specifications.not(hasUserId(user.getId())))
+                    .and(hasProfile(Profile.UserAdmin)));
+            userGroupRepo.flush();
 
-                builder.setParameter("coordinator", user.getUsername());
-                builder.setParameter("action", "CHANGE_COORDINATOR");
-                builder.setParameter("survey", group.getName());
-                HttpGet httpGet = new HttpGet(builder.build());
-                resp = httpclient.execute(httpGet);
-                HttpEntity entity1 = resp.getEntity();
-
-                EntityUtils.consume(entity1);
-            } catch (IOException e) {
-                log.error(e);
-            } catch (URISyntaxException e) {
-                log.error(e);
-            } finally {
-                try {
-                    if (resp != null) {
-                        resp.close();
-                    }
-                } catch (IOException e) {
-                    log.error(e);
-                }
-            }
         }
 
-        try {
-            if (httpclient != null) {
-                httpclient.close();
+        User coordinator = null;
+
+        userGroups = userGroupRepo.findAll(Specifications
+                .where(hasGroupId(group.getId())).and(
+                        hasProfile(Profile.UserAdmin)));
+
+        if (userGroups.size() == 0) {
+            log.error("Survey " + group.getName() + " corrupted!");
+            log.error("Assign a coordinator as soon as possible!");
+            log.error("User " + user.getUsername() + " can't join survey "
+                    + group.getName());
+            userGroupRepo.saveAndFlush(event.getUserGroup());
+        } else if (userGroups.size() > 1) {
+            log.error("Survey " + group.getName() + " corrupted!");
+            log.error("Fixing survey " + group.getName()
+                    + " by removing all coordinators except the first one");
+            for (int i = 1; i < userGroups.size(); i++) {
+                userGroupRepo.delete(userGroups.get(i));
             }
+            userGroupRepo.flush();
+        } else {
+            coordinator = userGroups.get(0).getUser();
+        }
+
+        String params = " " + user.getUsername() + " "
+                + coordinator.getUsername() + " LEAVE";
+
+        try {
+            Runtime.getRuntime().exec(PCAPI_URL + params);
         } catch (IOException e) {
             log.error(e);
         }
+        
+//        if (isCoordinator) {
+//            try {
+//                URIBuilder builder = new URIBuilder(PCAPI_URL
+//                        + endpoint_coordinator);
+//
+//                builder.setParameter("coordinator", user.getUsername());
+//                builder.setParameter("action", "CHANGE_COORDINATOR");
+//                builder.setParameter("survey", group.getName());
+//                HttpGet httpGet = new HttpGet(builder.build());
+//                resp = httpclient.execute(httpGet);
+//                HttpEntity entity1 = resp.getEntity();
+//
+//                EntityUtils.consume(entity1);
+//            } catch (IOException e) {
+//                log.error(e);
+//            } catch (URISyntaxException e) {
+//                log.error(e);
+//            } finally {
+//                try {
+//                    if (resp != null) {
+//                        resp.close();
+//                    }
+//                } catch (IOException e) {
+//                    log.error(e);
+//                }
+//            }
+//        }
+//
+//        try {
+//            if (httpclient != null) {
+//                httpclient.close();
+//            }
+//        } catch (IOException e) {
+//            log.error(e);
+//        }
     }
 }
