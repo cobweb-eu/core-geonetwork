@@ -10,13 +10,19 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.fao.geonet.events.md.MetadataUpdate;
-import org.fao.geonet.events.user.GroupJoined;
+import org.fao.geonet.events.user.UserCreated;
 import org.fao.geonet.utils.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 
-public class PCAPISecurity implements ApplicationListener<MetadataUpdate> {
+/**
+ * Warns PCAPI when a user is created.
+ * 
+ * @author delawen
+ * 
+ *
+ */
+public class PCAPIUserCreated implements ApplicationListener<UserCreated> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;
 
@@ -26,19 +32,16 @@ public class PCAPISecurity implements ApplicationListener<MetadataUpdate> {
     private org.fao.geonet.Logger log = Log.createLogger("cobweb");
 
     @Override
-    public void onApplicationEvent(MetadataUpdate event) {
+    public void onApplicationEvent(UserCreated event) {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         CloseableHttpResponse resp = null;
         try {
             URIBuilder builder = new URIBuilder(PCAPI_URL + endpoint);
-//            builder.setParameter("uuid", event.getMd().getSourceInfo()
-//                    .getGroupOwner());
-            builder.setParameter("action", "JOIN");
 
-            // TODO
-//            builder.setParameter("coordinator", event.getUserGroup().getUser()
-//                    .getUsername());
+            builder.setParameter("uuid", event.getUser().getUsername());
+            builder.setParameter("action", "CREATE");
+
             HttpGet httpGet = new HttpGet(builder.build());
             resp = httpclient.execute(httpGet);
             HttpEntity entity1 = resp.getEntity();

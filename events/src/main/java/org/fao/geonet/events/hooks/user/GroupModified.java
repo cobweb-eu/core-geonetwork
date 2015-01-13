@@ -42,8 +42,8 @@ public class GroupModified implements GeonetworkEntityListener<UserGroup>,
      */
     @Override
     public void handleEvent(PersistentEventType type, UserGroup entity) {
-        if (type == PersistentEventType.PrePersist
-                || type == PersistentEventType.PreUpdate) {
+        if (type == PersistentEventType.PostPersist
+                || type == PersistentEventType.PostUpdate) {
             this.eventPublisher.publishEvent(new GroupJoined(entity));
         } else if (type == PersistentEventType.PostRemove) {
             this.eventPublisher.publishEvent(new GroupLeft(entity));
