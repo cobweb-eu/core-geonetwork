@@ -10,15 +10,22 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.fao.geonet.domain.Group;
 import org.fao.geonet.events.md.MetadataUpdate;
-import org.fao.geonet.events.user.GroupJoined;
+import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.utils.Log;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PCAPISecurity implements ApplicationListener<MetadataUpdate> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;
+
+    @Autowired
+    private GroupRepository groupRepo;
 
     // TODO
     private String endpoint = "/";
@@ -32,13 +39,15 @@ public class PCAPISecurity implements ApplicationListener<MetadataUpdate> {
         CloseableHttpResponse resp = null;
         try {
             URIBuilder builder = new URIBuilder(PCAPI_URL + endpoint);
-//            builder.setParameter("uuid", event.getMd().getSourceInfo()
-//                    .getGroupOwner());
+            Integer groupId = event.getMd().getSourceInfo().getGroupOwner();
+            Group g = groupRepo.findOne(groupId);
+            builder.setParameter("survey", g.getName());
             builder.setParameter("action", "JOIN");
 
             // TODO
-//            builder.setParameter("coordinator", event.getUserGroup().getUser()
-//                    .getUsername());
+            // builder.setParameter("coordinator",
+            // event.getUserGroup().getUser()
+            // .getUsername());
             HttpGet httpGet = new HttpGet(builder.build());
             resp = httpclient.execute(httpGet);
             HttpEntity entity1 = resp.getEntity();

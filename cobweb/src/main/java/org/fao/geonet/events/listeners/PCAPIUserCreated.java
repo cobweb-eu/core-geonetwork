@@ -14,6 +14,7 @@ import org.fao.geonet.events.user.UserCreated;
 import org.fao.geonet.utils.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
 
 /**
  * Warns PCAPI when a user is created.
@@ -22,6 +23,7 @@ import org.springframework.context.ApplicationListener;
  * 
  *
  */
+@Component
 public class PCAPIUserCreated implements ApplicationListener<UserCreated> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;

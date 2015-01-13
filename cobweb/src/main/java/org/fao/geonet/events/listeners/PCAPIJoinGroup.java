@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.stereotype.Component;
 
 /**
  * Warns PCAPI when a user has joined a survey. If the user joins as
@@ -35,6 +36,7 @@ import org.springframework.data.jpa.domain.Specifications;
  * 
  *
  */
+@Component
 public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;
@@ -88,7 +90,7 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
 
             if (userGroups.size() == 0) {
                 log.error("Survey " + group.getName()
-                        + " corrupted! It has no coordinator.");
+                        + " corrupted! It has no coordinator. Maybe it is new?");
                 log.error("Fixing survey " + group.getName()
                         + " by assign coordinator to current user "
                         + user.getUsername());

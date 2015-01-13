@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.jpa.domain.Specifications;
+import org.springframework.stereotype.Component;
 
 /**
  * Warns PCAPI when a user has leaves a survey.
@@ -33,6 +34,7 @@ import org.springframework.data.jpa.domain.Specifications;
  * 
  *
  */
+@Component
 public class PCAPILeftGroup implements ApplicationListener<GroupLeft> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;

@@ -10,21 +10,21 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.fao.geonet.events.user.UserDeleted;
+import org.fao.geonet.events.group.GroupCreated;
 import org.fao.geonet.utils.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Warns PCAPI when a user is removed.
+ * Warns PCAPI when a group is created.
  * 
  * @author delawen
  * 
  *
  */
 @Component
-public class PCAPIUserRemoved implements ApplicationListener<UserDeleted> {
+public class PCAPIGroupCreated implements ApplicationListener<GroupCreated> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;
 
@@ -34,15 +34,16 @@ public class PCAPIUserRemoved implements ApplicationListener<UserDeleted> {
     private org.fao.geonet.Logger log = Log.createLogger("cobweb");
 
     @Override
-    public void onApplicationEvent(UserDeleted event) {
+    public void onApplicationEvent(GroupCreated event) {
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         CloseableHttpResponse resp = null;
         try {
             URIBuilder builder = new URIBuilder(PCAPI_URL + endpoint);
 
-            builder.setParameter("uuid", event.getUser().getUsername());
-            builder.setParameter("action", "REMOVE");
+            builder.setParameter("survey", event.getGroup().getName());
+            builder.setParameter("action", "CREATESURVEY");
+            //TODO uuid, user coordinator? not available yet
 
             HttpGet httpGet = new HttpGet(builder.build());
             resp = httpclient.execute(httpGet);
