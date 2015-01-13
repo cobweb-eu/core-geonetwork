@@ -48,6 +48,7 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
 
     @Override
     public void onApplicationEvent(GroupJoined event) {
+        
 
         User user = event.getUserGroup().getUser();
         Group group = event.getUserGroup().getGroup();
