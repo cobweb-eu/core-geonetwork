@@ -427,7 +427,6 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>cobweb</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     
     <dependency>
