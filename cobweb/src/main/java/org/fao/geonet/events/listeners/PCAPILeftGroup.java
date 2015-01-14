@@ -68,9 +68,15 @@ public class PCAPILeftGroup implements ApplicationListener<GroupLeft> {
         String params = " " + user.getUsername() + " "
                 + coordinator.getUsername() + " LEAVE";
 
+
         try {
-            Runtime.getRuntime().exec(PCAPI_URL + params);
+            Process exec = Runtime.getRuntime().exec(PCAPI_URL + params);
+            exec.waitFor();
+            log.debug("Executed '" + PCAPI_URL + params + "' -> " 
+                    + exec.exitValue());
         } catch (IOException e) {
+            log.error(e);
+        } catch (InterruptedException e) {
             log.error(e);
         }
     }

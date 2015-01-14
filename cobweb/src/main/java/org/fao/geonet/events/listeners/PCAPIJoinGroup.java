@@ -48,14 +48,12 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
 
     @Override
     public void onApplicationEvent(GroupJoined event) {
-        
 
         User user = event.getUserGroup().getUser();
         Group group = event.getUserGroup().getGroup();
 
         List<UserGroup> userGroups = userGroupRepo.findAll(Specifications
-                .where(hasGroupId(group.getId()))
-                .and(hasUserId(user.getId()))
+                .where(hasGroupId(group.getId())).and(hasUserId(user.getId()))
                 .and(hasProfile(Profile.UserAdmin)));
 
         boolean isCoordinator = userGroups.size() > 0;
@@ -73,9 +71,8 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
 
         User coordinator = null;
 
-        userGroups = userGroupRepo.findAll(Specifications
-                .where(hasGroupId(group.getId())).and(
-                        hasProfile(Profile.UserAdmin)));
+        userGroups = userGroupRepo.findAll(Specifications.where(
+                hasGroupId(group.getId())).and(hasProfile(Profile.UserAdmin)));
 
         if (userGroups.size() == 0) {
             log.error("Survey " + group.getName() + " corrupted!");
@@ -96,48 +93,53 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
         }
 
         String params = " " + user.getUsername() + " "
-                + coordinator.getUsername() + " LEAVE";
+                + coordinator.getUsername() + " JOIN";
 
         try {
-            Runtime.getRuntime().exec(PCAPI_URL + params);
+            Process exec = Runtime.getRuntime().exec(PCAPI_URL + params);
+            exec.waitFor();
+            log.debug("Executed '" + PCAPI_URL + params + "' -> " 
+                    + exec.exitValue());
         } catch (IOException e) {
             log.error(e);
+        } catch (InterruptedException e) {
+            log.error(e);
         }
-        
-//        if (isCoordinator) {
-//            try {
-//                URIBuilder builder = new URIBuilder(PCAPI_URL
-//                        + endpoint_coordinator);
-//
-//                builder.setParameter("coordinator", user.getUsername());
-//                builder.setParameter("action", "CHANGE_COORDINATOR");
-//                builder.setParameter("survey", group.getName());
-//                HttpGet httpGet = new HttpGet(builder.build());
-//                resp = httpclient.execute(httpGet);
-//                HttpEntity entity1 = resp.getEntity();
-//
-//                EntityUtils.consume(entity1);
-//            } catch (IOException e) {
-//                log.error(e);
-//            } catch (URISyntaxException e) {
-//                log.error(e);
-//            } finally {
-//                try {
-//                    if (resp != null) {
-//                        resp.close();
-//                    }
-//                } catch (IOException e) {
-//                    log.error(e);
-//                }
-//            }
-//        }
-//
-//        try {
-//            if (httpclient != null) {
-//                httpclient.close();
-//            }
-//        } catch (IOException e) {
-//            log.error(e);
-//        }
+
+        // if (isCoordinator) {
+        // try {
+        // URIBuilder builder = new URIBuilder(PCAPI_URL
+        // + endpoint_coordinator);
+        //
+        // builder.setParameter("coordinator", user.getUsername());
+        // builder.setParameter("action", "CHANGE_COORDINATOR");
+        // builder.setParameter("survey", group.getName());
+        // HttpGet httpGet = new HttpGet(builder.build());
+        // resp = httpclient.execute(httpGet);
+        // HttpEntity entity1 = resp.getEntity();
+        //
+        // EntityUtils.consume(entity1);
+        // } catch (IOException e) {
+        // log.error(e);
+        // } catch (URISyntaxException e) {
+        // log.error(e);
+        // } finally {
+        // try {
+        // if (resp != null) {
+        // resp.close();
+        // }
+        // } catch (IOException e) {
+        // log.error(e);
+        // }
+        // }
+        // }
+        //
+        // try {
+        // if (httpclient != null) {
+        // httpclient.close();
+        // }
+        // } catch (IOException e) {
+        // log.error(e);
+        // }
     }
 }
