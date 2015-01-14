@@ -22,22 +22,34 @@
 //==============================================================================
 package org.fao.geonet.kernel.security.ldap;
 
+import static java.util.Collections.singleton;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 
-import org.fao.geonet.domain.*;
-import org.fao.geonet.utils.Log;
 import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.domain.Group;
+import org.fao.geonet.domain.LDAPUser;
+import org.fao.geonet.domain.Profile;
+import org.fao.geonet.domain.User;
+import org.fao.geonet.domain.UserGroup;
+import org.fao.geonet.domain.UserGroupId;
+import org.fao.geonet.domain.UserGroupId_;
 import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.repository.UserGroupRepository;
 import org.fao.geonet.repository.UserRepository;
-
-import static java.util.Collections.singleton;
+import org.fao.geonet.repository.specification.UserGroupSpecs;
+import org.fao.geonet.utils.Log;
 
 public class LDAPUtils {
 	/**
@@ -87,7 +99,7 @@ public class LDAPUtils {
 
 		// Add user groups
 		if (importPrivilegesFromLdap) {
-            userGroupRepo.deleteAllByIdAttribute(UserGroupId_.userId, singleton(user.getUser().getId()));
+            List<UserGroup> ug = new LinkedList<UserGroup>();
 			for(Map.Entry<String, Profile> privilege : user.getPrivileges().entries()) {
 				// Add group privileges for each groups
 				
@@ -109,26 +121,11 @@ public class LDAPUtils {
                     if (Log.isDebugEnabled(Geonet.LDAP)) {
                         Log.debug(Geonet.LDAP, "  - Add LDAP group " + groupName + " for user.");
                     }
-                    UserGroupId usergroupId = new UserGroupId(user.getUser(), group);
                     UserGroup usergroup = new UserGroup();
-                    usergroup.setId(usergroupId);
                     usergroup.setGroup(group);
                     usergroup.setUser(toSave);
                     usergroup.setProfile(profile);
-				    userGroupRepo.save(usergroup);
-					
-						if (profile == Profile.Reviewer) {
-						    try {
-                                if (Log.isDebugEnabled(Geonet.LDAP)) {
-                                    Log.debug(Geonet.LDAP, "  - Profile is Reviewer; also adding Editor");
-                                }
-						    userGroupRepo.save(new UserGroup().setId(new UserGroupId(user.getUser(), group)).setProfile(Profile.Editor));
-						} catch (Exception e) {
-						    Log.debug(Geonet.LDAP,
-						            "  - User is already editor for that group."
-						                    + e.getMessage());
-						}
-					}
+				    ug.add(usergroup);
 				} else {
                     if (Log.isDebugEnabled(Geonet.LDAP)) {
                         Log.debug(Geonet.LDAP, "  - Can't create LDAP group " + groupName + " for user. "
@@ -136,7 +133,88 @@ public class LDAPUtils {
                     }
 				}
             }
+			
+			setUserGroups(userGroupRepo, toSave, ug);
         }
+    }
+    
+    private static void setUserGroups(UserGroupRepository userGroupRepo,
+            final User user, List<UserGroup> userGroups)
+            throws Exception {
+
+        Collection<UserGroup> all = userGroupRepo.findAll(UserGroupSpecs
+                .hasUserId(user.getId()));
+
+        // Have a quick reference of existing groups and profiles for this user
+        Set<String> listOfAddedProfiles = new HashSet<String>();
+        for (UserGroup ug : all) {
+            String key = ug.getProfile().name() + ug.getGroup().getId();
+            if (!listOfAddedProfiles.contains(key)) {
+                listOfAddedProfiles.add(key);
+            }
+        }
+
+        // We start removing all old usergroup objects. We will remove the
+        // explicitly defined for this call
+        Collection<UserGroup> toRemove = new ArrayList<UserGroup>();
+        toRemove.addAll(all);
+
+        // New pairs of group-profile we need to add
+        Collection<UserGroup> toAdd = new ArrayList<UserGroup>();
+
+        // For each of the parameters on the request, make sure the group is
+        // updated.
+        for (UserGroup element : userGroups) {
+            Group group = element.getGroup();
+            String profile = element.getProfile().name();
+            // The user has a new group and profile
+
+            // Combine all groups editor and reviewer groups
+            if (profile.equals(Profile.Reviewer.name())) {
+                final UserGroup userGroup = new UserGroup().setGroup(group)
+                        .setProfile(Profile.Editor).setUser(user);
+                String key = Profile.Editor.toString() + group.getId();
+                if (!listOfAddedProfiles.contains(key)) {
+                    toAdd.add(userGroup);
+                    listOfAddedProfiles.add(key);
+                }
+
+                // If the user is already part of this group with this profile,
+                // leave it alone:
+                for (UserGroup g : all) {
+                    if (g.getGroup().getId() == group.getId()
+                            && g.getProfile().equals(Profile.Editor)) {
+                        toRemove.remove(g);
+                    }
+                }
+            }
+
+            final UserGroup userGroup = new UserGroup().setGroup(group)
+                    .setProfile(Profile.findProfileIgnoreCase(profile))
+                    .setUser(user);
+            String key = profile + group.getId();
+            if (!listOfAddedProfiles.contains(key)) {
+                toAdd.add(userGroup);
+                listOfAddedProfiles.add(key);
+
+            }
+
+            // If the user is already part of this group with this profile,
+            // leave it alone:
+            for (UserGroup g : all) {
+                if (g.getGroup().getId() == group.getId()
+                        && g.getProfile().name().equalsIgnoreCase(profile)) {
+                    toRemove.remove(g);
+                }
+            }
+        }
+
+        // Remove deprecated usergroups (if any)
+        userGroupRepo.delete(toRemove);
+
+        // Add only new usergroups (if any)
+        userGroupRepo.save(toAdd);
+
     }
 
 	static Map<String, ArrayList<String>> convertAttributes(
