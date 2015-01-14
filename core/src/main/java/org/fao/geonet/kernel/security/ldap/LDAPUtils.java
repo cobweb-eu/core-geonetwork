@@ -22,8 +22,6 @@
 //==============================================================================
 package org.fao.geonet.kernel.security.ldap;
 
-import static java.util.Collections.singleton;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,8 +41,6 @@ import org.fao.geonet.domain.LDAPUser;
 import org.fao.geonet.domain.Profile;
 import org.fao.geonet.domain.User;
 import org.fao.geonet.domain.UserGroup;
-import org.fao.geonet.domain.UserGroupId;
-import org.fao.geonet.domain.UserGroupId_;
 import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.repository.UserGroupRepository;
 import org.fao.geonet.repository.UserRepository;
@@ -52,17 +48,19 @@ import org.fao.geonet.repository.specification.UserGroupSpecs;
 import org.fao.geonet.utils.Log;
 
 public class LDAPUtils {
-	/**
-	 * Save or update an LDAP user to the local GeoNetwork database.
-	 * 
-	 * TODO : test when a duplicate username is in the local DB and from an LDAP
-	 * Unique key constraint should return errors.
-	 * 
-	 * @param user
-	 * @throws Exception
-	 */
-    static synchronized void saveUser(LDAPUser user, UserRepository userRepo, GroupRepository groupRepo, UserGroupRepository userGroupRepo,
-            boolean importPrivilegesFromLdap, boolean createNonExistingLdapGroup) throws Exception {
+    /**
+     * Save or update an LDAP user to the local GeoNetwork database.
+     * 
+     * TODO : test when a duplicate username is in the local DB and from an LDAP
+     * Unique key constraint should return errors.
+     * 
+     * @param user
+     * @throws Exception
+     */
+    static synchronized void saveUser(LDAPUser user, UserRepository userRepo,
+            GroupRepository groupRepo, UserGroupRepository userGroupRepo,
+            boolean importPrivilegesFromLdap, boolean createNonExistingLdapGroup)
+            throws Exception {
         String userName = user.getUsername();
         if (Log.isDebugEnabled(Geonet.LDAP)) {
             Log.debug(Geonet.LDAP, "LDAP user sync for " + userName + " ...");
@@ -79,17 +77,17 @@ public class LDAPUtils {
             }
             loadedUser.mergeUser(user.getUser(), false);
             if (Log.isDebugEnabled(Geonet.LDAP)) {
-                Log.debug(Geonet.LDAP, "  - Update LDAP user " + user.getUsername() + " (" + loadedUser.getId() + ") in local database.");
+                Log.debug(Geonet.LDAP,
+                        "  - Update LDAP user " + user.getUsername() + " ("
+                                + loadedUser.getId() + ") in local database.");
             }
             toSave = loadedUser;
 
-            // Delete user groups
-            if (importPrivilegesFromLdap) {
-                userGroupRepo.deleteAllByIdAttribute(UserGroupId_.userId, singleton(toSave.getId()));
-            }
         } else {
             if (Log.isDebugEnabled(Geonet.LDAP)) {
-                Log.debug(Geonet.LDAP, "  - Saving new LDAP user " + user.getUsername() + " to database.");
+                Log.debug(Geonet.LDAP,
+                        "  - Saving new LDAP user " + user.getUsername()
+                                + " to database.");
             }
             toSave = user.getUser();
         }
@@ -97,54 +95,72 @@ public class LDAPUtils {
         toSave = userRepo.save(toSave);
         user.setUser(toSave);
 
-		// Add user groups
-		if (importPrivilegesFromLdap) {
+        // Add user groups
+        if (importPrivilegesFromLdap) {
             List<UserGroup> ug = new LinkedList<UserGroup>();
-			for(Map.Entry<String, Profile> privilege : user.getPrivileges().entries()) {
-				// Add group privileges for each groups
-				
-				// Retrieve group id
-				String groupName = privilege.getKey();
-				Profile profile = privilege.getValue();
-				
-				Group group = groupRepo.findByName(groupName);
-				
-				if (group == null && createNonExistingLdapGroup) {
-				    group = new Group().setName(groupName);
-				    group = groupRepo.save(group);
-				    
-				    if (Log.isDebugEnabled(Geonet.LDAP)) {
-                        Log.debug(Geonet.LDAP, "  - Add LDAP group " + groupName + " for user.");
-                    }
-				}
-				if (group != null) {
+            for (Map.Entry<String, Profile> privilege : user.getPrivileges()
+                    .entries()) {
+                // Add group privileges for each groups
+
+                // Retrieve group id
+                String groupName = privilege.getKey();
+                Profile profile = privilege.getValue();
+
+                Group group = groupRepo.findByName(groupName);
+
+                if (group == null && createNonExistingLdapGroup) {
+                    group = new Group().setName(groupName);
+                    group = groupRepo.save(group);
+
                     if (Log.isDebugEnabled(Geonet.LDAP)) {
-                        Log.debug(Geonet.LDAP, "  - Add LDAP group " + groupName + " for user.");
+                        Log.debug(Geonet.LDAP, "  - Add LDAP group "
+                                + groupName + " for user.");
+                    }
+                }
+                if (group != null) {
+                    if (Log.isDebugEnabled(Geonet.LDAP)) {
+                        Log.debug(Geonet.LDAP, "  - Add LDAP group "
+                                + groupName + " for user.");
                     }
                     UserGroup usergroup = new UserGroup();
                     usergroup.setGroup(group);
                     usergroup.setUser(toSave);
                     usergroup.setProfile(profile);
-				    ug.add(usergroup);
-				} else {
+                    ug.add(usergroup);
+                } else {
                     if (Log.isDebugEnabled(Geonet.LDAP)) {
-                        Log.debug(Geonet.LDAP, "  - Can't create LDAP group " + groupName + " for user. "
-                                + "Group does not exist in local database or createNonExistingLdapGroup is set to false.");
+                        Log.debug(
+                                Geonet.LDAP,
+                                "  - Can't create LDAP group "
+                                        + groupName
+                                        + " for user. "
+                                        + "Group does not exist in local database or createNonExistingLdapGroup is set to false.");
                     }
-				}
+                }
             }
-			
-			setUserGroups(userGroupRepo, toSave, ug);
+
+            setUserGroups(userGroupRepo, toSave, ug);
         }
     }
-    
-    private static void setUserGroups(UserGroupRepository userGroupRepo,
-            final User user, List<UserGroup> userGroups)
-            throws Exception {
 
+    private static void setUserGroups(UserGroupRepository userGroupRepo,
+            final User user, List<UserGroup> userGroups) throws Exception {
+
+        userGroupRepo.flush();
         Collection<UserGroup> all = userGroupRepo.findAll(UserGroupSpecs
                 .hasUserId(user.getId()));
 
+        if (Log.isTraceEnabled(Log.JEEVES)) {
+            Log.trace(
+                    Log.JEEVES,
+                    "Current usergroups:"
+                            + UserGroupSpecs.hasUserId(user.getId()));
+            Log.trace(Log.JEEVES, all.size());
+
+            for (UserGroup g : all) {
+                Log.trace(Log.JEEVES, g);
+            }
+        }
         // Have a quick reference of existing groups and profiles for this user
         Set<String> listOfAddedProfiles = new HashSet<String>();
         for (UserGroup ug : all) {
@@ -217,34 +233,34 @@ public class LDAPUtils {
 
     }
 
-	static Map<String, ArrayList<String>> convertAttributes(
-			NamingEnumeration<? extends Attribute> attributesEnumeration) {
-		Map<String, ArrayList<String>> userInfo = new HashMap<String, ArrayList<String>>();
-		try {
-			while (attributesEnumeration.hasMore()) {
-				Attribute attr = attributesEnumeration.next();
-				String id = attr.getID();
-				
-				ArrayList<String> values = userInfo.get(id);
-				if (values == null) {
-					values = new ArrayList<String>();
-					userInfo.put(id, values);
-				}
-				
-				// --- loop on all attribute's values
-				NamingEnumeration<?> valueEnum = attr.getAll();
-				
-				while (valueEnum.hasMore()) {
-					Object value = valueEnum.next();
-					// Only retrieve String attribute
-					if (value instanceof String) {
-						values.add((String) value);
-					}
-				}
-			}
-		} catch (NamingException e) {
-			e.printStackTrace();
-		}
-		return userInfo;
-	}
+    static Map<String, ArrayList<String>> convertAttributes(
+            NamingEnumeration<? extends Attribute> attributesEnumeration) {
+        Map<String, ArrayList<String>> userInfo = new HashMap<String, ArrayList<String>>();
+        try {
+            while (attributesEnumeration.hasMore()) {
+                Attribute attr = attributesEnumeration.next();
+                String id = attr.getID();
+
+                ArrayList<String> values = userInfo.get(id);
+                if (values == null) {
+                    values = new ArrayList<String>();
+                    userInfo.put(id, values);
+                }
+
+                // --- loop on all attribute's values
+                NamingEnumeration<?> valueEnum = attr.getAll();
+
+                while (valueEnum.hasMore()) {
+                    Object value = valueEnum.next();
+                    // Only retrieve String attribute
+                    if (value instanceof String) {
+                        values.add((String) value);
+                    }
+                }
+            }
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
+        return userInfo;
+    }
 }
