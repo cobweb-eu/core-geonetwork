@@ -34,6 +34,8 @@ import java.util.Set;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Group;
@@ -46,25 +48,55 @@ import org.fao.geonet.repository.UserGroupRepository;
 import org.fao.geonet.repository.UserRepository;
 import org.fao.geonet.repository.specification.UserGroupSpecs;
 import org.fao.geonet.utils.Log;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public class LDAPUtils {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Autowired
+    private UserRepository userRepo;
+
+    @Autowired
+    private GroupRepository groupRepo;
+
+    @Autowired
+    private UserGroupRepository userGroupRepo;
+
     /**
      * Save or update an LDAP user to the local GeoNetwork database.
      * 
-     * TODO : test when a duplicate username is in the local DB and from an LDAP
-     * Unique key constraint should return errors.
      * 
      * @param user
      * @throws Exception
      */
-    static synchronized void saveUser(LDAPUser user, UserRepository userRepo,
-            GroupRepository groupRepo, UserGroupRepository userGroupRepo,
+    
+    @Transactional
+    public synchronized void saveUser(LDAPUser user,
             boolean importPrivilegesFromLdap, boolean createNonExistingLdapGroup)
             throws Exception {
         String userName = user.getUsername();
         if (Log.isDebugEnabled(Geonet.LDAP)) {
             Log.debug(Geonet.LDAP, "LDAP user sync for " + userName + " ...");
         }
+        User toSave = getUser(user, importPrivilegesFromLdap, userName);
+
+        // Add user groups
+        if (importPrivilegesFromLdap) {
+            entityManager.flush();
+            entityManager.clear();
+            List<UserGroup> ug = getPrivilegesAndCreateGroups(user,
+                    createNonExistingLdapGroup, toSave);
+            entityManager.flush();
+            setUserGroups(toSave, ug);
+        }
+    }
+
+    @Transactional
+    private User getUser(LDAPUser user, boolean importPrivilegesFromLdap,
+            String userName) {
         User loadedUser = userRepo.findOneByUsername(userName);
         User toSave;
         if (loadedUser != null) {
@@ -94,59 +126,60 @@ public class LDAPUtils {
         toSave.getSecurity().setAuthType(LDAPConstants.LDAP_FLAG);
         toSave = userRepo.save(toSave);
         user.setUser(toSave);
-
-        // Add user groups
-        if (importPrivilegesFromLdap) {
-            List<UserGroup> ug = new LinkedList<UserGroup>();
-            for (Map.Entry<String, Profile> privilege : user.getPrivileges()
-                    .entries()) {
-                // Add group privileges for each groups
-
-                // Retrieve group id
-                String groupName = privilege.getKey();
-                Profile profile = privilege.getValue();
-
-                Group group = groupRepo.findByName(groupName);
-
-                if (group == null && createNonExistingLdapGroup) {
-                    group = new Group().setName(groupName);
-                    group = groupRepo.save(group);
-
-                    if (Log.isDebugEnabled(Geonet.LDAP)) {
-                        Log.debug(Geonet.LDAP, "  - Add LDAP group "
-                                + groupName + " for user.");
-                    }
-                }
-                if (group != null) {
-                    if (Log.isDebugEnabled(Geonet.LDAP)) {
-                        Log.debug(Geonet.LDAP, "  - Add LDAP group "
-                                + groupName + " for user.");
-                    }
-                    UserGroup usergroup = new UserGroup();
-                    usergroup.setGroup(group);
-                    usergroup.setUser(toSave);
-                    usergroup.setProfile(profile);
-                    ug.add(usergroup);
-                } else {
-                    if (Log.isDebugEnabled(Geonet.LDAP)) {
-                        Log.debug(
-                                Geonet.LDAP,
-                                "  - Can't create LDAP group "
-                                        + groupName
-                                        + " for user. "
-                                        + "Group does not exist in local database or createNonExistingLdapGroup is set to false.");
-                    }
-                }
-            }
-
-            setUserGroups(userGroupRepo, toSave, ug);
-        }
+        return toSave;
     }
 
-    private static void setUserGroups(UserGroupRepository userGroupRepo,
-            final User user, List<UserGroup> userGroups) throws Exception {
+    @Transactional
+    private List<UserGroup> getPrivilegesAndCreateGroups(LDAPUser user,
+            boolean createNonExistingLdapGroup, User toSave) {
+        List<UserGroup> ug = new LinkedList<UserGroup>();
+        for (Map.Entry<String, Profile> privilege : user.getPrivileges()
+                .entries()) {
+            // Add group privileges for each groups
 
-        userGroupRepo.flush();
+            // Retrieve group id
+            String groupName = privilege.getKey();
+            Profile profile = privilege.getValue();
+
+            Group group = groupRepo.findByName(groupName);
+
+            if (group == null && createNonExistingLdapGroup) {
+                group = new Group().setName(groupName);
+                group = groupRepo.save(group);
+
+                if (Log.isDebugEnabled(Geonet.LDAP)) {
+                    Log.debug(Geonet.LDAP, "  - Add LDAP group " + groupName
+                            + " for user.");
+                }
+            }
+            if (group != null) {
+                if (Log.isDebugEnabled(Geonet.LDAP)) {
+                    Log.debug(Geonet.LDAP, "  - Add LDAP group " + groupName
+                            + " for user.");
+                }
+                UserGroup usergroup = new UserGroup();
+                usergroup.setGroup(group);
+                usergroup.setUser(toSave);
+                usergroup.setProfile(profile);
+                ug.add(usergroup);
+            } else {
+                if (Log.isDebugEnabled(Geonet.LDAP)) {
+                    Log.debug(
+                            Geonet.LDAP,
+                            "  - Can't create LDAP group "
+                                    + groupName
+                                    + " for user. "
+                                    + "Group does not exist in local database or createNonExistingLdapGroup is set to false.");
+                }
+            }
+        }
+        return ug;
+    }
+
+    @Transactional
+    private void setUserGroups(final User user, List<UserGroup> userGroups)
+            throws Exception {
+
         Collection<UserGroup> all = userGroupRepo.findAll(UserGroupSpecs
                 .hasUserId(user.getId()));
 
@@ -227,13 +260,16 @@ public class LDAPUtils {
 
         // Remove deprecated usergroups (if any)
         userGroupRepo.delete(toRemove);
+        entityManager.flush();
+        entityManager.clear();
 
         // Add only new usergroups (if any)
         userGroupRepo.save(toAdd);
+        entityManager.flush();
 
     }
 
-    static Map<String, ArrayList<String>> convertAttributes(
+    protected Map<String, ArrayList<String>> convertAttributes(
             NamingEnumeration<? extends Attribute> attributesEnumeration) {
         Map<String, ArrayList<String>> userInfo = new HashMap<String, ArrayList<String>>();
         try {

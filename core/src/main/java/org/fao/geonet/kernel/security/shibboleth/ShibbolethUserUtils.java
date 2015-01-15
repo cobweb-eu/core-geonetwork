@@ -37,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  *
@@ -47,6 +49,7 @@ public class ShibbolethUserUtils {
 	@Autowired
 	private UserRepository _userRepository;
 
+
 	@Autowired
 	private GroupRepository _groupRepository;
 
@@ -55,6 +58,7 @@ public class ShibbolethUserUtils {
 
 	private UserDetailsManager userDetailsManager;
 	private WritableUserDetailsContextMapper udetailsmapper;
+
 
 	static MinimalUser parseUser(ServletRequest request,
 			ResourceManager resourceManager, ProfileManager profileManager,
@@ -131,23 +135,29 @@ public class ShibbolethUserUtils {
 	 * @return the inserted/updated user or null if no valid user found or any
 	 *         error happened
 	 */
+	@Transactional
 	protected UserDetails setupUser(ServletRequest request,
 			ShibbolethUserConfiguration config) throws Exception {
-		
+
 		// Read in the data from the headers
 		HttpServletRequest req = (HttpServletRequest) request;
 
 		String username = getHeader(req, config.getUsernameKey(), "");
 		String surname = getHeader(req, config.getSurnameKey(), "");
 		String firstname = getHeader(req, config.getFirstnameKey(), "");
+		String email = getHeader(req, config.getEmailKey(), "");
 		Profile profile = Profile.findProfileIgnoreCase(getHeader(req,
 				config.getProfileKey(), ""));
 		String group = getHeader(req, config.getGroupKey(), "");
 
-		if (username != null && username.trim().length() > 0) { 
-			// TODO ....add other constraints to be sure it's
-			// a real shibboleth login and not fake
-			//Depends on the shibboleth configuration?
+		if (username != null && username.trim().length() > 0) { // ....add other
+																// cnstraints to
+																// be sure it's
+																// a real
+																// shibbolet
+																// login and not
+																// fake
+
 
 			// Make sure the profile name is an exact match
 			if (profile == null) {
@@ -178,6 +188,7 @@ public class ShibbolethUserUtils {
 
 			}
 
+
 			if (udetailsmapper != null) { 
 				//If is not null, we may want to write to ldap if user does not exist
 				LDAPUser ldapUserDetails = null;
@@ -192,9 +203,15 @@ public class ShibbolethUserUtils {
 					ldapUserDetails = new LDAPUser(username);
 					ldapUserDetails.getUser().setName(firstname)
 							.setSurname(surname);
+
 					ldapUserDetails.getUser().setProfile(profile);
 					ldapUserDetails.getUser().getEmailAddresses().clear();
-					ldapUserDetails.getUser().getEmailAddresses().add(username + "@unknownIdp");
+					if(StringUtils.isEmpty(email)) {
+						ldapUserDetails.getUser().getEmailAddresses().add(username + "@unknownIdp");
+					} else
+					{
+						ldapUserDetails.getUser().getEmailAddresses().add(email);
+					}
 				}
 				
 				udetailsmapper.saveUser(ldapUserDetails);
@@ -247,6 +264,7 @@ public class ShibbolethUserUtils {
 	public void setAuthProvider(GeonetworkAuthenticationProvider authProvider) {
 		this.authProvider = authProvider;
 	}
+
 
 	public WritableUserDetailsContextMapper getUdetailsmapper() {
 		return udetailsmapper;
