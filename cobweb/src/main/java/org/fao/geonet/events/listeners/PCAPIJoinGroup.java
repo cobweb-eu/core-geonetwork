@@ -5,16 +5,11 @@ import static org.fao.geonet.repository.specification.UserGroupSpecs.hasProfile;
 import static org.fao.geonet.repository.specification.UserGroupSpecs.hasUserId;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.fao.geonet.domain.Group;
 import org.fao.geonet.domain.Profile;
 import org.fao.geonet.domain.User;
@@ -27,6 +22,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Warns PCAPI when a user has joined a survey. If the user joins as
@@ -43,10 +40,13 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
 
     @Autowired
     private UserGroupRepository userGroupRepo;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private org.fao.geonet.Logger log = Log.createLogger("cobweb");
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onApplicationEvent(GroupJoined event) {
 
         User user = event.getUserGroup().getUser();
@@ -65,7 +65,8 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
                     .where(hasGroupId(group.getId()))
                     .and(Specifications.not(hasUserId(user.getId())))
                     .and(hasProfile(Profile.UserAdmin)));
-            userGroupRepo.flush();
+            entityManager.flush();
+            entityManager.clear();
 
         }
 
@@ -79,31 +80,29 @@ public class PCAPIJoinGroup implements ApplicationListener<GroupJoined> {
             log.error("Assign a coordinator as soon as possible!");
             log.error("User " + user.getUsername() + " can't join survey "
                     + group.getName());
-            userGroupRepo.saveAndFlush(event.getUserGroup());
         } else if (userGroups.size() > 1) {
             log.error("Survey " + group.getName() + " corrupted!");
-            log.error("Fixing survey " + group.getName()
-                    + " by removing all coordinators except the first one");
-            for (int i = 1; i < userGroups.size(); i++) {
-                userGroupRepo.delete(userGroups.get(i));
-            }
-            userGroupRepo.flush();
+            log.error("Assign a coordinator as soon as possible!");
+            log.error("User " + user.getUsername() + " can't join survey "
+                    + group.getName());
         } else {
             coordinator = userGroups.get(0).getUser();
         }
 
-        String params = " " + user.getUsername() + " "
-                + coordinator.getUsername() + " JOIN";
+        if (coordinator != null) {
+            String params = " " + user.getUsername() + " "
+                    + coordinator.getUsername() + " JOIN";
 
-        try {
-            Process exec = Runtime.getRuntime().exec(PCAPI_URL + params);
-            exec.waitFor();
-            log.debug("Executed '" + PCAPI_URL + params + "' -> " 
-                    + exec.exitValue());
-        } catch (IOException e) {
-            log.error(e);
-        } catch (InterruptedException e) {
-            log.error(e);
+            try {
+                Process exec = Runtime.getRuntime().exec(PCAPI_URL + params);
+                exec.waitFor();
+                log.debug("Executed '" + PCAPI_URL + params + "' -> "
+                        + exec.exitValue());
+            } catch (IOException e) {
+                log.error(e);
+            } catch (InterruptedException e) {
+                log.error(e);
+            }
         }
 
         // if (isCoordinator) {
