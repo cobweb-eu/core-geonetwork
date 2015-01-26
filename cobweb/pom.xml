@@ -13,8 +13,13 @@
   <url>http://cobwebproject.eu</url>
   <dependencies>
     <dependency>
-        <groupId>org.geonetwork-opensource</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>events</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>core</artifactId>
         <version>${project.version}</version>
     </dependency>
   </dependencies>
