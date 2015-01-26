@@ -51,6 +51,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.userdetails.InetOrgPerson;
 import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.util.StringUtils;
 
 /**
  * Map LDAP user information to GeoNetworkUser information.
@@ -91,6 +92,13 @@ public abstract class AbstractLDAPUserDetailsContextMapper implements
 		ctx.setAttributeValue("sn", user.getUsername());
 		ctx.setAttributeValue("cn", user.getUsername());
 		ctx.setAttributeValue("uid", user.getUsername());
+		
+		if(user instanceof InetOrgPerson) {
+			InetOrgPerson p = (InetOrgPerson) user;
+			ctx.setAttributeValue("mail", p.getMail());
+			ctx.setAttributeValue("displayName", p.getDisplayName());
+			ctx.setAttributeValue("sn", p.getSn());
+		}
 	}
 
 	@Override
@@ -176,8 +184,20 @@ public abstract class AbstractLDAPUserDetailsContextMapper implements
 				InetOrgPerson.Essence p = new InetOrgPerson.Essence(userDetails);
 				p.setDn(ldapBaseDnPattern.replace("{0}",
 						userDetails.getUsername()));
-				p.setSn(userDetails.getUsername());
+				String surname = userDetails.getUser().getSurname();
+				if(StringUtils.isEmpty(surname)) {
+					//sn is usually mandatory on LDAP
+					surname = userDetails.getUsername();
+				}
+				p.setSn(surname);
 				p.setUid(userDetails.getUsername());
+				p.setMail(userDetails.getUser().getEmail());
+				String name = userDetails.getUser().getName();
+				if(StringUtils.isEmpty(name)) {
+					//displayname is usually mandatory too
+					name = userDetails.getUsername();
+				}
+				p.setDisplayName(name);
 				String[] cn = ldapBaseDn.split(",");
 				for (int i = 0; i < cn.length; i++) {
 					cn[i] = cn[i].substring(cn[i].indexOf("=") + 1);
