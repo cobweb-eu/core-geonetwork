@@ -27,9 +27,9 @@
 		class="org.fao.geonet.kernel.security.shibboleth.ShibbolethUserUtils">
 		<property name="_userRepository" ref="userRepository" />
 		<property name="_groupRepository" ref="groupRepository" />
+		<property name="udetailsmapper" ref="ldapUserContextMapper"/>
 		<property name="authProvider" ref="geonetworkAuthenticationProvider" />
-		<!-- <property name="userDetailsManager" ref="ldapUserDetailsService" /> -->
-		<!-- <property name="udetailsmapper" ref="ldapUserContextMapper"/> -->
+		<property name="userDetailsManager" ref="ldapUserDetailsService" />
 	</bean>
 
 	<!-- Configuration bean -->
@@ -49,7 +49,8 @@
 	<!-- replace the default entry point -->
 	<bean id="shibAuthenticationEntryPoint"
 		class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-		<property name="loginFormUrl" value="/login.jsp" /> 
+		<!--<property name="loginFormUrl" value="/login.jsp" /> -->
+	    <property name="loginFormUrl" value="/.." />
 	</bean>
 
 	<alias name="shibAuthenticationEntryPoint" alias="authenticationEntryPoint" />
@@ -61,7 +62,7 @@
 		class="org.springframework.security.web.DefaultSecurityFilterChain">
 		<constructor-arg>
 			<bean class="org.springframework.security.web.util.AntPathRequestMatcher">
-				<constructor-arg value="/srv/???/shib.user.login" />
+				<constructor-arg value="/public/???/shib.user.login" />
 			</bean>
 		</constructor-arg>
 		<constructor-arg>
