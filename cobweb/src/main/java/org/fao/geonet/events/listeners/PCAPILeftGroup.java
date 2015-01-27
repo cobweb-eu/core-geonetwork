@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  * 
  *
  */
-@Component
+//@Component
 public class PCAPILeftGroup implements ApplicationListener<GroupLeft> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;

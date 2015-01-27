@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class PCAPISecurity implements ApplicationListener<MetadataUpdate> {
     @Value("#{cobweb.PCAPI_URL}")
     private String PCAPI_URL;
