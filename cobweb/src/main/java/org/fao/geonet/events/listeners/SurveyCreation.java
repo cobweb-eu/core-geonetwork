@@ -60,7 +60,7 @@ public class SurveyCreation implements ApplicationListener<MetadataUpdate> {
     private org.fao.geonet.Logger log = Log.createLogger("cobweb");
 
     @Override
-    @Transactional(propagation=Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onApplicationEvent(MetadataUpdate event) {
         Metadata md = event.getMd();
         log.debug("Metadata " + md.getDataInfo().getTitle() + " ["
@@ -88,7 +88,8 @@ public class SurveyCreation implements ApplicationListener<MetadataUpdate> {
                 int opId = ReservedOperation.view.getId();
                 List<Integer> groupIds = groupRepo.findIds();
                 for (Integer grpId : groupIds) {
-                    if (!ReservedGroup.isReserved(grpId)) {
+                    if (!(ReservedGroup.isReserved(grpId) || md.getSourceInfo()
+                            .getGroupOwner().equals(grpId))) {
                         Optional<OperationAllowed> opAllowed = Optional
                                 .of(new OperationAllowed(
                                         new OperationAllowedId()
