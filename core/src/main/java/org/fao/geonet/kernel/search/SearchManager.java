@@ -718,7 +718,7 @@ public class SearchManager {
             moreFields.add(SearchManager.makeField(INDEXING_ERROR_MSG, "GNIDX-GEOWRITE||" + e.getMessage(), true, false));
         }
         Map<String, String> errors = _spatial.writer().getErrorMessage();
-        if (errors.size() > 0) {
+        if (errors != null && errors.size() > 0) {
             for (Entry<String, String> e : errors.entrySet()) {
             moreFields.add(SearchManager.makeField(INDEXING_ERROR_FIELD, "1", true, true));
             moreFields.add(SearchManager.makeField(INDEXING_ERROR_MSG, "GNIDX-GEO|" + e.getKey() + "|" + e.getValue(), true, false));
