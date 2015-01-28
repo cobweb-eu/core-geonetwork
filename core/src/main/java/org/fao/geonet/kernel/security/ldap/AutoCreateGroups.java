@@ -16,6 +16,8 @@ import org.fao.geonet.domain.Profile;
 import org.fao.geonet.events.group.GroupCreated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -31,7 +33,7 @@ import org.springframework.util.StringUtils;
  * 
  * 
  */
-public class AutoCreateGroups implements ApplicationListener<GroupCreated> {
+public class AutoCreateGroups implements ApplicationListener<GroupCreated>, Ordered  {
     private final Log logger = LogFactory.getLog(AutoCreateGroups.class);
 
     private static Integer lastGidNumber = null;
@@ -182,5 +184,14 @@ public class AutoCreateGroups implements ApplicationListener<GroupCreated> {
             return Integer
                     .valueOf(attributes.get("gidNumber").get().toString());
         }
+    }
+    
+    /**
+     * @see org.springframework.core.Ordered#getOrder()
+     * @return
+     */
+    @Override
+    public int getOrder() {
+        return PriorityOrdered.HIGHEST_PRECEDENCE;
     }
 }
