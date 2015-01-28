@@ -32,7 +32,7 @@ public class ShibbolethUserConfiguration {
     private String surnameKey;
     private String firstnameKey;
     private String profileKey;
-    private String groupKey;    
+    private String groupKey;
     private String emailKey;
 
     private String defaultGroup;
@@ -109,14 +109,13 @@ public class ShibbolethUserConfiguration {
     public void setUpdateGroup(boolean updateGroup) {
         this.updateGroup = updateGroup;
     }
+    public String getEmailKey() {
+        return emailKey;
+    }
 
-	public String getEmailKey() {
-		return emailKey;
-	}
-
-	public void setEmailKey(String emailKey) {
-		this.emailKey = emailKey;
-	}
+    public void setEmailKey(String emailKey) {
+        this.emailKey = emailKey;
+    }
 }
 
 

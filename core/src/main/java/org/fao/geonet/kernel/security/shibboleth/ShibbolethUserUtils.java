@@ -20,9 +20,6 @@
 
 package org.fao.geonet.kernel.security.shibboleth;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
 import jeeves.component.ProfileManager;
 
 import org.apache.batik.util.resources.ResourceManager;
@@ -36,7 +33,10 @@ import org.fao.geonet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import javax.servlet.ServletRequest;
 import org.springframework.security.provisioning.UserDetailsManager;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -148,7 +148,8 @@ public class ShibbolethUserUtils {
 		String email = getHeader(req, config.getEmailKey(), "");
 		Profile profile = Profile.findProfileIgnoreCase(getHeader(req,
 				config.getProfileKey(), ""));
-		String group = getHeader(req, config.getGroupKey(), "");
+		// TODO add group to user
+		//String group = getHeader(req, config.getGroupKey(), "");
 
 		if (username != null && username.trim().length() > 0) { // ....add other
 																// cnstraints to
@@ -158,15 +159,16 @@ public class ShibbolethUserUtils {
 																// login and not
 																// fake
 
-
 			// Make sure the profile name is an exact match
 			if (profile == null) {
 				profile = Profile.Guest;
 			}
 
-			if (group.equals("")) {
-				group = config.getDefaultGroup();
-			}
+			// TODO add group to user
+			//if (group.equals("")) {
+			//	group = config.getDefaultGroup();
+			//}
+
 
 			// FIXME: needed? only accept the first 256 chars
 			if (username.length() > 256) {
@@ -178,10 +180,10 @@ public class ShibbolethUserUtils {
 			try {
 				user = (User) authProvider.loadUserByUsername(username);
 			} catch (UsernameNotFoundException e) {
-				((User) user).setUsername(username);
-				((User) user).setSurname(surname);
-				((User) user).setName(firstname);
-				((User) user).setProfile(profile);
+				user.setUsername(username);
+				user.setSurname(surname);
+				user.setName(firstname);
+				user.setProfile(profile);
 
 				// TODO add group to user
 				// Group g = _groupRepository.findByName(group);

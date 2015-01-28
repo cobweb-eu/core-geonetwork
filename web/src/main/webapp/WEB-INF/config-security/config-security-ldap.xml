@@ -214,7 +214,7 @@
         <!-- Map role names with role identifiers -->
         <property name="profileMapping">
             <map>
-                <entry key="Administrator" value="GEOCAT" />
+                <entry key="Administrator" value="ADMINISTRATOR" />
                 <entry key="UserAdmin" value="USERADMIN" />
                 <entry key="Reviewer" value="REVIEWER" />
                 <entry key="Editor" value="EDITOR" />
