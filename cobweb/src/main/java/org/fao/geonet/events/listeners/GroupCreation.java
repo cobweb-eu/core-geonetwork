@@ -57,6 +57,9 @@ public class GroupCreation implements ApplicationListener<GroupCreated>, Ordered
     public void onApplicationEvent(GroupCreated event) {
         entityManager.flush();
         final Group group = groupRepo.findByName(event.getGroup().getName());
+        if(group == null){
+            return;
+        }
         log.debug("Group " + group.getName() + " [" + group.getId()
                 + "] created");
 
