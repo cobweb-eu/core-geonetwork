@@ -457,7 +457,7 @@ public class JeevesEngine {
                 _monitorManager.initMonitorsForApp(srvContext);
 
 				info("--- Handler started ---------------------------------------");
-			} catch (Exception e) {
+			} catch (Throwable e) {
                 Map<String, String> errors = new HashMap<String, String>();
                 String eS = "Raised exception while starting the application. " +
                         "Fix the error and restart.";
@@ -477,6 +477,7 @@ public class JeevesEngine {
                 if (!_serviceMan.isStartupError()) {
                     _serviceMan.setStartupErrors(errors);
                 }
+                e.printStackTrace();
             }
 		}
 	}
