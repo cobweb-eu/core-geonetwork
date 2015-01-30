@@ -196,7 +196,6 @@ public class ShibbolethUserUtils {
 					ldapUserDetails = (LDAPUser) userDetailsManager
 							.loadUserByUsername(username);
 				} catch (Throwable t) {
-					t.printStackTrace();
 				}
 				
 				if(ldapUserDetails == null) {
