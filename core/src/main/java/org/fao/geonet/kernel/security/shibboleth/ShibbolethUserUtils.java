@@ -34,6 +34,7 @@ import org.fao.geonet.kernel.security.WritableUserDetailsContextMapper;
 import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -211,6 +212,10 @@ public class ShibbolethUserUtils {
 					{
 						ldapUserDetails.getUser().getEmailAddresses().add(email);
 					}
+					
+					//Cobweb specific: save user on default anonsurvey group as registered user
+					ldapUserDetails.getUser().getAuthorities().add(
+					        new SimpleGrantedAuthority("anonsurvey_USER"));
 				}
 				
 				udetailsmapper.saveUser(ldapUserDetails);
