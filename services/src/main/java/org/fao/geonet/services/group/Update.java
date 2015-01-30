@@ -23,26 +23,44 @@
 
 package org.fao.geonet.services.group;
 
-import jeeves.constants.Jeeves;
-import jeeves.server.ServiceConfig;
-import jeeves.server.context.ServiceContext;
-import org.fao.geonet.Util;
-import org.fao.geonet.constants.Params;
-import org.fao.geonet.domain.Group;
-import org.fao.geonet.domain.Language;
-import org.fao.geonet.repository.GroupRepository;
-import org.fao.geonet.repository.LanguageRepository;
-import org.fao.geonet.repository.Updater;
-import org.fao.geonet.resources.Resources;
-import org.fao.geonet.services.NotInReadOnlyModeService;
-import org.jdom.Element;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import jeeves.constants.Jeeves;
+import jeeves.server.ServiceConfig;
+import jeeves.server.context.ServiceContext;
+
+import org.fao.geonet.Util;
+import org.fao.geonet.constants.Params;
+import org.fao.geonet.domain.Group;
+import org.fao.geonet.domain.Group_;
+import org.fao.geonet.domain.Language;
+import org.fao.geonet.domain.Profile;
+import org.fao.geonet.domain.User;
+import org.fao.geonet.domain.UserGroup;
+import org.fao.geonet.repository.GroupRepository;
+import org.fao.geonet.repository.LanguageRepository;
+import org.fao.geonet.repository.Updater;
+import org.fao.geonet.repository.UserGroupRepository;
+import org.fao.geonet.repository.UserRepository;
+import org.fao.geonet.resources.Resources;
+import org.fao.geonet.services.NotInReadOnlyModeService;
+import org.jdom.Element;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 /**
@@ -58,9 +76,9 @@ public class Update extends NotInReadOnlyModeService {
     //---
     //--------------------------------------------------------------------------
 
-    public Element serviceSpecificExec(final Element params, final ServiceContext context) throws Exception {
+    public synchronized Element serviceSpecificExec(final Element params, final ServiceContext context) throws Exception {
         final String id = params.getChildText(Params.ID);
-        final String name = Util.getParam(params, Params.NAME);
+        final String name = Util.getParam(params, Params.NAME, "Cobweb");
         final String description = Util.getParam(params, Params.DESCRIPTION, "");
         final String email = params.getChildText(Params.EMAIL);
         String website = params.getChildText("website");
@@ -90,8 +108,49 @@ public class Update extends NotInReadOnlyModeService {
             for (Language l : allLanguages) {
                 group.getLabelTranslations().put(l.getId(), name);
             }
+            
+            //Cobweb do not allow duplicated groupnames
+            //First search if we have the groupname taken:
+            Specification<Group> spec = new Specification<Group>(){
+                @Override
+                public Predicate toPredicate(Root<Group> root,
+                        CriteriaQuery<?> query, CriteriaBuilder cb) {
+                    return cb.equal(root.get(Group_.name), name);
+                }
+            };
+            if(groupRepository.count(spec) > 0) {
+                //Search for the highest id we have already used on this groupname:
+                EntityManager em = context.getBean(EntityManagerFactory.class).createEntityManager();
+                Query query = em.createNativeQuery(
+                        "select  cast(substring(name, " + (name.length() + 1) + 
+                                ") as integer) as ident" +
+                                " from groups where name ~ '" + name + "\\d+' "
+                                + "order by ident desc limit 1");
+                Integer highestName = Integer.valueOf(query.getSingleResult().toString());
+                group.setName(name + (highestName + 1));
+            }
+            //Cobweb
 
-            groupRepository.save(group);
+            group = groupRepository.save(group);
+
+            //Cobweb this should be on an event listener, but transactions 
+            // outside and inside spring mvc break everything
+
+            final UserGroupRepository userGroupRepo = context.getBean(UserGroupRepository.class);
+
+            final UserRepository userRepo = context.getBean(UserRepository.class);
+            Authentication auth = SecurityContextHolder.getContext()
+                    .getAuthentication();
+            final String username = auth.getName();
+            final User user = userRepo.findOneByUsername(username);
+            UserGroup ug = new UserGroup();
+            ug.setGroup(group);
+            ug.setProfile(Profile.UserAdmin);
+            ug.setUser(user);
+            userGroupRepo.save(ug);
+            elRes.addContent(new Element("groupId").
+                    setText(Integer.toString(group.getId())));
+            //Cobweb
 
             elRes.addContent(new Element(Jeeves.Elem.OPERATION).setText(Jeeves.Text.ADDED));
         } else {

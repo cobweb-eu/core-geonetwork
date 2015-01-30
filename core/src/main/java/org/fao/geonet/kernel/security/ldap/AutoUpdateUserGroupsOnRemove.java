@@ -82,7 +82,7 @@ public class AutoUpdateUserGroupsOnRemove implements
                 }
             }
             
-            String[] newmemberuids = new String[memberuids.length - 1];
+            String[] newmemberuids = new String[(memberuids.length > 0 ? memberuids.length - 1 : 0)];
             newmemberuids = members.toArray(newmemberuids);
 
             group.setAttributeValues("memberUid", newmemberuids);

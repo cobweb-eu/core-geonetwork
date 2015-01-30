@@ -29,6 +29,21 @@
                       scope.ownerGroup = data.group[0]['@id'];
                     }
                   });
+              
+              scope.isSurvey = false;
+              
+              scope.$watch(function() {
+                      return angular.element('#template-survey[class*=active]')
+                                .size() > 0;
+                  }, 
+                  function(newValue){
+                      scope.isSurvey = newValue;
+                      if(scope.isSurvey) {
+                        scope.ownerGroup = -2;
+                      } else {
+                        scope.ownerGroup = scope.groups[0]['@id'];
+                      }
+                  });
             }
           };
         }])
