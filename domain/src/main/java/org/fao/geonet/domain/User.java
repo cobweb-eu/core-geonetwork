@@ -341,11 +341,11 @@ public class User extends GeonetEntity implements UserDetails {
             auths.add(new SimpleGrantedAuthority(NODE_APPLICATION_CONTEXT_KEY + nodeId));
         }
 
-        if (_profile != null) {
-            for (String p : getProfile().getAllNames()) {
-                auths.add(new SimpleGrantedAuthority(p));
-            }
-        }
+//        if (_profile != null) {
+//            for (String p : getProfile().getAllNames()) {
+//                auths.add(new SimpleGrantedAuthority(p));
+//            }
+//        }
         return auths;
     }
 
