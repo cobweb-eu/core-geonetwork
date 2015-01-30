@@ -126,7 +126,13 @@ public class Update extends NotInReadOnlyModeService {
                                 ") as integer) as ident" +
                                 " from groups where name ~ '" + name + "\\d+' "
                                 + "order by ident desc limit 1");
-                Integer highestName = Integer.valueOf(query.getSingleResult().toString());
+                Object singleResult =  null;
+                try {
+                    singleResult = query.getSingleResult();
+                } catch(Throwable t) {
+                    singleResult = 0;
+                }
+                Integer highestName = Integer.valueOf(singleResult.toString());
                 group.setName(name + (highestName + 1));
             }
             //Cobweb

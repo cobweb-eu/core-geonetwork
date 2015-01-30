@@ -367,8 +367,12 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 							new BasicAttribute(groupMemberAttributeName, fullDn
 									.toUrl()));
 
-					ctx.modifyAttributes(buildGroupDn(group),
+					try {
+					    ctx.modifyAttributes(buildGroupDn(group),
 							new ModificationItem[] { addGroup });
+					} catch (Throwable t) {
+					    logger.error("Couldn't update group " + group);
+					}
 				}
 				return null;
 			}

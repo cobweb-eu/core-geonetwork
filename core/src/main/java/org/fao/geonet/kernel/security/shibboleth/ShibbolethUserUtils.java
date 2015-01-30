@@ -162,7 +162,7 @@ public class ShibbolethUserUtils {
 
 			// Make sure the profile name is an exact match
 			if (profile == null) {
-				profile = Profile.Guest;
+				profile = Profile.RegisteredUser;
 			}
 
 			if (group.equals("")) {
@@ -214,10 +214,9 @@ public class ShibbolethUserUtils {
 					}
 					
 					//Cobweb specific: save user on default anonsurvey group as registered user
-					ldapUserDetails.getUser().getAuthorities().add(
-					        new SimpleGrantedAuthority("anonsurvey_USER"));
+					ldapUserDetails.addPrivilege("anonsurvey", Profile.RegisteredUser);
 				}
-				
+				ldapUserDetails.getUser().getAuthorities().add(new SimpleGrantedAuthority("anonsurvey_USER"));
 				udetailsmapper.saveUser(ldapUserDetails);
 
 				user = ldapUserDetails.getUser();
