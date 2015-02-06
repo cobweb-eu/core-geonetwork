@@ -36,7 +36,6 @@
       <dependency>
           <groupId>org.tuckey</groupId>
           <artifactId>urlrewritefilter</artifactId>
-          <version>3.2.0</version>
       </dependency>
 
     <dependency>
@@ -423,6 +422,8 @@
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+    <!--  GeoCat Live -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>cobweb</artifactId>
@@ -632,9 +633,15 @@
                   <directory>${project.basedir}/../web-ui/src/main/resources</directory>
             </resource>
             <resource>
+                  <directory>${project.basedir}/../cobweb/src/main/resources</directory>
+            </resource>
+            <resource>
+                  <directory>${project.basedir}/../cobweb/src/main/webapp</directory>
+            </resource>
+            <resource>
               <directory>${build.webapp.resources}</directory>
             </resource>
-
+          
             <!-- Remove comment tag to include documentation in the build. 
             Python and Latex are required to build the documentation. -->
             
@@ -680,6 +687,8 @@
           <webappDirectory>${project.build.directory}/geonetwork</webappDirectory>
         </configuration>
       </plugin>
+      
+      
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
@@ -713,6 +722,7 @@
             <resourcesAsCSV>
               ${project.basedir}/src/main/webapp,
               ${rootProjectDir}/web-ui/src/main/resources/,
+              ${rootProjectDir}/cobweb/src/main/resources/,
               ${build.webapp.resources},
               ${rootProjectDir}/web-client/src/main/resources/</resourcesAsCSV>
             </baseResource>
