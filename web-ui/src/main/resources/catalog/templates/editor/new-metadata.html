@@ -46,7 +46,10 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-3" data-ng-show="groups && groups.length > 1">
+    <div class="col-sm-3" data-ng-if="!groups || groups.length == 0">
+       <div class="alert alert-danger" role="alert">Content creation impossible, because you are not in any group</div>
+    </div>
+    <div class="col-sm-3" data-ng-show="groups && groups.length > 0">
       <div class="panel-default panel">
         <div class="panel-heading"><span data-translate="">inGroup</span>
           <strong>{{(ownerGroup.label[lang] || '...') | translate}}</strong>
@@ -57,7 +60,7 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-3" data-ng-show="groups && groups.length > 0">
       <div class="btn-group">
         <button type="button" class="btn btn-success btn-lg"
           data-ng-click="createNewMetadata()"
