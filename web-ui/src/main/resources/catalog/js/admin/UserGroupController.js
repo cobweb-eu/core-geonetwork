@@ -110,7 +110,7 @@
           // in the list and trigger user selection.
           if ($routeParams.userOrGroup) {
             angular.forEach($scope.users, function(u) {
-              if (u.username === $routeParams.userOrGroup) {
+              if (u.value.username === $routeParams.userOrGroup) {
                 $scope.selectUser(u);
               }
             });
@@ -222,13 +222,14 @@
           password2: $scope.resetPassword2
         };
 
-        $http.post('admin.user.update@json', null, {params: params})
+        $http.post('admin.user.resetpassword', null, {params: params})
               .success(function(data) {
               $scope.resetPassword1 = null;
               $scope.resetPassword2 = null;
               $('#passwordResetModal').modal('hide');
             }).error(function(data) {
-              // TODO
+              alert('Error occurred while resetting password: ' +
+                  data.error.message);
             });
 
       };
@@ -391,6 +392,10 @@
           type: 'danger'});
       };
 
+      $scope.deleteGroupLogo = function() {
+        $scope.groupSelected.logo = null;
+      };
+
       // upload directive options
       $scope.mdImportUploadOptions = {
         autoUpload: false,
@@ -403,7 +408,8 @@
         if (uploadScope.queue.length > 0) {
           uploadScope.submit();
         } else {
-          $http.get('admin.group.update?' + $(formId).serialize())
+          var deleteLogo = $scope.groupSelected.logo === null ? '&deleteLogo=true' : '';
+          $http.get('admin.group.update?' + $(formId).serialize() + deleteLogo)
           .success(uploadImportMdDone())
           .error(uploadImportMdError);
         }
