@@ -39,7 +39,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Component
-public class GroupCreation implements ApplicationListener<GroupCreated>, Ordered {
+public class GroupCreation implements ApplicationListener<GroupCreated>,
+        Ordered {
 
     @Autowired
     private UserGroupRepository userGroupRepo;
@@ -55,40 +56,46 @@ public class GroupCreation implements ApplicationListener<GroupCreated>, Ordered
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onApplicationEvent(GroupCreated event) {
-        entityManager.flush();
-        final Group group = groupRepo.findByName(event.getGroup().getName());
+        final Group group = event.getGroup();
         log.debug("Group " + group.getName() + " [" + group.getId()
                 + "] created");
 
         Authentication auth = SecurityContextHolder.getContext()
                 .getAuthentication();
-        final String username = auth.getName();
-        final User user = userRepo.findOneByUsername(username);
-        
-        Specification<UserGroup> spec =  new Specification<UserGroup>() {
-            @Override
-            public Predicate toPredicate(Root<UserGroup> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                Path<Integer> userIdAttributePath = root.get(UserGroup_.id).get(UserGroupId_.userId);
-                Predicate userIdEqualPredicate = cb.equal(userIdAttributePath, cb.literal(user.getId()));
+        if (auth != null && auth.isAuthenticated()) {
+            final String username = auth.getName();
+            final User user = userRepo.findOneByUsername(username);
 
-                Path<Integer> groupIdAttributePath = root.get(UserGroup_.id).get(UserGroupId_.groupId);
-                Predicate groupIdEqualPredicate = cb.equal(groupIdAttributePath, cb.literal(group.getId()));
-                
-                return cb.and(userIdEqualPredicate, groupIdEqualPredicate);
+            Specification<UserGroup> spec = new Specification<UserGroup>() {
+                @Override
+                public Predicate toPredicate(Root<UserGroup> root,
+                        CriteriaQuery<?> query, CriteriaBuilder cb) {
+                    Path<Integer> userIdAttributePath = root.get(UserGroup_.id)
+                            .get(UserGroupId_.userId);
+                    Predicate userIdEqualPredicate = cb.equal(
+                            userIdAttributePath, cb.literal(user.getId()));
+
+                    Path<Integer> groupIdAttributePath = root
+                            .get(UserGroup_.id).get(UserGroupId_.groupId);
+                    Predicate groupIdEqualPredicate = cb.equal(
+                            groupIdAttributePath, cb.literal(group.getId()));
+
+                    return cb.and(userIdEqualPredicate, groupIdEqualPredicate);
+                }
+            };
+
+            if (userGroupRepo.count(spec) == 0) {
+                UserGroup ug = new UserGroup();
+                ug.setGroup(group);
+                ug.setProfile(Profile.UserAdmin);
+                ug.setUser(user);
+                userGroupRepo.save(ug);
             }
-        };
-        
-        if(userGroupRepo.count(spec) == 0) {
-            UserGroup ug = new UserGroup();
-            ug.setGroup(group);
-            ug.setProfile(Profile.UserAdmin);
-            ug.setUser(user);
-            userGroupRepo.save(ug);
-        }
 
-        log.debug("Finish GroupCreation");
+            log.debug("Finish GroupCreation");
+        }
     }
-    
+
     /**
      * @see org.springframework.core.Ordered#getOrder()
      * @return
