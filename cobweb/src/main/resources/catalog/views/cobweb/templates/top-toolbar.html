@@ -1,0 +1,69 @@
+
+<div class="container">
+	<div class="navbar-header"> 
+		<button type="button" class="navbar-toggle collapsed"
+			data-toggle="collapse" data-target=".navbar-collapse">
+			<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span>
+			<span class="icon-bar"></span> <span class="icon-bar"></span>
+		</button>
+	</div>
+	<div class="navbar-collapse collapse">
+		<ul class="nav navbar-nav">
+			<li><a data-gn-active-tb-item="catalog.search#/home"><span class="fa fa-home"></span> Home</a></li>
+			<!--<li><a href="#" data-ng-click="tabToggle('project_container')"
+				class="container-btn">Surveys</a></li>-->
+			<li><a data-gn-active-tb-item="catalog.search#/search"
+				class="container-btn"><span class="fa fa-search"></span> Search</a></li>
+			<li><a  data-gn-active-tb-item="catalog.search#/map"
+				class="container-btn"><span class="fa fa-map-marker"></span> Map</a></li>
+			<li><a  data-gn-active-tb-item="catalog.search#/about"
+				class="container-btn"><span class="fa fa-info"></span> About</a></li>
+			<li data-ng-show="info.env.node=='private'"><a data-ng-show="authorise('editor',user.profile)"
+				 data-gn-active-tb-item="catalog.edit"
+				title="{{'editorBoard' | translate}}"><i class="fa fa-pencil"></i>
+					{{"Editor"|translate}} </a></li>
+			<li data-ng-show="info.env.node=='private'"><a data-ng-show="authorise('editor',user.profile)"
+				data-gn-active-tb-item="admin.console" class="container-btn"
+				title="{{'adminConsole' | translate}}"><i class="fa fa-cog"></i>
+					{{"AdminConsole" | translate }}</a></li>
+			<li data-ng-show="info.env.node=='private'"><a data-ng-show="authorise('editor',user.profile)"
+				class="container-btn"
+				data-gn-active-tb-item="admin.console#/organization/users/{{user.username}}"
+				title="{{'userDetails' | translate}}"> <i class="fa fa-user"></i>
+					{{"Profile" | translate }}
+			</a></li>
+			<li data-ng-show="info.env.node=='public'"><a
+				href="../../private/eng/catalog.search">
+				<i class="fa fa-user"></i> {{'Login'|translate}}</a></li>
+			<li data-ng-show="info.env.node=='private'"><a
+				href="/Shibboleth.sso/Logout"><i style="font-size: 1.2em"
+					class="fa glyphicon glyphicon-log-out"></i> {{'Logout'|translate}}</a></li>
+			<li><liveregister /></li>
+
+		</ul>
+	<!-- 	<div class="navbar-form navbar-right" data-gn-language-switcher="lang"
+			data-langs="langs" /> -->
+		</div>
+		<ul class="nav navbar-nav navbar-right">
+		<li data-ng-show="authorise('RegisteredUser',user.profile)"><a href="#"><img
+					class="img-circle"
+					data-ng-src="https://gravatar.com/avatar/{{u.email | md5}}?s=18" />
+					{{user.name}} {{user.surname}}</a></li>
+					</ul>
+		
+</div>
+
+<script type="text/javascript">
+	/*geonet.toggle = function(tab) {
+		var target = "#" + tab;
+		
+		//hide all tabs
+		$(".gntab").not(target).hide();
+		//if target not available, load it
+		$(target).show();
+		if (tab=='map_container'){
+			$("#siteBanner").hide();
+			setTimeout(function(){window.dispatchEvent(new Event('resize'))}, 500);
+		} else $("#siteBanner").show();
+	}*/
+</script>

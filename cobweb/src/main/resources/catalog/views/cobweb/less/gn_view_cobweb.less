@@ -1,0 +1,308 @@
+@import "gn_view.css";
+
+
+/* Defined here any custom style for the view
+   which has to be applied for all apps
+   (ie. admin, search, login, editor). */
+   
+   /* this removes bootstrap content from objects, eg li's in breadcrumbs */
+   .no-content:before {display:none}
+   .gn-top-bar {margin-bottom:0px}
+   .gn-search-page {background-color:white;padding-top:10px}
+   .gn-editor-board { background-color:white;padding-top:10px}
+   
+	.navbar .nav > li {
+		z-index: 1001; /* to be higher then the map on mobile */
+		background-color:#639E42;
+	}
+	
+.gn-resultview .gn-md-thumbnail .gn-img-thumbnail {
+ width:100%;
+ min-height:100%;
+}
+.gn-resultview .gn-md-thumbnail {
+	margin-bottom:5px;
+}
+
+@background_color_dark: #304820;
+@background_color_light: #639E42;
+@light_grey: #efefef;
+@link_hover: #ccc;
+@link_color: white;
+@special_text_color: white;
+	
+/* Define custom node style here */
+div.register-page  div.modal.in {
+	background: white;
+    width: 80%;
+    margin: 10%;
+    overflow:hidden;
+}
+
+div.register-page  div.modal.in object {
+	padding: 3px;
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	background: #E3E1DA url("../live/style/images/background-repeat.png") repeat-x bottom fixed;
+	font-family: verdana, tahoma, arial;
+	font-size: 1.2em;
+ }
+ 
+.nav-bg, .navbar-default {
+	background-color:@background_color_light;
+	background-image:none;
+}
+
+.navbar-default .navbar-nav>li>a {
+	color: @link_color;
+}
+
+.navbar {border:none}
+#navbar {overflow-x:hidden}
+.navbar-default .navbar-nav>li>a:hover, 
+.navbar-default .navbar-nav>li>a:focus {
+	color: @link_hover;
+	
+}
+
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover, 
+.navbar-default .navbar-nav > .active > a:focus {
+    background-color: @background_color_dark;
+    color: white;
+    border-radius: 4px;
+}
+
+.navbar-default .navbar-nav  a {
+    margin: 6px;
+    padding: 8px;
+}
+	 
+.clipboard {
+	background-color:#8EC63F;
+	border-radius:10px;
+	margin:25px 10px 50px 10px;
+	padding:0px 10px 10px 10px;
+	text-align:center;width:100%;
+	width:auto !important;
+	line-height:3px;
+	box-shadow: 3px 3px 5px #888888;
+}
+  
+.clipboard .board .txt, .surveys .txt {
+	min-height:90px;
+	max-height:90px;
+	height:90px;
+	overflow:hidden;
+}
+  
+.clipboard .board .img, .surveys .img {
+	padding-bottom:5px;
+	text-align:center;
+	min-height:150px;
+	max-height:150px;
+	overflow:hidden;
+	margin-bottom:5px;
+	background: #f7f7f7 url("../../live/style/images/missing.png") scroll center center no-repeat;
+}
+  
+.detail-img {
+  max-height:200px; 
+  overflow:hidden;
+  background:white;
+  padding:12px;
+}
+.clipboard .board {
+    padding:0px 10px 10px 10px;margin:0px;
+	overflow:hidden;line-height:1.2em;
+	box-shadow: 3px 3px 3px #888888;
+	font-family: verdana, tahoma, arial; 
+	background: #fff url("../../live/style/images/paper.jpg")
+}
+
+.sidebar-offcanvas .btn {
+  text-align:left;
+}
+  
+.list-board {
+  padding:0px;margin:20px 10px;background-color:@light_grey;
+}
+
+.vcenter {
+    padding-top:200px;
+}
+.bottom-spacer {
+	margin-bottom:10px;
+}
+
+.width-100 {
+	width:100%;
+}
+
+.tab-pane {
+	background:@light_grey;
+	min-height:300px;
+}
+
+//fa-inverse
+.gn-inverse {
+	background-color: black;
+	discplay:block;
+	color:@special_text_color;
+	box-shadow: 3px 3px 3px #888888;
+	border-radius:5px;
+	margin:3px;
+	padding:3px;
+}
+ 
+.download-btn {
+	font-size:1em;line-height:1.2em;width:100%;text-align:left;
+} 
+
+#map_popup-content {
+	background-color: @special_text_color;
+	line-height:.8;
+	box-shadow: 8px 8px 8px #666666;
+}
+
+#map_popup-content iframe {
+	border:none;
+}
+
+.ol-popup-closer {
+	text-decoration: none;
+	position: absolute;
+	top: 2px;
+	right: 18px;
+	background-color:white;
+	border-radius: 4px;
+	padding: 2px 4px;
+	box-shadow: 2px 2px 2px #666666;
+}
+
+.ol-popup-closer:after {
+	content: "?";
+}
+
+body > footer {
+	width: 100%;
+	height:40px;
+	background: @background_color_dark;
+	bottom: 0px;
+}
+
+header {
+	background: @background_color_dark;
+	color: @special_text_color;
+}
+
+body > footer > div.link {
+    float:right;
+    font-weight: bold;
+}
+
+body > footer > div {
+	color: @special_text_color;
+    display:inline;
+    float:left;
+    padding: 8px;
+}
+
+body > footer > div > a {
+    color: @link_color;
+}
+
+body > footer > div > a:hover {
+    color: @link_hover;
+    text-decoration: none;
+}
+
+div.gn-row-main {
+    background-color: #fff;
+    padding-top: 10px;
+    min-height: 600px;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    @media (min-width: 1200px){
+        width: 1170px;
+    }
+    @media (min-width: 992px) and (max-width: 1199px) {
+        width: 970px;
+    }
+    @media (min-width: 768px) and (max-width: 991px)  {
+        width: 750px;
+    }
+}
+
+#info-tabset .nav-tabs > li {
+    width: 33%;
+}
+
+
+#info-tabset .gn-md-thumbnail {
+    width: 100%;
+}
+
+
+#info-tabset .txt {
+    float: left;
+    text-align: justify;
+}
+
+#info-tabset .carousel-inner > .item {
+    padding-left: 90px;
+    padding-right: 100px;
+}
+
+div.gn-md-view, div.row.about {
+    background-color: white;
+}
+
+.gn-search-page .gn-md-view {
+	padding: 0px 0px;
+}
+
+ol.breadcrumb {
+    background-color: white;
+}
+
+.gn-md-view div.abstract {
+    background-color: @light_grey;
+    padding: 8px;
+    margin-bottom: 8px;
+}
+
+.days-pending {
+    padding: 0px;
+}
+
+.days-pending span {
+    color: white;
+    font-weight: bolder;
+    background-color: red;
+    border-radius: 2px;
+    padding: 8px;
+    display:block;
+}
+
+div.download-buttons div{
+    margin-top: 8px;
+}
+
+.abstract .gn-md-thumbnail {
+    border-color: white;
+    border-style: solid;
+    border-width: 22px;
+    width: 100%;
+    height: auto;
+    min-height: 140px;
+}
+
+.carousel-indicators {
+bottom: 10px;
+}

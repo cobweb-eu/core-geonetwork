@@ -303,10 +303,10 @@
                 <location>${project.build.directory}/../intermap/target/intermap.war</location>
                 <type>war</type>
               </deployable> -->
-              <deployable>
+             <!-- <deployable>
                 <location>${project.build.directory}/../geoserver/target/geoserver.war</location>
                 <type>war</type>
-              </deployable>
+              </deployable>-->
             </deployables>
           </configuration>
         </configuration>
@@ -1161,7 +1161,7 @@
         <module>web-client</module>
         <module>web</module>
         <module>e2e-tests</module>
-        <module>geoserver</module>
+      <!--  <module>geoserver</module>-->
       </modules>
     </profile>
     <!-- Python and Latex are required to build the documentation. -->

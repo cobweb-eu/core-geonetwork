@@ -1,0 +1,252 @@
+<div class="row gn-md-view"
+     data-ng-controller="GnMdViewController" style="background-color:white">
+
+<div class="row">
+	
+	<div class="col-md-12">
+	<ol class="breadcrumb">
+	  <li><a href="#/home" data-translate="">Home</a></li>
+	  <!-- this should find the survey this relates to <li><a href="#">{{mdView.current.record.groupName}}</a></li> -->
+	  <li class="active">{{mdView.current.record.title || mdView.current.record.defaultTitle}}</li>
+	  <li class="pull-right no-content">
+	  	 <a href="" 
+				  data-ng-class="mdView.current.index === 0 ? 'disabled' : ''"
+				  data-ng-show="mdView.records"
+				  data-ng-click="previousRecord()">
+			<i class="fa fa-angle-left"></i>
+                <span data-translate="">previous</span>
+		  </a>
+		  <a href="" 
+		 
+				  data-ng-class="mdView.current.index === mdView.records.length-1 ? 'disabled' : ''"
+				  data-ng-show="mdView.records"
+				  data-ng-click="nextRecord()">
+                    <span data-translate="">next</span>
+			<i class="fa fa-angle-right"></i>
+			</a>
+		</li>
+	</ol>
+	</div>
+</div>
+<div class="row">	
+	<div class="col-md-10">
+		<h2><i class="fa gn-icon-{{mdView.current.record.type}}"></i> {{mdView.current.record.title || mdView.current.record.defaultTitle}}</h2>
+	</div>
+    <div class="col-md-2 pull-right">
+            <a href="http://www.facebook.com/sharer/sharer.php?u={{mdView.permalink}}" 
+                target="_blank">
+                <i class="fa fa-facebook-square fa-4x"></i>
+           </a>
+            <a href="https://twitter.com/share?url={{mdView.permalink}}"
+	            target="_blank" >
+                <i class="fa fa-twitter-square fa-4x"></i>
+            </a>
+            <a href="mailto:?subject=Citizen Science Portal&body={{mdView.permalink}}" 
+                target="_blank">
+                <i class="fa fa-envelope-square fa-4x"></i>
+           </a>            
+    </div>
+</div>		
+<div class="row">	
+    <div class="col-md-9">	
+		<div class="col-md-7">
+			<div class="form-group" data-ng-show="{{mdView.current.record.tempExtentBegin != null && mdView.current.record.tempExtentBegin != ''}}">
+			<div class="input-group">
+			  <div class="input-group-addon"><span class="fa fa-calendar"></span></div> 
+			  <input class="form-control" id="dFrom" value="{{mdView.current.record.tempExtentBegin}}"/>
+			  <div class="input-group-addon">{{"md_to"|translate}}</div>
+			  <input class="form-control" id="dTo" value="{{mdView.current.record.tempExtentEnd}}" />
+			</div>
+		  </div>
+		</div>
+		<div class="col-md-5 days-pending" data-ng-show="mdView.current.record.getDaysPending()>0">
+		   <span>{{'SURVEY ACTIVE' | translate}} - 
+		   {{mdView.current.record.getDaysPending()}} 
+		   {{'days until close date' | translate}}</span></div>
+   </div>
+</div>
+		
+<div class="row">
+	<div class="col-md-9">
+
+		<div class="abstract">
+			<div class="row" >
+				<div class="col-md-5 gn-resultview">
+					<div class="gn-md-thumbnail">
+	                     <img class="gn-img-thumbnail"
+	                         data-ng-src="{{md.getThumbnails().list[0].url}}"
+	                         data-ng-if="md.getThumbnails().list[0].url" />
+	                 </div>
+	                 
+		            <div class="row download-buttons" data-ng-show="mdView.current.record.type=='survey'">
+		                <div class="col-md-6">
+		                    <a class="btn btn-primary download-btn" 
+		                    data-ng-if="mdView.current.record.android" 
+		                    href="{{mdView.current.record.android}}" 
+		                    target="_blank" >
+		                    <span class="fa fa-android fa-2x pull-left">
+		                    </span>Android<br/>{{"Download"|translate}}</a>
+		                    <a class="btn btn-primary download-btn disabled" 
+		                    data-ng-if="!mdView.current.record.android"  >
+		                    <span class="fa fa-android fa-2x pull-left">
+		                    </span>Android<br/>{{"Download"|translate}}</a>
+		                </div>
+		                <div class="col-md-6">
+		                    <a class="btn btn-primary download-btn" 
+		                    data-ng-if="mdView.current.record.ios" 
+		                    href="{{mdView.current.record.ios}}" 
+		                    target="_blank">
+		                    <span class="fa fa-apple fa-2x pull-left">
+		                    </span>iPhone<br/>{{"Download"|translate}}</a>
+		                    <a class="btn btn-primary download-btn disabled" 
+		                    data-ng-if="!mdView.current.record.ios" >
+		                    <span class="fa fa-apple fa-2x pull-left">
+		                    </span>iPhone<br/>{{"Download"|translate}}</a>
+		                </div>
+		            </div>
+				</div>
+				<div class="col-md-7">
+				    <h4>{{'Description' | translate}}:</h4>
+					<span>{{mdView.current.record.abstract | limitTo: 300}}</span>
+				</div>
+			</div>
+		
+		</div>
+		
+		<div class="row">
+			<div class="col-md-6">
+
+				
+
+			  <div data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
+				   data-types="online|service|dataset"
+				   data-icon="download"
+				   data-template="../../catalog/views/cobweb/templates/related.html"
+				   data-title="{{'md_resources'|translate}}"></div>
+					
+			
+			
+			<div class="panel panel-default" data-ng-if="mdView.current.record.getContacts().length > 0">
+				<div class="panel-heading">
+					<h3 class="panel-title"><span
+								class="fa fa-envelope"></span> {{'md_contact' | translate}}</h3>
+				</div>
+				<div class="panel-body">
+					<!--
+					<img data-ng-src="http://www.gravatar.com/avatar/{{'paul.vangenuchten@geocat.net' | md5}}" class="pull-left" style="padding-right:5px" />
+					 todo: if this user is a portal user, get the profile picture from the user -->
+					<div data-ng-repeat="contact in mdView.current.record.getContacts()">
+					<span>{{contact | split:'|':2}}<br /></span>
+					<span>{{contact | split:'|':3}}<br /></span>
+					<span><a data-ng-if="contact.split('|')[4]" href="mailto:{{contact | split:'|':4}}"><i class="fa fa-envelope"></i> {{"Contact"|translate}}</a></span>
+					</div>
+				</div>
+			</div>
+			
+					<div class="panel-body" data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
+					   data-types="parent|children|hasfeaturecat"
+					   data-template="../../catalog/views/default/templates/related.html"
+					   data-icon="link"
+					   data-ng-title="{{'Related' | translate}}"></div>
+				
+		</div>
+			<div class="col-md-6">
+			
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title"><span class="fa fa-map-marker"></span> {{'md_location' | translate}}</h3>
+					</div>
+					<img style="width: 100%; max-height: 300px;" data-ng-src="region.getmap.png?mapsrs=EPSG:3857&width=250&background=osm&geomsrs=EPSG:4326&geom={{mdView.current.record.getBoxAsPolygon()}}">
+					<div class="panel-body">
+						<span>{{'Area' | translate}}: <i>{{mdView.current.record.getBoxAsPolygon()}}</i></span>
+					</div>
+
+				</div>
+
+			
+				<div class="panel panel-default" data-ng-show="mdView.current.record.keyword.length>0">
+					<div class="panel-heading">
+						<h3 class="panel-title"><span class="fa fa-tags"></span> {{'md_keywords' | translate}}</h3>
+					</div>
+					<div class="panel-body" style="word-break: break-all;">
+						<span
+							style="margin: 3px; line-height: 24px; border: 1px solid #cec; background-color: #efffef; border-radius: 3px;"
+							data-ng-repeat="k in mdView.current.record.category">{{k | lowercase}}</span> <span
+							style="margin: 3px; line-height: 24px; border: 1px solid #cce; background-color: #efefff; border-radius: 3px;"
+							data-ng-repeat="j in mdView.current.record.keyword">{{j | lowercase}}</span>
+					</div>
+				</div>
+
+			<div class="panel panel-default"
+				ng-show="{{mdView.current.record.type=='dataset'&&mdView.current.record.Constraints.length!=0}}">
+				<div class="panel-heading">
+					<h3 class="panel-title">{{'md_license' | translate}}</h3>
+				</div>
+				<ul class="list-group" style="word-break: break-all;">
+					<li class="list-group-item" data-ng-repeat="c in mdView.current.record.Constraints">{{
+						c }}</li>
+				</ul>
+			</div>
+			
+			<div class="panel panel-default" data-ng-show="mdView.current.record.type=='survey'">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							{{'help' | translate}}
+						</h3>
+					</div>
+					<div class="panel-body">
+						<iframe width="220" height="150" src="https://www.youtube.com/embed/6f5Rx0N_Mtc" frameborder="0" allowfullscreen></iframe>
+				  </div>
+			</div>
+			
+			</div>
+		</div>
+		
+		
+	
+
+	</div>
+
+	<!-- ************** Sidebar **************** -->
+	<div class="col-md-3 sidebar-offcanvas">
+		<div data-joinsurveybutton=""></div>
+            
+        <a class="btn btn-default bottom-spacer width-100" data-ng-show="authorise('editor',user.profile)" title="Modify content"
+            href="catalog.edit#/metadata/{{mdView.current.record['geonet:info'].id}}"
+            target="_blank" ></span> {{'md_modify' | translate}}</a>
+		
+		<a class="btn btn-primary bottom-spacer width-100"
+		      data-ng-show="authorise('editor',user.profile)&&mdView.current.record.type=='survey'
+                && mdView.current.record.groupName" 
+		      title="Open Survey Authoring Tool configuration"
+			  href="/cobweb-authoring-tool/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{mdView.current.record.groupName}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
+			  target="_blank" ></span> {{'md_AuthoringTool' | translate}}</a>
+	
+		<a class="btn btn-primary bottom-spacer width-100" 
+		    data-ng-show="authorise('editor',user.profile)&&mdView.current.record.type=='survey'
+                && mdView.current.record.groupName" title="QAconfig"
+			href="/qa-config/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{mdView.current.record.groupName}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
+			target="_blank" ><span data-translate="">md_QAconfig</span></a>
+	
+        <a class="btn btn-primary bottom-spacer width-100"
+              data-ng-show="authorise('editor',user.profile) && mdView.current.record.type=='survey'
+                && mdView.current.record.groupName" 
+              title="Invite users to survey"
+              href="mailto:invited@user.com?subject=Invite to join survey&body=Dear reader, I would like to ask you to join my survey at {{permalink}}">
+               {{'md_InviteUsers' | translate}}</a>
+
+		<input type="button" class="btn btn-default bottom-spacer width-100" data-ng-show="authorise('editor',user.profile)" title="Remove content"
+			data-ng-click="deleteRecord(mdView.current.record)" 
+			value="{{'md_delete' | translate}}"></input>		
+				
+    <div data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
+         data-title="{{'Related' | translate}}"
+         data-template="../../catalog/views/cobweb/templates/similarcarousel.html"
+         data-list="{{mdView.similar}}">
+    </div>
+</div>
+	 
+	
+</div>
+
+</div>

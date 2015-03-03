@@ -1,0 +1,11 @@
+<div>
+	<a class="btn btn-primary bottom-spacer width-100"
+		data-ng-controller="JoinSurveyController"
+		data-ng-groupName="{{mdView.current.record.groupName}}" data-ng-disabled="alreadyJoined"
+		data-ng-show="authenticated && mdView.current.record.type=='survey' 
+		&& mdView.current.record.groupName"
+		target="_blank" data-ng-click="requestJoin()"><span
+		class="fa fa-plus" data-ng-show="!alreadyJoined"></span> <span data-ng-show="!alreadyJoined">{{'md_JoinSurvey'
+            | translate}}</span><span data-ng-show="alreadyJoined">{{'md_Participant'
+            | translate}}</span></a>
+</div>

@@ -1,11 +1,21 @@
 <sources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="../../../../web/src/main/webapp/WEB-INF/wro-sources.xsd" >
+        xsi:noNamespaceSchemaLocation="../../../../web/src/main/webapp/WEB-INF/wro-sources.xsd" >
+
   <require pathOnDisk="web-ui/src/main/resources" >
-      <jsSource webappPath="catalog/js" />
-      <jsSource webappPath="catalog/views" />
-      <jsSource webappPath="catalog/components" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
-      <cssSource webappPath="catalog/views" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
-      <cssSource webappPath="catalog/style" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
+    <jsSource webappPath="cobweb/js"  pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+    <jsSource webappPath="cobweb/components" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+    
+    <jsSource webappPath="catalog/js" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
+    <jsSource webappPath="catalog/views" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
+    <jsSource webappPath="catalog/components" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
+    
+    <jsSource webappPath="catalog/views/cobweb"  pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+    
+    <cssSource webappPath="catalog/views" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
+    <cssSource webappPath="catalog/style" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
+    
+    <cssSource webappPath="cobweb/style" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+    <cssSource webappPath="catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
   </require>
   <declarative name="lib" pathOnDisk="web-ui/src/main/resources">
     <jsSource webappPath="catalog/lib/modernizr.js"/>
@@ -32,7 +42,9 @@
     <jsSource webappPath="catalog/lib/ngeo/ngeo.js"/>
     <jsSource webappPath="catalog/lib/d3.v3.min.js"/>
     <jsSource webappPath="catalog/lib/nv.d3.min.js"/>
-
+    
+    <jsSource webappPath="catalog/lib/angular/angular-cookies.js"/>
+          
     <jsSource webappPath="catalog/lib/jsonix/jsonix/Jsonix-min.js" minimize="false" />
     <jsSource webappPath="catalog/lib/jsonix/w3c-schemas/XLink_1_0.js" />
     <jsSource webappPath="catalog/lib/jsonix/ogc-schemas/OWS_1_0_0.js" />
@@ -54,5 +66,13 @@
     <jsSource webappPath="catalog/lib/bootstrap.ext/datepicker/bootstrap-datepicker.js"/>
     <jsSource webappPath="catalog/lib/zip/zip.js"/>
     <jsSource webappPath="catalog/lib/zip/include.js"/>
+    <jsSource webappPath="catalog/lib/jsonix/jsonix/Jsonix-min.js"/>
+    <jsSource webappPath="catalog/lib/jsonix/w3c-schemas/XLink_1_0.js"/>
+    <jsSource webappPath="catalog/lib/jsonix/ogc-schemas/OWS_1_0_0.js"/>
+    <jsSource webappPath="catalog/lib/jsonix/ogc-schemas/Filter_1_0_0.js"/>
+    <jsSource webappPath="catalog/lib/jsonix/ogc-schemas/GML_2_1_2.js"/>
+    <jsSource webappPath="catalog/lib/jsonix/ogc-schemas/SLD_1_0_0.js"/>
+    <jsSource webappPath="catalog/lib/jsonix/ogc-schemas/OWC_0_3_1.js"/>
+    
   </declarative>
 </sources>
