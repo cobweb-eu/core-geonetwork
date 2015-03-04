@@ -140,7 +140,7 @@ public class Update extends NotInReadOnlyModeService {
             }
             //Cobweb
 
-            group = groupRepository.save(group);
+            group = groupRepository.saveAndFlush(group);
 
             //Cobweb this should be on an event listener, but transactions 
             // outside and inside spring mvc break everything
