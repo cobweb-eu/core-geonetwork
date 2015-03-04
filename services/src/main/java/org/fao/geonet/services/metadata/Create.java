@@ -103,7 +103,9 @@ public class Create extends NotInReadOnlyModeService {
 		// TODO : Check user can create a metadata in that group
 		UserSession user = context.getUserSession();
 		if (user.getProfile() != Profile.Administrator) {
-            final Specifications<UserGroup> spec = where(UserGroupSpecs.hasProfile(Profile.Editor))
+			//This is partially done on the spring security mapping
+			//This just checks the specific group
+            final Specifications<UserGroup> spec = where(UserGroupSpecs.hasProfileOrEquivalent(Profile.Editor))
                     .and(UserGroupSpecs.hasUserId(user.getUserIdAsInt()))
                     .and(UserGroupSpecs.hasGroupId(Integer.valueOf(groupOwner)));
 

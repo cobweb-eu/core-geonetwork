@@ -141,17 +141,22 @@ public class GeonetworkDataDirectory {
             // Lookup section
             switch (j) {
                 case 0:
-                    value = System.getProperty(keyToUse);
-                    break;
-                case 1:
-                    if (jeevesServlet != null) {
-                        value = jeevesServlet.getInitParameter(keyToUse);
-                    }
-                    break;
-                case 2:
-                    value = handlerConfig.getValue(keyToUse);
-                    break;
-                case 3:
+                value = System.getProperty(keyToUse);
+				break;
+			case 1:
+                if (jeevesServlet != null) {
+				    value = jeevesServlet.getInitParameter(keyToUse);
+				    
+				    if(value == null) {
+				    	value = jeevesServlet.getServletContext().getInitParameter(keyToUse);
+				    }
+                }
+                
+				break;
+			case 2:
+				value = handlerConfig.getValue(keyToUse);
+				break;
+			case 3:
 //				Environment variable names used by the utilities in the Shell and Utilities 
 //				volume of IEEE Std 1003.1-2001 consist solely of uppercase letters, digits, and the '_' 
 //				Instead of looking for geonetwork.dir, get geonetwork_dir

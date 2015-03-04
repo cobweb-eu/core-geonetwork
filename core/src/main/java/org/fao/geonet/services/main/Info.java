@@ -405,7 +405,7 @@ public class Info implements Service {
             // you're no Administrator
             // retrieve your groups
 			if (profile != null) {
-                spec = spec.and(UserGroupSpecs.hasProfile(profile));
+                spec = spec.and(UserGroupSpecs.hasProfileOrEquivalent(profile));
             }
             Set<Integer> ids = new HashSet<Integer>(userGroupRepository.findGroupIds(spec));
 

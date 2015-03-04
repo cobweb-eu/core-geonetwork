@@ -302,8 +302,8 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 		// template.rebind(dn, ctx, null);
 		// Remove the old authorities and replace them with the new one
-		removeAuthorities(dn, authorities);
-		addAuthorities(dn, user.getAuthorities());
+//		removeAuthorities(dn, authorities);
+//		addAuthorities(dn, user.getAuthorities());
 	}
 
 	public void deleteUser(String username) {
@@ -367,8 +367,12 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 							new BasicAttribute(groupMemberAttributeName, fullDn
 									.toUrl()));
 
-					ctx.modifyAttributes(buildGroupDn(group),
+					try {
+					    ctx.modifyAttributes(buildGroupDn(group),
 							new ModificationItem[] { addGroup });
+					} catch (Throwable t) {
+					    logger.error("Couldn't update group " + group);
+					}
 				}
 				return null;
 			}

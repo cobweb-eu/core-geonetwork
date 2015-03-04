@@ -754,7 +754,8 @@ public class LuceneSearcher extends MetaSearcher implements MetadataRecordSelect
 			    //--- in case of an admin show all results
                 if (userSession != null) {
                     if (userSession.isAuthenticated()) {
-                        if (userSession.getProfile() == Profile.Administrator) {
+                        if (userSession.getProfile() == Profile.Administrator
+                                || userSession.getProfile() == Profile.UserAdmin) {
                             request.addContent(new Element(SearchParameter.ISADMIN).addContent("true"));
                         } else if (userSession.getProfile() == Profile.Reviewer) {
                             request.addContent(new Element(SearchParameter.ISREVIEWER).addContent("true"));

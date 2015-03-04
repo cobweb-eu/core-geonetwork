@@ -59,9 +59,9 @@ public class Update extends NotInReadOnlyModeService {
     //---
     //--------------------------------------------------------------------------
 
-    public Element serviceSpecificExec(final Element params, final ServiceContext context) throws Exception {
+    public synchronized Element serviceSpecificExec(final Element params, final ServiceContext context) throws Exception {
         final String id = params.getChildText(Params.ID);
-        final String name = Util.getParam(params, Params.NAME);
+        final String name = Util.getParam(params, Params.NAME, "Cobweb");
         final String description = Util.getParam(params, Params.DESCRIPTION, "");
         final boolean deleteLogo = Util.getParam(params, "deleteLogo", false);
         final String email = params.getChildText(Params.EMAIL);
@@ -92,8 +92,55 @@ public class Update extends NotInReadOnlyModeService {
             for (Language l : allLanguages) {
                 group.getLabelTranslations().put(l.getId(), name);
             }
+            
+            //Cobweb do not allow duplicated groupnames
+            //First search if we have the groupname taken:
+            Specification<Group> spec = new Specification<Group>(){
+                @Override
+                public Predicate toPredicate(Root<Group> root,
+                        CriteriaQuery<?> query, CriteriaBuilder cb) {
+                    return cb.equal(root.get(Group_.name), name);
+                }
+            };
+            if(groupRepository.count(spec) > 0) {
+                //Search for the highest id we have already used on this groupname:
+                EntityManager em = context.getBean(EntityManagerFactory.class).createEntityManager();
+                Query query = em.createNativeQuery(
+                        "select  cast(substring(name, " + (name.length() + 1) + 
+                                ") as integer) as ident" +
+                                " from groups where name ~ '" + name + "\\d+' "
+                                + "order by ident desc limit 1");
+                Object singleResult =  null;
+                try {
+                    singleResult = query.getSingleResult();
+                } catch(Throwable t) {
+                    singleResult = 0;
+                }
+                Integer highestName = Integer.valueOf(singleResult.toString());
+                group.setName(name + (highestName + 1));
+            }
+            //Cobweb
 
-            groupRepository.save(group);
+            group = groupRepository.save(group);
+
+            //Cobweb this should be on an event listener, but transactions 
+            // outside and inside spring mvc break everything
+
+            final UserGroupRepository userGroupRepo = context.getBean(UserGroupRepository.class);
+
+            final UserRepository userRepo = context.getBean(UserRepository.class);
+            Authentication auth = SecurityContextHolder.getContext()
+                    .getAuthentication();
+            final String username = auth.getName();
+            final User user = userRepo.findOneByUsername(username);
+            UserGroup ug = new UserGroup();
+            ug.setGroup(group);
+            ug.setProfile(Profile.UserAdmin);
+            ug.setUser(user);
+            userGroupRepo.save(ug);
+            elRes.addContent(new Element("groupId").
+                    setText(Integer.toString(group.getId())));
+            //Cobweb
 
             elRes.addContent(new Element(Jeeves.Elem.OPERATION).setText(Jeeves.Text.ADDED));
         } else {

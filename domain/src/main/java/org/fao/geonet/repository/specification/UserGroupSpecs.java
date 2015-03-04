@@ -59,6 +59,18 @@ public final class UserGroupSpecs {
         };
     }
 
+
+    public static Specification<UserGroup> hasProfileOrEquivalent(final Profile profile) {
+        return new Specification<UserGroup>() {
+            @Override
+            public Predicate toPredicate(Root<UserGroup> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                Path<Profile> userIdAttributePath = root.get(UserGroup_.id).get(UserGroupId_.profile);
+                Predicate userIdEqualPredicate = cb.lessThanOrEqualTo(userIdAttributePath, cb.literal(profile));
+                return userIdEqualPredicate;
+            }
+        };
+    }
+
     /**
      * Specification for testing if the UserGroup is (or is not) a reserved group.
      *

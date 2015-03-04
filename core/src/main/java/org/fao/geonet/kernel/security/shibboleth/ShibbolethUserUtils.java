@@ -31,6 +31,7 @@ import org.fao.geonet.kernel.security.WritableUserDetailsContextMapper;
 import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -161,7 +162,7 @@ public class ShibbolethUserUtils {
 
 			// Make sure the profile name is an exact match
 			if (profile == null) {
-				profile = Profile.Guest;
+				profile = Profile.RegisteredUser;
 			}
 
 			// TODO add group to user
@@ -184,6 +185,13 @@ public class ShibbolethUserUtils {
 				user.setSurname(surname);
 				user.setName(firstname);
 				user.setProfile(profile);
+				user.getEmailAddresses().clear();
+                if(StringUtils.isEmpty(email)) {
+                    user.getEmailAddresses().add(username + "@unknownIdp");
+                } else
+                {
+                    user.getEmailAddresses().add(email);
+                }
 
 				// TODO add group to user
 				// Group g = _groupRepository.findByName(group);
@@ -198,24 +206,27 @@ public class ShibbolethUserUtils {
 					ldapUserDetails = (LDAPUser) userDetailsManager
 							.loadUserByUsername(username);
 				} catch (Throwable t) {
-					t.printStackTrace();
 				}
 				
 				if(ldapUserDetails == null) {
 					ldapUserDetails = new LDAPUser(username);
-					ldapUserDetails.getUser().setName(firstname)
-							.setSurname(surname);
-
-					ldapUserDetails.getUser().setProfile(profile);
-					ldapUserDetails.getUser().getEmailAddresses().clear();
-					if(StringUtils.isEmpty(email)) {
-						ldapUserDetails.getUser().getEmailAddresses().add(username + "@unknownIdp");
-					} else
-					{
-						ldapUserDetails.getUser().getEmailAddresses().add(email);
-					}
+					
+					//Cobweb specific: save user on default anonsurvey group as registered user
+					ldapUserDetails.addPrivilege("anonsurvey", Profile.RegisteredUser);
+	                ldapUserDetails.getUser().getAuthorities().add(new SimpleGrantedAuthority("anonsurvey_USER"));
 				}
-				
+                
+                ldapUserDetails.getUser().setName(firstname)
+                        .setSurname(surname);
+
+                ldapUserDetails.getUser().setProfile(profile);
+                ldapUserDetails.getUser().getEmailAddresses().clear();
+                if(StringUtils.isEmpty(email)) {
+                    ldapUserDetails.getUser().getEmailAddresses().add(username + "@unknownIdp");
+                } else
+                {
+                    ldapUserDetails.getUser().getEmailAddresses().add(email);
+                }
 				udetailsmapper.saveUser(ldapUserDetails);
 
 				user = ldapUserDetails.getUser();

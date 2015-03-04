@@ -99,7 +99,7 @@ public class UpdateAdminOper extends NotInReadOnlyModeService {
 		//--- in case of owner, privileges for groups 0,1 and GUEST are disabled 
 		//--- and are not sent to the server. So we cannot remove them
 
-		boolean isAdmin   = Profile.Administrator == us.getProfile();
+		boolean isAdmin   = Profile.Administrator == us.getProfile() || Profile.UserAdmin == us.getProfile();
 		boolean isReviewer= Profile.Reviewer == us.getProfile();
 
 

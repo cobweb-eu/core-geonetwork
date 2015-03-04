@@ -29,6 +29,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.SpatialIndex;
 import com.vividsolutions.jts.index.strtree.STRtree;
+
 import org.apache.jcs.access.exception.CacheException;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Pair;
@@ -44,6 +45,7 @@ import org.geotools.data.memory.MemoryFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureIterator;
+import org.geotools.feature.NameImpl;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.geometry.jts.JTS;
@@ -73,6 +75,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.logging.Level;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
@@ -505,7 +508,7 @@ public class SpatialIndexWriter implements FeatureListener
                 return descriptor.getName();
             }
         }
-        return null;
+        return new NameImpl(_IDS_ATTRIBUTE_NAME);
     }
 
     public static MultiPolygon toMultiPolygon(Geometry geometry)

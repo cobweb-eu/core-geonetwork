@@ -171,31 +171,35 @@ public abstract class AbstractLDAPUserDetailsContextMapper implements
 	public synchronized void saveUser(LDAPUser userDetails) {
 		try {
 
-			if (createNonExistingLdapUser
-					&& !ldapManager.userExists(userDetails.getUsername())) {
-				InetOrgPerson.Essence p = new InetOrgPerson.Essence(userDetails);
-				p.setDn(ldapBaseDnPattern.replace("{0}",
-						userDetails.getUsername()));
-				String surname = userDetails.getUser().getSurname();
-				if(StringUtils.isEmpty(surname)) {
-					//sn is usually mandatory on LDAP
-					surname = userDetails.getUsername();
+			if (createNonExistingLdapUser) {
+                InetOrgPerson.Essence p = new InetOrgPerson.Essence(userDetails);
+                p.setDn(ldapBaseDnPattern.replace("{0}",
+                        userDetails.getUsername()));
+                String surname = userDetails.getUser().getSurname();
+                if(StringUtils.isEmpty(surname)) {
+                    //sn is usually mandatory on LDAP
+                    surname = userDetails.getUsername();
+                }
+                p.setSn(surname);
+                p.setUid(userDetails.getUsername());
+                p.setMail(userDetails.getUser().getEmail());
+                String name = userDetails.getUser().getName();
+                if(StringUtils.isEmpty(name)) {
+                    //displayname is usually mandatory too
+                    name = userDetails.getUsername();
+                }
+                p.setDisplayName(name);
+                String[] cn = ldapBaseDn.split(",");
+                for (int i = 0; i < cn.length; i++) {
+                    cn[i] = cn[i].substring(cn[i].indexOf("=") + 1);
+                }
+                p.setCn(cn);
+				if(!ldapManager.userExists(userDetails.getUsername())) {
+    				ldapManager.createUser(p.createUserDetails());
+				} else {
+                    ldapManager.updateUser(p.createUserDetails());
 				}
-				p.setSn(surname);
-				p.setUid(userDetails.getUsername());
-				p.setMail(userDetails.getUser().getEmail());
-				String name = userDetails.getUser().getName();
-				if(StringUtils.isEmpty(name)) {
-					//displayname is usually mandatory too
-					name = userDetails.getUsername();
-				}
-				p.setDisplayName(name);
-				String[] cn = ldapBaseDn.split(",");
-				for (int i = 0; i < cn.length; i++) {
-					cn[i] = cn[i].substring(cn[i].indexOf("=") + 1);
-				}
-				p.setCn(cn);
-				ldapManager.createUser(p.createUserDetails());
+					
 			}
 			ldapUtils.saveUser(userDetails, importPrivilegesFromLdap, createNonExistingLdapGroup);
 		} catch (Exception e) {

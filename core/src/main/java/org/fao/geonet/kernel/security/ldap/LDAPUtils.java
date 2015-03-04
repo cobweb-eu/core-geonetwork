@@ -36,19 +36,29 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Group;
+import org.fao.geonet.domain.Group_;
 import org.fao.geonet.domain.LDAPUser;
 import org.fao.geonet.domain.Profile;
+import org.fao.geonet.domain.ReservedGroup;
 import org.fao.geonet.domain.User;
 import org.fao.geonet.domain.UserGroup;
 import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.repository.UserGroupRepository;
 import org.fao.geonet.repository.UserRepository;
+import org.fao.geonet.repository.specification.GroupSpecs;
 import org.fao.geonet.repository.specification.UserGroupSpecs;
 import org.fao.geonet.utils.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 public class LDAPUtils {
@@ -138,10 +148,21 @@ public class LDAPUtils {
             // Add group privileges for each groups
 
             // Retrieve group id
-            String groupName = privilege.getKey();
+            final String groupName = privilege.getKey();
             Profile profile = privilege.getValue();
 
-            Group group = groupRepo.findByName(groupName);
+            Specification<Group> spec = new Specification<Group>() {
+                @Override
+                public Predicate toPredicate(Root<Group> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                    return cb.like(root.get(Group_.name), groupName);
+                }
+            };
+            List<Group> groups = groupRepo.findAll(spec, new Sort(Direction.ASC, Group_.id.getName()));
+            Group group = null;
+            
+            if(!groups.isEmpty()){
+                group = groups.get(0);
+            }
 
             if (group == null && createNonExistingLdapGroup) {
                 group = new Group().setName(groupName);
@@ -179,6 +200,8 @@ public class LDAPUtils {
     @Transactional
     private void setUserGroups(final User user, List<UserGroup> userGroups)
             throws Exception {
+        
+        Profile highestProfile = Profile.RegisteredUser;
 
         Collection<UserGroup> all = userGroupRepo.findAll(UserGroupSpecs
                 .hasUserId(user.getId()));
@@ -214,6 +237,10 @@ public class LDAPUtils {
         // For each of the parameters on the request, make sure the group is
         // updated.
         for (UserGroup element : userGroups) {
+            if(highestProfile.compareTo(element.getProfile()) > 0) {
+                highestProfile = element.getProfile();
+            }
+            
             Group group = element.getGroup();
             String profile = element.getProfile().name();
             // The user has a new group and profile
@@ -266,7 +293,8 @@ public class LDAPUtils {
         // Add only new usergroups (if any)
         userGroupRepo.save(toAdd);
         entityManager.flush();
-
+        
+        user.setProfile(highestProfile);
     }
 
     protected Map<String, ArrayList<String>> convertAttributes(
