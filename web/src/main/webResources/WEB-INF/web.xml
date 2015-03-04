@@ -334,35 +334,52 @@
 
         <!-- Spring dispatcher servlet -->
     <servlet>
-        <servlet-name>spring</servlet-name>
+        <servlet-name>public</servlet-name>
         <servlet-class>
             jeeves.config.springutil.JeevesDispatcherServlet
         </servlet-class>
         <init-param>
             <param-name>nodeId</param-name>
-            <param-value>srv</param-value>
+            <param-value>public</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>private</servlet-name>
+        <servlet-class>
+            jeeves.config.springutil.JeevesDispatcherServlet
+        </servlet-class>
+        <init-param>
+            <param-name>nodeId</param-name>
+            <param-value>private</param-value>
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>spring</servlet-name>
-        <url-pattern>/srv/*</url-pattern>
+        <servlet-name>public</servlet-name>
+        <url-pattern>/public/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>private</servlet-name>
+        <url-pattern>/private/*</url-pattern>
     </servlet-mapping>
 
 
     <servlet-mapping>
-        <servlet-name>spring</servlet-name>
+        <servlet-name>public</servlet-name>
         <url-pattern>/home</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>spring</servlet-name>
+        <servlet-name>private</servlet-name>
         <url-pattern>/login.jsp</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>spring</servlet-name>
+        <servlet-name>public</servlet-name>
         <url-pattern>/accessDenied.jsp</url-pattern>
     </servlet-mapping>
 
