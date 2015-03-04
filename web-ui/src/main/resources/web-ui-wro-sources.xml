@@ -9,6 +9,9 @@
     <jsSource webappPath="catalog/views" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
     <jsSource webappPath="catalog/components" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
     
+  <!--   <jsSource webappPath="catalog/views/cobweb"  pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+    <cssSource webappPath="catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+ -->    
     <cssSource webappPath="cobweb/style" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
     
     <cssSource webappPath="catalog/views" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
