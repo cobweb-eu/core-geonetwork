@@ -54,12 +54,15 @@
                   });
               gnSearchLocation.setMap();
             } else {
-              gnMap.addOwsServiceToMap(link.url, 'WMS');
+			  if(link.url && link.url != "") gnMap.addOwsServiceToMap(link.url, 'WMS');
+			  else if (link.link && link.link.split('|').length > 2 && link.link.split('|')[2] != "") gnMap.addOwsServiceToMap(link.link.split('|')[2], 'WMS');
+			  else alert('Failed to add service')
+			  //todo: see what layer should be used by uuid
             }
           };
 
 
-          var addWMTSToMap = function(link) {
+          var addWMTSToMap = function(link,uuid) {
 
             if (link.name &&
                 (angular.isArray(link.name) && link.name.length > 0)) {
@@ -82,8 +85,11 @@
                         gnSearchSettings.viewerMap, layerInfo, capObj);
                   });
               gnSearchLocation.setMap();
-            } else {
-              gnMap.addOwsServiceToMap(link.url, 'WMTS');
+			} else {
+			  if(link.url && link.url != "") gnMap.addOwsServiceToMap(link.url, 'WMTS');
+			  else if (link.link && link.link.split('|').length > 2 && link.link.split('|')[2] != "") gnMap.addOwsServiceToMap(link.link.split('|')[2], 'WMTS');
+			  else alert('Failed to add service')
+			  //todo: see what layer should be used by uuid
             }
           };
 

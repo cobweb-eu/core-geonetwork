@@ -19,13 +19,13 @@
 		</div>
 		<div class="col-xs-7">
 			<p>
-			{{r.title | words:8}} 
+			{{r.title | split | words:8}} 
 			<span ng-show="r.title==''">	<!-- WMS & WFS contains layer name in r.name -->
 				<span data-ng-hide="mainType == 'WMS' || r.protocol == 'OGC:WFS' ">
-				  {{r.abstract}} <span ng-show="r.abstract==''">{{r.name | words:8}}</span>
+				  {{r.abstract | split | words:8 }} <span ng-show="r.abstract==''">{{r.name | split | words:8}}</span>
 				</span>
 				<span data-ng-show="mainType !== 'WMS' || r.protocol !== 'OGC:WFS' ">
-				  {{r.name}} <span ng-show="r.name==''">{{r.abstract | words:30}}</span>
+				  {{r.name | split | words:8}} <span ng-show="r.name==''">{{r.abstract | split | words:8}}</span>
 				</span>
 			</span>
 			</p>
@@ -46,7 +46,7 @@
 	
 			<p class="text-muted"
 				 data-ng-if="mainType.indexOf('MD') == 0">
-				{{r['abstract']|words:30}}
+				{{r['abstract']|split|words:30}}
 			</p>
 			<p class="text-muted"
 				 data-ng-if="mainType === 'WMS'">
