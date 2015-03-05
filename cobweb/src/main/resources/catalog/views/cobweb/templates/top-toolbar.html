@@ -3,21 +3,21 @@
 	<div class="navbar-header"> 
 		<button type="button" class="navbar-toggle collapsed"
 			data-toggle="collapse" data-target=".navbar-collapse">
-			<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span>
+			<span class="sr-only">{{"ToggleNavigation"| translate}}</span> <span class="icon-bar"></span>
 			<span class="icon-bar"></span> <span class="icon-bar"></span>
 		</button>
 	</div>
 	<div class="navbar-collapse collapse navbar-left">
 		<ul class="nav navbar-nav">
-			<li><a data-gn-active-tb-item="catalog.search#/home"><span class="fa fa-home"></span> Home</a></li>
+			<li><a data-gn-active-tb-item="catalog.search#/home"><span class="fa fa-home"></span> {{"Home"| translate}}</a></li>
 			<!--<li><a href="#" data-ng-click="tabToggle('project_container')"
 				class="container-btn">Surveys</a></li>-->
 			<li><a data-gn-active-tb-item="catalog.search#/search"
-				class="container-btn"><span class="fa fa-search"></span> Search</a></li>
+				class="container-btn"><span class="fa fa-search"></span> {{"Search"| translate}}</a></li>
 			<li><a  data-gn-active-tb-item="catalog.search#/map"
-				class="container-btn"><span class="fa fa-map-marker"></span> Map</a></li>
+				class="container-btn"><span class="fa fa-map-marker"></span> {{"Map"| translate}}</a></li>
 			<li><a  data-gn-active-tb-item="catalog.search#/about"
-				class="container-btn"><span class="fa fa-info"></span> About</a></li>
+				class="container-btn"><span class="fa fa-info"></span> {{"About"| translate}}</a></li>
 			<li data-ng-show="info.env.node=='private'">
 			     <a data-ng-show="user.isEditorOrMore()"
 				 data-gn-active-tb-item="catalog.edit"
@@ -56,17 +56,3 @@
 		
 </div>
 
-<script type="text/javascript">
-	/*geonet.toggle = function(tab) {
-		var target = "#" + tab;
-		
-		//hide all tabs
-		$(".gntab").not(target).hide();
-		//if target not available, load it
-		$(target).show();
-		if (tab=='map_container'){
-			$("#siteBanner").hide();
-			setTimeout(function(){window.dispatchEvent(new Event('resize'))}, 500);
-		} else $("#siteBanner").show();
-	}*/
-</script>
