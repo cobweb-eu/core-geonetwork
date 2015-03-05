@@ -225,30 +225,6 @@
         searchMap: searchMap
       }, gnSearchSettings.sortbyDefault);
 
-      $scope.authorise = function(level,profile) {
-              // loop over profiles, if object-level matches before user-level
-                    // matches, then the user is not authorised
-              var authorised = false;
-              if(profile) {
-                profile = profile.toUpperCase();
-              }
-              if(level) {
-                level = level.toUpperCase();
-              }
-              try{
-              if ($scope.info.env.node=='public') return false;
-              } catch (e) {}
-              var profiles=["ADMINISTRATOR","USERADMIN",
-                            "REVIEWER","EDITOR",
-                            "REGISTEREDUSER","GUEST"];
-                      for (var u = 0;u<profiles.length;u++){
-                            if (profile==profiles[u]) authorised = true;
-                            if (level==profiles[u]) break;
-                      }
-              return authorised;
-      }
-
-
     }]);
 
 
