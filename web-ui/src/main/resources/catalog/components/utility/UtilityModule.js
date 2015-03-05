@@ -76,10 +76,16 @@
           if (!splitChar) {
             splitChar = '|';
           }
-          if (!input.split(splitChar).length > splitIndex) {
+		  arrRes = [];
+		  if (angular.isArray(input)){ //if input is already an array, use that in stead of split
+			arrRes = input;
+		  } else {
+		    arrRes = input.split(splitChar);
+		  }
+          if (!arrRes.length > splitIndex) {
             return '';
           }
-          return input.split(splitChar)[splitIndex];
+          return arrRes[splitIndex];
         }
       });
 })();
