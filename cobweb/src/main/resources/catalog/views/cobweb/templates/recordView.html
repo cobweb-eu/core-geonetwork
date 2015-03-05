@@ -239,11 +239,13 @@
 			data-ng-click="deleteRecord(mdView.current.record)" 
 			value="{{'md_delete' | translate}}"></input>		
 				
-    <div data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
+				<!-- todo: this should use a related query that filters surveys on matching geometry, group and/or keywords   
+	<div data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
          data-title="{{'Related' | translate}}"
          data-template="../../catalog/views/cobweb/templates/similarcarousel.html"
          data-list="{{mdView.similar}}">
     </div>
+	-->
 </div>
 	 
 	
