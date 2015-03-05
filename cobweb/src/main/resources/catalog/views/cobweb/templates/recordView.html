@@ -17,7 +17,6 @@
                 <span data-translate="">previous</span>
 		  </a>
 		  <a href="" 
-		 
 				  data-ng-class="mdView.current.index === mdView.records.length-1 ? 'disabled' : ''"
 				  data-ng-show="mdView.records"
 				  data-ng-click="nextRecord()">
@@ -79,29 +78,22 @@
 	                 </div>
 	                 
 		            <div class="row download-buttons" data-ng-show="mdView.current.record.type=='survey'">
-		                <div class="col-md-6">
+					
+					
+					
+		                <div class="col-md-6" data-ng-repeat="lnk in mdView.current.record.link" data-ng-if="lnk.indexOf('.apk')>0" >
 		                    <a class="btn btn-primary download-btn" 
-		                    data-ng-if="mdView.current.record.android" 
-		                    href="{{mdView.current.record.android}}" 
-		                    target="_blank" >
+		                      href="{{lnk | split:'|':2}}" 
+		                      target="_blank">
 		                    <span class="fa fa-android fa-2x pull-left">
-		                    </span>Android<br/>{{"Download"|translate}}</a>
-		                    <a class="btn btn-primary download-btn disabled" 
-		                    data-ng-if="!mdView.current.record.android"  >
-		                    <span class="fa fa-android fa-2x pull-left">
-		                    </span>Android<br/>{{"Download"|translate}}</a>
+		                    </span> Android<br/>{{"Download"|translate}}</a>
 		                </div>
-		                <div class="col-md-6">
-		                    <a class="btn btn-primary download-btn" 
-		                    data-ng-if="mdView.current.record.ios" 
-		                    href="{{mdView.current.record.ios}}" 
+		                <div class="col-md-6" data-ng-repeat="lnk in mdView.current.record.link" data-ng-if="lnk.indoxOf('.ipa')>0" >
+		                    <a class="btn btn-primary download-btn"
+		                    href="{{lnk | split:'|':2}}" 
 		                    target="_blank">
 		                    <span class="fa fa-apple fa-2x pull-left">
-		                    </span>iPhone<br/>{{"Download"|translate}}</a>
-		                    <a class="btn btn-primary download-btn disabled" 
-		                    data-ng-if="!mdView.current.record.ios" >
-		                    <span class="fa fa-apple fa-2x pull-left">
-		                    </span>iPhone<br/>{{"Download"|translate}}</a>
+		                    </span> iPhone<br/>{{"Download"|translate}}</a>
 		                </div>
 		            </div>
 				</div>
