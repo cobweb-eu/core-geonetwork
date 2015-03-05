@@ -13,15 +13,16 @@
 	<div class="row">
 		<div class="col-xs-1">
 			<strong>
-				<i class="fa fa-2x gn-icon-{{mainType}}"/>&nbsp;
+				<i class="fa fa-2x"
+					 data-ng-class="config.getClassIcon(mainType)"/>&nbsp;
 			</strong>
 		</div>
 		<div class="col-xs-7">
 			<p>
-			{{r.title|words:8}} 
+			{{r.title | words:8}} 
 			<span ng-show="r.title==''">	<!-- WMS & WFS contains layer name in r.name -->
 				<span data-ng-hide="mainType == 'WMS' || r.protocol == 'OGC:WFS' ">
-				  {{r.abstract}} <span ng-show="r.abstract==''">{{r.name|words:8}}</span>
+				  {{r.abstract}} <span ng-show="r.abstract==''">{{r.name | words:8}}</span>
 				</span>
 				<span data-ng-show="mainType !== 'WMS' || r.protocol !== 'OGC:WFS' ">
 				  {{r.name}} <span ng-show="r.name==''">{{r.abstract | words:30}}</span>
@@ -33,7 +34,7 @@
 		<div class="col-xs-4">
 			<button type="button"
 							class="btn btn-defaultp btn-block"
-							data-ng-click="config.doAction(mainType, r)">			
+							data-ng-click="config.doAction(mainType, r)">
 				<span class="visible-lg-*">
 					{{(config.getLabel(mainType) + type) | translate}}
 				</span>
