@@ -26,9 +26,11 @@ package org.fao.geonet.services.region;
 import com.vividsolutions.jts.awt.ShapeWriter;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+
 import jeeves.interfaces.Service;
 import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
+
 import org.apache.commons.io.IOUtils;
 import org.fao.geonet.Util;
 import org.fao.geonet.constants.Params;
@@ -40,6 +42,7 @@ import org.fao.geonet.utils.BinaryFile;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.operation.projection.ProjectionException;
 import org.jdom.Element;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -62,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import javax.imageio.ImageIO;
 
 import static java.lang.Math.pow;
@@ -169,7 +173,11 @@ public class GetMap implements Service {
                 CoordinateReferenceSystem mapCRS = Region.decodeCRS(srs);
                 CoordinateReferenceSystem geomCRS = Region.decodeCRS(geomSrs);
                 MathTransform transform = CRS.findMathTransform(geomCRS, mapCRS, true);
-                geom = JTS.transform(geom, transform);
+                try {
+                    geom = JTS.transform(geom, transform);
+                } catch(ProjectionException pe) {
+                    pe.printStackTrace();
+                }
             }
         }
         BufferedImage image;
