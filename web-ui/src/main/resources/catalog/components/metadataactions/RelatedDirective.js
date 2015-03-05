@@ -28,6 +28,7 @@
               uuid: '@gnRelated',
               template: '@',
               types: '@',
+			  icon: '@',
               title: '@',
               list: '@'
             },
