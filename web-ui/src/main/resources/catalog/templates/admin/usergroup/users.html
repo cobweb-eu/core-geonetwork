@@ -24,11 +24,11 @@
         </div>
 
 
-        <button type="button" class="btn btn-primary btn-block" id="gn-btn-user-add"
+       <!--  <button type="button" class="btn btn-primary btn-block" id="gn-btn-user-add"
           data-ng-click="addUser()">
           <i class="fa fa-plus"/>
           <span data-translate="">newUser</span>
-        </button>
+        </button> -->
       </div>
     </div>
   </div>
@@ -72,7 +72,7 @@
             <div data-ng-class="gnUserEdit.username.$error.required ? 'has-error' : ''" class="form-group">
               <label class="control-label col-sm-3" data-translate="">username</label>
               <div class="col-sm-9">
-                <input type="text" id="username"  name="username" class="form-control"
+                <input disabled type="text" id="username"  name="username" class="form-control"
                   data-ng-model="userSelected.username" data-ng-required="true"/>
                 <p class="help-block" data-translate="">usernameHelp</p>
               </div>
@@ -111,14 +111,13 @@
             <div data-ng-class="gnUserEdit.name.$error.required ? 'has-error' : ''" class="form-group">
               <label class="control-label col-sm-3" data-translate="">name</label>
               <div class="col-sm-9">
-                <input type="text" name="name" class="form-control" data-ng-model="userSelected.name"
-                  data-ng-required="true"/>
+                <input disabled type="text" name="name" class="form-control" data-ng-model="userSelected.name"/>
               </div>
             </div>
             <div data-ng-class="userSelected.surname == '' ? 'has-error' : ''" class="form-group">
               <label class="control-label col-sm-3" data-translate="">surname</label>
               <div class="col-sm-9">
-                <input type="text" name="surname" class="form-control"
+                <input disabled type="text" name="surname" class="form-control"
                   data-ng-model="userSelected.surname" data-ng-required=""/>
               </div>
             </div>
@@ -126,15 +125,15 @@
               data-ng-class="gnUserEdit.email.$error.email || gnUserEdit.email.$error.required ? 'has-error' : ''" class="form-group">
               <label class="control-label col-sm-3" data-translate="">email</label>
               <div class="col-sm-9">
-                <input type="email" name="email" class="form-control"
-                  data-ng-model="userSelected.email" data-ng-required="true"/>
+                <input disabled type="email" name="email" class="form-control"
+                  data-ng-model="userSelected.email"/>
               </div>
             </div>
             <div class="form-group">
               <label class="control-label col-sm-3" data-translate="">organisation</label>
               <!-- TODO : Add org list -->
               <div class="col-sm-9">
-                <input type="text" name="org" class="form-control"
+                <input disabled type="text" name="org" class="form-control"
                   data-ng-model="userSelected.organisation"/>
               </div>
             </div>
