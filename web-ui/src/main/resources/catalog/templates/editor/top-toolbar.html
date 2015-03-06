@@ -49,12 +49,12 @@
         </li>
       </ul>
     </div>
-    <button type="button" data-ng-hide="md['geonet:info'].isPublishedToAll" 
+    <button type="button" data-ng-hide="md['geonet:info'].isPublishedToAll == true" 
         class="btn btn-success navbar-btn" data-ng-click="md.doPublish()">
       <i class="fa fa-thumbs-up"/>&nbsp;
       <span class="visible-lg" data-translate="">publish</span>
     </button>
-    <button type="button" data-ng-show="md['geonet:info'].isPublishedToAll" 
+    <button type="button" data-ng-show="md['geonet:info'].isPublishedToAll == true" 
         class="btn btn-warning navbar-btn" data-ng-click="md.doUnpublish()">
       <i class="fa fa-thumbs-down"/>&nbsp;
       <span class="visible-lg" data-translate="">unpublish</span>
