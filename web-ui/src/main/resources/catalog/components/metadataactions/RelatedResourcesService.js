@@ -30,67 +30,62 @@
             angular.extend(this.map, options);
           };
 
-          var addWMSToMap = function(link) {
-
-            if (link.name &&
-                (angular.isArray(link.name) && link.name.length > 0)) {
+          var addWMSToMap = function(link,uuid) {		  
+			//see if a uuid is provided, this is the uuid of the source record
+			if (!uuid) uuid="none";
+			//a link can have a wms url directly in link.url or as a md.link (name||url|protocol)
+			if (!link.url && link.link && link.link.split('|').length > 2) link.url = link.link.split('|')[2];
+			if (!link.url || link.url == ""){
+				alert('No WMS service to add');
+				return;
+			}
+			//make sure the name param exists and is an array
+		    if (!link.name || link.name == "") link.name = uuid;
+			if (!angular.isArray(link.name)) link.name = [link.name];
+		  
               angular.forEach(link.name, function(name) {
                 gnOwsCapabilities.getWMSCapabilities(link.url).then(
                    function(capObj) {
-                     var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(
-                     name, capObj);
-                     gnMap.addWmsToMapFromCap(
-                     gnSearchSettings.viewerMap, layerInfo, capObj);
+                     var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(name, capObj, uuid);
+					 if (typeof layerinfo !='undefined'){ //layer found
+                       gnMap.addWmsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
+					 } else { //add service
+					   alert('Unable to find a proper layer, so adding full service.');
+					   gnMap.addOwsServiceToMap(link.url, 'WMS');
+					 }
                    });
-              });
-              gnSearchLocation.setMap();
-            } else if (link.name && !angular.isArray(link.name)) {
-              gnOwsCapabilities.getWMSCapabilities(link.url).then(
-                  function(capObj) {
-                    var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(
-                   link.name, capObj);
-                    gnMap.addWmsToMapFromCap(
-                        gnSearchSettings.viewerMap, layerInfo, capObj);
-                  });
-              gnSearchLocation.setMap();
-            } else {
-			  if(link.url && link.url != "") gnMap.addOwsServiceToMap(link.url, 'WMS');
-			  else if (link.link && link.link.split('|').length > 2 && link.link.split('|')[2] != "") gnMap.addOwsServiceToMap(link.link.split('|')[2], 'WMS');
-			  else alert('Failed to add service')
-			  //todo: see what layer should be used by uuid
-            }
+				   gnSearchLocation.setMap();
+              });    
+			
           };
 
 
           var addWMTSToMap = function(link,uuid) {
-
-            if (link.name &&
-                (angular.isArray(link.name) && link.name.length > 0)) {
+			//see if a uuid is provided, this is the uuid of the source record
+			if (!uuid) uuid="none";
+			//a link can have a wms url directly in link.url or as a md.link (name||url|protocol)
+			if (!link.url && link.link && link.link.split('|').length > 2) link.url = link.link.split('|')[2];
+			if (!link.url || link.url == ""){
+				alert('No WMTS service to add');
+				return;
+			}
+			//make sure the name param exists and is an array
+		    if (!link.name || link.name == "") link.name = [uuid];
+			if (!angular.isArray(link.name)) link.name = [link.name];
               angular.forEach(link.name, function(name) {
                 gnOwsCapabilities.getWMTSCapabilities(link.url).then(
                    function(capObj) {
-                     var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(
-                     name, capObj);
-                     gnMap.addWmtsToMapFromCap(
-                     gnSearchSettings.viewerMap, layerInfo, capObj);
+                     var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(name, capObj, uuid);
+					 if (typeof layerinfo !='undefined'){ //layer found
+                       gnMap.addWmtsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
+					 } else { //add service
+					   alert('Unable to find a proper layer, so adding full service.');
+					   gnMap.addOwsServiceToMap(link.url, 'WMTS');
+					 }
                    });
-              });
-              gnSearchLocation.setMap();
-            } else if (link.name && !angular.isArray(link.name)) {
-              gnOwsCapabilities.getWMTSCapabilities(link.url).then(
-                  function(capObj) {
-                    var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(
-                   link.name, capObj);
-                    gnMap.addWmtsToMapFromCap(
-                        gnSearchSettings.viewerMap, layerInfo, capObj);
-                  });
-              gnSearchLocation.setMap();
-			} else {
-			  if(link.url && link.url != "") gnMap.addOwsServiceToMap(link.url, 'WMTS');
-			  else if (link.link && link.link.split('|').length > 2 && link.link.split('|')[2] != "") gnMap.addOwsServiceToMap(link.link.split('|')[2], 'WMTS');
-			  else alert('Failed to add service')
-			  //todo: see what layer should be used by uuid
-            }
+				   gnSearchLocation.setMap();
+              });    
+			
           };
 
           var addWFSToMap = function(md) {
