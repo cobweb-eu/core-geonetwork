@@ -155,16 +155,28 @@
             return extent;
           },
 
-          getLayerInfoFromCap: function(name, capObj) {
+          getLayerInfoFromCap: function(name, capObj, uuid) {
             var layers = capObj.layers || capObj.Layer;
             for (var i = 0, len = layers.length;
                  i < len; i++) {
-              if (name == layers[i].Name ||
-                  name == layers[i].Identifier) {
+			  //todo: what happens if there are multiple matches?
+              if (name == layers[i].Name) { //check layername
                 return layers[i];
-              }
+              } //check dataset identifer match
+			  if (angular.isArray(layers[i].Identifier)) {
+				angular.forEach(layers[i].Identifier, function(id) {
+					if (id==uuid) return layers[i];
+				});
+				}
+			   //check uuid from metadata url
+			   if (angular.isArray(layers[i].MetadataURL)) {
+					angular.forEach(layers[i].MetadataURL, function(mdu) {
+						if (mdu && mdu.OnlineResource && mdu.OnlineResource.indexOf(uuid)>0) return layers[i];
+					});
+				}
+			  }
+			  return;
             }
-          }
         };
       }];
   });
