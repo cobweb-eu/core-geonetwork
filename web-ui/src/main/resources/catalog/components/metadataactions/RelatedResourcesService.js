@@ -79,6 +79,7 @@
 					 if (typeof layerinfo !='undefined'){ //layer found
                        gnMap.addWmtsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
 					 } else { //add service
+					   alert('Unable to find a proper layer, so adding full service.');
 					   gnMap.addOwsServiceToMap(link.url, 'WMTS');
 					 }
                    });

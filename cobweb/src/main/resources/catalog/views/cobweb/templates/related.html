@@ -32,8 +32,9 @@
 		</div>
 		<div class="col-xs-4">
 			<button type="button"
-							class="btn btn-defaultp btn-block"
+							class="btn btn-default"
 							data-ng-click="config.doAction(mainType, r, uuid)">
+							<i class="fa" data-ng-class="config.getClassIcon(mainType)"></i>
 				<span class="visible-lg-*">
 					{{(config.getLabel(mainType) + type) | translate}}
 				</span>
