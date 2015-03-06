@@ -6,7 +6,7 @@
 	<div class="col-md-12">
 	<ol class="breadcrumb">
 	  <li><a href="#/home" data-translate="">Home</a></li>
-	  <!-- this should find the survey this relates to <li><a href="#">{{mdView.current.record.groupName}}</a></li> -->
+	  <!-- this should find the survey this relates to <li><a href="#">{{groups[mdView.current.record.groupOwner]}}</a></li> -->
 	  <li class="active">{{mdView.current.record.title || mdView.current.record.defaultTitle}}</li>
 	  <li class="pull-right no-content">
 	  	 <a href="" 
@@ -209,20 +209,20 @@
 		
 		<a class="btn btn-primary bottom-spacer width-100"
 		      data-ng-show="user.isEditorOrMore()&&mdView.current.record.type=='survey'
-                && mdView.current.record.groupName" 
+                && groups[mdView.current.record.groupOwner]" 
 		      title="Open Survey Authoring Tool configuration"
-			  href="/cobweb-authoring-tool/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{mdView.current.record.groupName}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
+			  href="/cobweb-authoring-tool/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
 			  target="_blank" ></span> {{'md_AuthoringTool' | translate}}</a>
 	
 		<a class="btn btn-primary bottom-spacer width-100" 
 		    data-ng-show="user.isEditorOrMore()&&mdView.current.record.type=='survey'
-                && mdView.current.record.groupName" title="QAconfig"
-			href="/qa-config/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{mdView.current.record.groupName}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
+                && groups[mdView.current.record.groupOwner]" title="QAconfig"
+			href="/qa-config/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
 			target="_blank" ><span data-translate="">md_QAconfig</span></a>
 	
         <a class="btn btn-primary bottom-spacer width-100"
               data-ng-show="user.isEditorOrMore() && mdView.current.record.type=='survey'
-                && mdView.current.record.groupName" 
+                && groups[mdView.current.record.groupOwner]" 
               title="Invite users to survey"
               href="mailto:invited@user.com?subject=Invite to join survey&body=Dear reader, I would like to ask you to join my survey at {{permalink}}">
                {{'md_InviteUsers' | translate}}</a>
