@@ -40,16 +40,17 @@
 				return;
 			}
 			//make sure the name param exists and is an array
-		    if (!link.name || link.name == "") link.name = [uuid];
+		    if (!link.name || link.name == "") link.name = uuid;
 			if (!angular.isArray(link.name)) link.name = [link.name];
 		  
               angular.forEach(link.name, function(name) {
                 gnOwsCapabilities.getWMSCapabilities(link.url).then(
                    function(capObj) {
                      var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(name, capObj, uuid);
-					 if (layerinfo){ //layer found
+					 if (typeof layerinfo !='undefined'){ //layer found
                        gnMap.addWmsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
 					 } else { //add service
+					   alert('Unable to find a proper layer, so adding full service.');
 					   gnMap.addOwsServiceToMap(link.url, 'WMS');
 					 }
                    });
@@ -71,12 +72,11 @@
 			//make sure the name param exists and is an array
 		    if (!link.name || link.name == "") link.name = [uuid];
 			if (!angular.isArray(link.name)) link.name = [link.name];
-		  
               angular.forEach(link.name, function(name) {
                 gnOwsCapabilities.getWMTSCapabilities(link.url).then(
                    function(capObj) {
                      var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(name, capObj, uuid);
-					 if (layerinfo){ //layer found
+					 if (typeof layerinfo !='undefined'){ //layer found
                        gnMap.addWmtsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
 					 } else { //add service
 					   gnMap.addOwsServiceToMap(link.url, 'WMTS');
