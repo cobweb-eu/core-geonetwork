@@ -14,7 +14,7 @@
 		<div class="col-xs-1">
 			<strong>
 				<i class="fa fa-2x"
-					 data-ng-class="config.getClassIcon(mainType)"/>&nbsp;
+					 data-ng-class="config.getClassIcon(mainType,r['@type'])"/>&nbsp;
 			</strong>
 		</div>
 		<div class="col-xs-7">
@@ -34,7 +34,7 @@
 			<button type="button"
 							class="btn btn-default"
 							data-ng-click="config.doAction(mainType, r, uuid)">
-							<i class="fa" data-ng-class="config.getClassIcon(mainType)"></i>
+				<i class="fa gn-icon-{{config.getLabel(mainType)}}"></i>
 				<span class="visible-lg-*">
 					{{(config.getLabel(mainType) + type) | translate}}
 				</span>
