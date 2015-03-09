@@ -175,7 +175,9 @@
             }
           };
 
-          this.getClassIcon = function(type) {
+          this.getClassIcon = function(type,subtype) {
+			//if type=md, use the mdtype to display an icon
+		    if (subtype&&subtype!="") return this.map[type].iconClass+" gn-icon-"+subtype;
             return this.map[type].iconClass ||
                 this.map['DEFAULT'].iconClass;
           };
