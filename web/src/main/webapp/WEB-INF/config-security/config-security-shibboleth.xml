@@ -40,6 +40,7 @@
 		<property name="surnameKey" value="${shibbolethConfiguration.surnameKey}" />
 		<property name="usernameKey" value="${shibbolethConfiguration.usernameKey}" />
 		<property name="profileKey" value="${shibbolethConfiguration.profileKey}" />
+		<property name="emailKey" value="${shibbolethConfiguration.emailKey}" />
 		<property name="groupKey" value="${shibbolethConfiguration.groupKey}" />
 
 		<property name="updateGroup" value="${shibbolethConfiguration.updateGroup}" />
