@@ -89,9 +89,9 @@
         <value>nv.d3.css</value>
         <value>gn_search_default.css</value>
         <value>gn_search_default.js</value>
-        <value>gn_editor.css</value>
+        <value>gn_editor_default.css</value>
         <value>gn_editor.js</value>
-        <value>gn_admin_default.css </value>
+        <value>gn_admin_default.css</value>
         <value>gn_admin.js</value>
         <value>gn_login_default.css</value>
         <value>gn_login.js</value>
@@ -100,6 +100,7 @@
     <util:list id="formattersToInitialize" value-type="java.lang.String" >
         <value>full_view</value>
         <value>xml_view</value>
+        <value>hierarchy_view</value>
     </util:list>
 
     <util:set id="formatterRemoteFormatAllowedHosts" value-type="java.lang.String">
