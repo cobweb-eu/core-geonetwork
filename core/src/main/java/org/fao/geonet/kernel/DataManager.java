@@ -2700,7 +2700,7 @@ public class DataManager {
         // Session may not be defined when a harvester is running
         if (context.getUserSession() != null) {
             Profile userProfile = context.getUserSession().getProfile();
-            if (!(userProfile == Profile.Administrator || userProfile == Profile.UserAdmin)) {
+            if (userProfile.compareTo(Profile.Editor) > 0) { //Cobweb specific
                 int userId = context.getUserSession().getUserIdAsInt();
                 // Reserved groups
                 if (ReservedGroup.isReserved(grpId)) {
