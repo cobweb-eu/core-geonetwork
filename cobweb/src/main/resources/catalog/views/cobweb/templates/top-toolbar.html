@@ -28,13 +28,6 @@
 				data-gn-active-tb-item="admin.console" class="container-btn"
 				title="{{'adminConsole' | translate}}"><i class="fa fa-cog"></i>
 					{{"AdminConsole" | translate }}</a></li>
-			<li data-ng-show="info.env.node=='private'">
-			     <a data-ng-show="user.isUserAdminOrMore()"
-				class="container-btn"
-				data-gn-active-tb-item="admin.console#/organization/users/{{user.username}}"
-				title="{{'userDetails' | translate}}"> <i class="fa fa-user"></i>
-					{{"Profile" | translate }}
-			</a></li>
 			<li data-ng-show="info.env.node=='public'"><a
 				href="../../private/eng/catalog.search">
 				<i class="fa fa-user"></i> {{'Login'|translate}}</a></li>
