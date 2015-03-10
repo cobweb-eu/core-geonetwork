@@ -2710,12 +2710,12 @@ public class DataManager implements ApplicationEventPublisherAware {
                 // Reserved groups
                 if (ReservedGroup.isReserved(grpId)) {
 
-                    Specification<UserGroup> hasUserIdAndProfile = where(UserGroupSpecs.hasProfile(Profile.Reviewer))
+                    Specification<UserGroup> hasUserIdAndProfile = where(UserGroupSpecs.hasProfileOrEquivalent(Profile.Reviewer))
                             .and(UserGroupSpecs.hasUserId(userId));
                     List<Integer> groupIds = userGroupRepo.findGroupIds(hasUserIdAndProfile);
 
                     if (groupIds.isEmpty()) {
-                        throw new ServiceNotAllowedEx("User can't set operation for group " + grpId + " because the user in not a "
+                        throw new ServiceNotAllowedEx("User" + userId + " can't set operation for group " + grpId + " because the user in not a "
                                                       + "Reviewer of any group.");
                     }
                 } else {
