@@ -164,7 +164,9 @@
               } //check dataset identifer match
 			  if (angular.isArray(layers[i].Identifier)) {
 				angular.forEach(layers[i].Identifier, function(id) {
-					if (id==uuid) needles.push(layers[i]);
+					if (id==uuid){ 
+						needles.push(layers[i]);
+					}
 				});
 				}
 			   //check uuid from metadata url
@@ -176,7 +178,7 @@
 				
 			  } 
 			  //todo: allow multiple, remove duplicates
-			  if (typeof needles.length > 0) return needles[0];
+			  if (needles.length > 0) return needles[0];
 			  else return;
             }
         };

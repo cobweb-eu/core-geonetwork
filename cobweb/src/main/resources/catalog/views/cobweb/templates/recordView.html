@@ -79,8 +79,6 @@
 	                 
 		            <div class="row download-buttons" data-ng-show="mdView.current.record.type=='survey'">
 					
-					
-					
 		                <div class="col-md-6" data-ng-repeat="lnk in mdView.current.record.link" data-ng-if="lnk.indexOf('.apk')>0" >
 		                    <a class="btn btn-primary download-btn" 
 		                      href="{{lnk | split:'|':2}}" 
@@ -148,7 +146,9 @@
 					<div class="panel-heading">
 						<h3 class="panel-title"><span class="fa fa-map-marker"></span> {{'md_location' | translate}}</h3>
 					</div>
-					<img style="width: 100%; max-height: 300px;" data-ng-src="region.getmap.png?mapsrs=EPSG:3857&width=250&background=osm&geomsrs=EPSG:4326&geom={{mdView.current.record.getBoxAsPolygon()}}">
+					
+					<iframe data-ng-show=="mdView.current.record.type=='survey'" style="width: 100%; max-height: 300px;" src="https://dyfi.cobwebproject.eu/viewer/index.html?sid={{mdView.current.record['geonet:info'].uuid}}&pos={{mdView.current.record.getBoundsXY()}}" ></iframe>
+					<img data-ng-hide="mdView.current.record.type=='survey'" style="width: 100%; max-height: 300px;" data-ng-src="region.getmap.png?mapsrs=EPSG:3857&width=250&background=osm&geomsrs=EPSG:4326&geom={{mdView.current.record.getBoxAsPolygon()}}">
 					<div class="panel-body">
 						<span>{{'Area' | translate}}: <i>{{mdView.current.record.getBoxAsPolygon()}}</i></span>
 					</div>
