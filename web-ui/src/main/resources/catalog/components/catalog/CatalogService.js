@@ -590,7 +590,7 @@
         if (this.geoBox) {
           var coords = this.geoBox.split('|');
           try{
-		   return coords[3]-coords[1] + ',' + return coords[2]-coords[0];
+		   return coords[3]-coords[1] + ',' + coords[2]-coords[0];
 		  } catch (e) { return null; }
         } else {
           return null;
