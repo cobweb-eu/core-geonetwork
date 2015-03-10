@@ -173,9 +173,11 @@
 						if (mdu && mdu.OnlineResource && mdu.OnlineResource.indexOf(uuid)>0) needles.push(layers[i]);
 					});
 				}
-				if (typeof needles.length > 0) return needles[0]; //todo: allow multiple, remove duplicates
-			  }
-			  return;
+				
+			  } 
+			  //todo: allow multiple, remove duplicates
+			  if (typeof needles.length > 0) return needles[0];
+			  else return;
             }
         };
       }];
