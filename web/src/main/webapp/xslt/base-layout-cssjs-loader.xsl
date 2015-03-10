@@ -25,9 +25,6 @@
     </xsl:if>
 
     <link rel="shortcut icon" type="image/x-icon" href="../../images/logos/favicon.ico" />
-
-<link href="{/root/gui/url}/static/gn_search_default.css{$minimizedParam}" rel="stylesheet" media="screen" />
-<link href="{/root/gui/url}/static/gn_view.css{$minimizedParam}" rel="stylesheet" media="screen" />
     <link href="{/root/gui/url}/static/{$customFilename}.css{$minimizedParam}" rel="stylesheet" media="screen" />
 
     <link href="{/root/gui/url}/static/{/root/gui/nodeId}_custom_style.css{$minimizedParam}" rel="stylesheet" media="screen" />
