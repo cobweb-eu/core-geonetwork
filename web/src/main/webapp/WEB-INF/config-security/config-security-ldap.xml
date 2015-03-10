@@ -11,7 +11,7 @@
 
 	<ctx:property-override ignore-resource-not-found="true"
 		ignore-unresolvable="true"
-		location="WEB-INF/config-security-overrides.properties,file:///etc/geocat/live/config-security-overrides.properties" />
+		location="WEB-INF/config-security-overrides.properties" />
 
 	<!-- Add ldap authentication to authentication manager -->
 	<bean id="ldapAuthenticationProviderPostProcessor"
