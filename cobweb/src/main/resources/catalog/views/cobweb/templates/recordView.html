@@ -203,31 +203,31 @@
 	<div class="col-md-3 sidebar-offcanvas">
 		<div data-joinsurveybutton=""></div>
             
-        <a class="btn btn-default bottom-spacer width-100" data-ng-show="user.isEditorOrMore()" title="Modify content"
+        <a class="btn btn-default bottom-spacer width-100" data-ng-show="user.canEditRecord(mdView.current.record)" title="Modify content"
             href="catalog.edit#/metadata/{{mdView.current.record['geonet:info'].id}}"
             target="_blank" ></span> {{'md_modify' | translate}}</a>
 		
 		<a class="btn btn-primary bottom-spacer width-100"
-		      data-ng-show="user.isEditorOrMore()&&mdView.current.record.type=='survey'
+		      data-ng-show="user.canEditRecord(mdView.current.record) && mdView.current.record.type=='survey'
                 && groups[mdView.current.record.groupOwner]" 
 		      title="Open Survey Authoring Tool configuration"
 			  href="/cobweb-authoring-tool/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
 			  target="_blank" ></span> {{'md_AuthoringTool' | translate}}</a>
 	
 		<a class="btn btn-primary bottom-spacer width-100" 
-		    data-ng-show="user.isEditorOrMore()&&mdView.current.record.type=='survey'
+		    data-ng-show="user.canEditRecord(mdView.current.record) && mdView.current.record.type=='survey'
                 && groups[mdView.current.record.groupOwner]" title="QAconfig"
 			href="/qa-config/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
 			target="_blank" ><span data-translate="">md_QAconfig</span></a>
 	
         <a class="btn btn-primary bottom-spacer width-100"
-              data-ng-show="user.isEditorOrMore() && mdView.current.record.type=='survey'
+              data-ng-show="user.canEditRecord(mdView.current.record) && mdView.current.record.type=='survey'
                 && groups[mdView.current.record.groupOwner]" 
               title="Invite users to survey"
               href="mailto:invited@user.com?subject=Invite to join survey&body=Dear reader, I would like to ask you to join my survey at {{permalink}}">
                {{'md_InviteUsers' | translate}}</a>
 
-		<input type="button" class="btn btn-default bottom-spacer width-100" data-ng-show="user.isEditorOrMore()" title="Remove content"
+		<input type="button" class="btn btn-default bottom-spacer width-100" data-ng-show="user.canEditRecord(mdView.current.record)" title="Remove content"
 			data-ng-click="deleteRecord(mdView.current.record)" 
 			value="{{'md_delete' | translate}}"></input>		
 				
