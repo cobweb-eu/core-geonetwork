@@ -47,7 +47,7 @@
                 gnOwsCapabilities.getWMSCapabilities(link.url).then(
                    function(capObj) {
                      var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(name, capObj, uuid);
-					 if (typeof layerinfo !='undefined'){ //layer found
+					 if (typeof layerInfo !='undefined'){ //layer found
                        gnMap.addWmsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
 					 } else { //add service
 					   alert('Unable to find a proper layer, so adding full service.');
