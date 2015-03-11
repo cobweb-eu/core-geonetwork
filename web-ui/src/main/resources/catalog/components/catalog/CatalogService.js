@@ -585,7 +585,7 @@
 		  } catch (e) { return null; }
         } else {
           return null;
-        },
+        }},
 		getBoundsYX: function() {
         if (this.geoBox) {
           var coords = this.geoBox.split('|');
@@ -594,7 +594,7 @@
 		  } catch (e) { return null; }
         } else {
           return null;
-        },
+        }},
       getBoxAsPolygon: function() {
         // Polygon((4.6810%2045.9170,5.0670%2045.9170,5.0670%2045.5500,4.6810%2045.5500,4.6810%2045.9170))
         if (this.geoBox) {
