@@ -228,6 +228,20 @@
                       scope.ownerGroup === '') && data.group) {
                     scope.ownerGroup = data.group[0]['@id'];
                   }
+                  
+                  //Cobweb specific
+                  scope.isSurvey = false;
+                  
+                  scope.$parent.$watch('activeType', 
+                      function(newValue){
+                          scope.isSurvey = newValue == 'survey';
+                          if(scope.isSurvey) {
+                            scope.ownerGroup = -2;
+                          } else {
+                            scope.ownerGroup = scope.groups[0]['@id'];
+                          }
+                      });
+                  //Cobweb specific
                 });
           }
 

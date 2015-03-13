@@ -154,17 +154,33 @@
             }
             return extent;
           },
-
-          getLayerInfoFromCap: function(name, capObj) {
-            var layers = capObj.layers || capObj.Layer;
-            for (var i = 0, len = layers.length;
-                 i < len; i++) {
-              if (name == layers[i].Name ||
-                  name == layers[i].Identifier) {
-                return layers[i];
-              }
+          getLayerInfoFromCap: function(name, capObj, uuid) {
+            var needles = [];
+			var layers = capObj.layers || capObj.Layer;
+            for (var i = 0, len = layers.length;i < len; i++) {
+			  //todo: what happens if there are multiple matches?
+              if (name == layers[i].Name) { //check layername
+                needles.push(layers[i]);
+              } //check dataset identifer match
+			  if (angular.isArray(layers[i].Identifier)) {
+				angular.forEach(layers[i].Identifier, function(id) {
+					if (id==uuid){ 
+						needles.push(layers[i]);
+					}
+				});
+				}
+			   //check uuid from metadata url
+			   if (angular.isArray(layers[i].MetadataURL)) {
+					angular.forEach(layers[i].MetadataURL, function(mdu) {
+						if (mdu && mdu.OnlineResource && mdu.OnlineResource.indexOf(uuid)>0) needles.push(layers[i]);
+					});
+				}
+				
+			  } 
+			  //todo: allow multiple, remove duplicates
+			  if (needles.length > 0) return needles[0];
+			  else return;
             }
-          }
         };
       }];
   });

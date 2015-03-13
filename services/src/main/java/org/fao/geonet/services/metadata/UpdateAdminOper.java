@@ -99,13 +99,18 @@ public class UpdateAdminOper extends NotInReadOnlyModeService {
 		//--- in case of owner, privileges for groups 0,1 and GUEST are disabled 
 		//--- and are not sent to the server. So we cannot remove them
 
+		//Cobweb specific
 		boolean isAdmin   = Profile.Administrator == us.getProfile() || Profile.UserAdmin == us.getProfile();
 		boolean isReviewer= Profile.Reviewer == us.getProfile();
+		boolean isEditor = Profile.Editor.compareTo(us.getProfile()) >= 0;
 
 
-		if (us.getUserIdAsInt() == info.getSourceInfo().getOwner() && !isAdmin && !isReviewer) {
+		if (us.getUserIdAsInt() == info.getSourceInfo().getOwner() 
+		        && !isAdmin && !isReviewer && !isEditor) {
 			skip = true;
         }
+		
+		//Cobweb specific
 
 		if (!update) {
 			dm.deleteMetadataOper(context, id, skip);

@@ -101,10 +101,15 @@ public class BatchUpdatePrivileges extends NotInReadOnlyModeService {
                     //--- disabled and are not sent to the server. So we cannot remove them
                     boolean isAdmin = Profile.Administrator == us.getProfile();
                     boolean isReviewer = Profile.Reviewer == us.getProfile();
+                    
+                    //Cobweb specific, also Editor (coordinator) can publish to All
+                    boolean isEditor = us.getProfile().compareTo(Profile.Editor) <= 0;
 
-                    if (us.getUserIdAsInt() == info.getSourceInfo().getOwner() && !isAdmin && !isReviewer) {
+                    if (us.getUserIdAsInt() == info.getSourceInfo().getOwner() 
+                            && !isAdmin && !isReviewer && !isEditor) {
                         skip = true;
                     }
+                    //Cobweb specific
 
                     dm.deleteMetadataOper(context, "" + info.getId(), skip);
 

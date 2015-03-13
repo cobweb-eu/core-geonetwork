@@ -112,12 +112,12 @@
     '$translate', '$compile', '$timeout', '$location',
     'gnEditor', 'gnSearchManagerService',
     'gnConfigService', 'gnUtilityService',
-    'gnCurrentEdit', 'gnConfig', 'gnMetadataActions',
+    'gnCurrentEdit', 'gnConfig', 'gnMetadataActions', 'Metadata',
     function($scope, $routeParams, $http, $rootScope, 
         $translate, $compile, $timeout, $location,
         gnEditor, gnSearchManagerService,
         gnConfigService, gnUtilityService,
-        gnCurrentEdit, gnConfig, gnMetadataActions) {
+        gnCurrentEdit, gnConfig, gnMetadataActions, Metadata) {
       $scope.savedStatus = null;
       $scope.savedTime = null;
       $scope.formId = null;
@@ -172,7 +172,19 @@
                   $scope.mdCategories.push(categories);
                 }
               }
-
+              $scope.md = new Metadata(data.metadata[0]);
+              $scope.md.doPublish = function() {
+                $http.get('md.privileges.update?id='+this.getId()+'&_1_0=on&_1_1=on&_1_5=on').
+                               success(function(data){
+                                 $scope.md['geonet:info'].isPublishedToAll=true;
+                               });
+              },
+              $scope.md.doUnpublish = function() {
+                $http.get('md.privileges.update?update=true&id='+this.getId()+'&_1_0=&_1_1=&_1_5=').
+                                success(function(data){
+                                  $scope.md['geonet:info'].isPublishedToAll=false;
+                                });
+              },
               $scope.groupOwner = data.metadata[0].groupOwner;
               $scope.mdTitle = data.metadata[0].title ||
                   data.metadata[0].defaultTitle;

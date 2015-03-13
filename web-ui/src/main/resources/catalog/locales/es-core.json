@@ -71,7 +71,6 @@
     "needHelp": "Necesito ayuda",
     "newAccountInfo": "Cuando solicitas una cuenta, se enviará un correo con tus datos. Si se solicita un perfil avanzado de usuario, el administrador del catálogo examinará tu petición y se pondrá en contacto contigo.",
     "next": "Siguiente",
-    "noFileSelected": "No file selected",
     "noRecordFound": "No se encontró el registro.",
     "nor": "Norsk",
     "north": "Norte",
@@ -81,8 +80,6 @@
     "organisation": "Organización",
     "organization": "Organización",
     "owner": "Propietario",
-    "privilegesUpdated": "Permisos actualizados.",
-    "privilegesUpdatedError": "Ocurrió un error al actualizar los privilegios.",
     "password": "Contraseña",
     "passwordMinlength": "La contraseña debe contener al menos seis caracteres.",
     "passwordNotMatching": "Las contraseñas no coinciden.",
@@ -136,6 +133,5 @@
     "usernameHelp": "Nombre a usar cuando se hace login.",
     "west": "Oeste",
     "year": "Año",
-    "zip": "ZIP",
-    "whoCanAccess": "Quién tiene acceso"
+    "zip": "ZIP"
 }

@@ -159,13 +159,35 @@
       }
 
       $scope.createNewMetadata = function(isPublic) {
-        return gnMetadataManager.create(
-            $scope.activeTpl['geonet:info'].id,
-            $scope.ownerGroup,
-            isPublic || false,
-            $scope.isTemplate,
-            $routeParams.childOf ? true : false
-        );
+        //Cobweb specific
+        if($scope.ownerGroup == -2) {
+          //Create new group
+          $http({
+            url: 'admin.group.update?_content_type=json&name=' + 
+              angular.element("input[data-ng-model=groupName]")[0].value,
+            method: 'GET'
+          }).success(function(data) {
+            $scope.ownerGroup = data.groupId;
+            gnMetadataManager.create(
+                $scope.activeTpl['geonet:info'].id,
+                $scope.ownerGroup,
+                isPublic || false,
+                $scope.isTemplate,
+                $routeParams.childOf ? true : false
+            );
+          }).error(function(data){
+            //TODO                           
+          });
+        } else {
+          gnMetadataManager.create(
+              $scope.activeTpl['geonet:info'].id,
+              $scope.ownerGroup,
+              isPublic || false,
+              $scope.isTemplate,
+              $routeParams.childOf ? true : false
+          );
+        }
+        //Cobweb specific
       };
 
       init();

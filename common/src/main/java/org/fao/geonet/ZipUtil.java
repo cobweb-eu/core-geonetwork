@@ -1,6 +1,7 @@
 package org.fao.geonet;
 
 import org.fao.geonet.utils.IO;
+import org.fao.geonet.utils.Log;
 
 import java.io.IOException;
 import java.net.URI;
@@ -46,7 +47,12 @@ public class ZipUtil {
      */
     public static FileSystem openZipFs(Path path) throws IOException, URISyntaxException {
         URI uri = new URI("jar:" + path.toUri());
-        return FileSystems.newFileSystem(uri, Collections.singletonMap("create", String.valueOf(false)));
+        try{
+            return FileSystems.newFileSystem(uri, Collections.singletonMap("create", String.valueOf(false)));
+        } catch(java.lang.UnsupportedOperationException e) {
+            System.out.println("Error trying to zip: " + uri + " (" + path + ")");
+            throw e;
+        }
     }
 
     /**

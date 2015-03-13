@@ -8,23 +8,33 @@
 <div data-gn-alert-manager=""></div>
 
 <div class="container" style="background-color:white">
-<div class="gn-search-page"
-     data-ng-controller="GnSearchController">
-  <cookiewarning></cookiewarning>
-  <div class=""
-       data-ng-controller="gnsCobweb">
-    <div data-ng-include="'../../catalog/views/cobweb/templates/home.html'"
-         data-ng-show="activeTab == '/home'"/>
-    <div data-ng-include="'../../catalog/views/default/templates/results.html'"
-         data-ng-show="activeTab == '/search'"/>
-    <div data-ng-if="isMapViewerEnabled" 
-         data-ng-include="'../../catalog/views/default/templates/map.html'"
-         data-ng-show="activeTab == '/map'"/>
-    <div data-ng-include="'../../catalog/views/cobweb/templates/recordView.html'"
-         data-ng-show="activeTab == '/metadata'"/>
-    <div data-ng-include="'../../catalog/views/cobweb/templates/about.html'"
-         data-ng-show="activeTab == '/about'"/>
-</div>
+	<div class="gn-search-page"
+		 data-ng-controller="GnSearchController">
+	  <cookiewarning></cookiewarning>
+	  <div class="" data-ng-controller="gnsCobweb">
+		<div data-ng-include="'../../catalog/views/cobweb/templates/home.html'"
+			 data-ng-show="activeTab == '/home'"/>
+		<div data-ng-include="'../../catalog/views/default/templates/results.html'"
+			 data-ng-show="activeTab == '/search'"/>
+		<div data-ng-if="isMapViewerEnabled" 
+			 data-ng-include="'../../catalog/views/default/templates/map.html'"
+			 data-ng-show="activeTab == '/map'"/>
+		<div data-ng-include="'../../catalog/views/cobweb/templates/recordView.html'"
+			 data-ng-show="activeTab == '/metadata'"/>
+		<div data-ng-include="'../../catalog/views/cobweb/templates/about.html'"
+			 data-ng-show="activeTab == '/about'"/>
+	  </div>
+	</div>
 </div>
 
-
+<footer class="footer">
+	<div class="container">
+		Powered by <a target="_blank" href="http://geonetwork-opensource.org">GeoNetwork Opensource</a>
+		<div class="pull-right">
+			<a target="_blank" href="../../catalog/views/cobweb/COBWEB-EULA.pdf">EULA</a> -
+			<a target="_blank" href="../../catalog/views/cobweb/COBWEB-PrivacyPolicy.pdf">Privacy Policy</a> -
+			<a target="_blank" href="../../catalog/views/cobweb/COBWEB-CookiePolicy.pdf">Cookie Policy</a> -
+			<a target="_blank" href="../../catalog/views/cobweb/COBWEB-TakeDownPolicy.pdf">Take Down Policy</a>
+		</div>
+	</div>
+</footer>

@@ -111,6 +111,8 @@
     "parentMd": "Metadato Padre",
     "print_layout": "Diseño",
     "print_scale": "Escala",
+    "privilegesUpdated": "Permisos actualizados.",
+    "privilegesUpdatedError": "Ocurrió un error al actualizar los privilegios.",
     "process": "Procesar",
     "publish": "Publicar",
     "publishIn": "Publicar <strong>{{layer}}</strong> en ",
@@ -158,14 +160,11 @@
     "validate": "Validar",
     "validate-help": "Validar el registro con las reglas de validación estándar",
     "validationReport": "Validación",
+    "whoCanAccess": "Quién tiene acceso",
     "wmsServiceUrl": "URL del Servicio",
     "xmlSnippet": "XML snippet (pequeño trozo de código funcional)",
     "xsltToApply": "Aplicar conversión XSLT",
     "yearAndMonthMode": "Año y mes",
     "yearMode": "Sólo año",
-    "yourMetadata": "Tus metadatos",
-    "showHideErrors": "Mostrar / ocultar errores",
-    "showHideSuccess": "Mostrar / ocultar éxitos",
-    "deleteField": "Borrar este campo",
-    "deleteFieldSet": "Borrar esta sección"
+    "yourMetadata": "Tus metadatos"
 }

@@ -342,6 +342,8 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 				// Update ISO19119 for data/service links creation (ie. operatesOn element)
 				// The editor will support that but it will make quite heavy XML.
 				md = addOperatesOnUuid (md, layersRegistry);
+			} else {
+				log.info("  - No layers in capabilities.");
 			}
 		}	
 
@@ -699,7 +701,9 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
                             }
 
                             return reg;
-                        }
+                        } else {
+							log.info(" - Layer IdentifierRef "+ layerIdentifier +" is not present in catalogue.");
+						}
 
                     }
 
@@ -708,7 +712,7 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
                     loaded = false;
                 }
 
-            }
+            } 
         }
 
 		//--- using GetCapabilities document

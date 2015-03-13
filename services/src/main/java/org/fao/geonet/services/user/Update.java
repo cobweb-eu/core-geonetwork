@@ -99,17 +99,17 @@ public class Update {
             HttpServletRequest request,
             @RequestParam(value = Params.OPERATION) String operation,
             @RequestParam(value = Params.ID, required = false) String id,
-            @RequestParam(value = Params.USERNAME) String username,
+            @RequestParam(value = Params.USERNAME, required = false) String username,
             @RequestParam(value = Params.PASSWORD, required = false) String password,
             @RequestParam(value = Params.PROFILE, required = false) String profile_,
-            @RequestParam(value = Params.SURNAME) String surname,
-            @RequestParam(value = Params.NAME) String name,
+            @RequestParam(value = Params.SURNAME, required = false) String surname,
+            @RequestParam(value = Params.NAME, required = false) String name,
             @RequestParam(value = Params.ADDRESS, required = false) String address,
             @RequestParam(value = Params.CITY, required = false) String city,
             @RequestParam(value = Params.STATE, required = false) String state,
             @RequestParam(value = Params.ZIP, required = false) String zip,
             @RequestParam(value = Params.COUNTRY, required = false) String country,
-            @RequestParam(value = Params.EMAIL) String email,
+            @RequestParam(value = Params.EMAIL, required = false) String email,
             @RequestParam(value = Params.ORG, required = false) String organ,
             @RequestParam(value = Params.KIND, required = false) String kind)
             throws Exception {
@@ -126,9 +126,10 @@ public class Update {
 
         Map<String, String[]> params = request.getParameterMap();
 
-        for (String key : params.keySet()) {
+        for (Map.Entry<String, String[]> entry : params.entrySet()) {
+            String key = entry.getKey();
             if (key.startsWith("groups_")) {
-                for (String s : params.get(key)) {
+                for (String s : entry.getValue()) {
                     groups.add(new GroupElem(key.substring(7), Integer.valueOf(s)));
                 }
             }
@@ -278,7 +279,7 @@ public class Update {
             if (!(myUserId.equals(id)) && myProfile == Profile.UserAdmin) {
                 final List<Integer> groupIds = groupRepository
                         .findGroupIds(UserGroupSpecs.hasUserId(Integer
-                                .valueOf(myUserId)));
+                                .parseInt(myUserId)));
                 for (GroupElem userGroup : userGroups) {
                     boolean found = false;
                     for (int myGroup : groupIds) {
@@ -379,7 +380,7 @@ public class Update {
 
     }
 
-    private class LoadCurrentUserInfo {
+    private static class LoadCurrentUserInfo {
         private HttpSession session;
         private String id;
         private Profile myProfile;

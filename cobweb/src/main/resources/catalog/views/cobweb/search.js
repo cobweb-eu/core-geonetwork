@@ -151,6 +151,17 @@
       $scope.openRecord = function(index, md, records) {
         gnMdView.feedMd(index, md, records);
       };
+      
+      $http.get('admin.group.list?_content_type=json').
+        success(function(data, status) {
+          $scope.groups = {};
+          angular.forEach(data, function(g) {
+            $scope.groups[g.id] = g.name;
+            });
+        }).
+        error(function(data, status) {
+          $scope.groups = {};
+        });
 
       $scope.closeRecord = function() {
         gnMdView.removeLocationUuid();
@@ -224,7 +235,6 @@
         viewerMap: viewerMap,
         searchMap: searchMap
       }, gnSearchSettings.sortbyDefault);
-
 
     }]);
 

@@ -70,13 +70,7 @@
             </xsl:if>
           </xsl:otherwise>
         </xsl:choose>
-        <footer>
-        	<div><p>Powered by <a target="blank_" href="http://geonetwork-opensource.org">geoNetwork</a></p></div>
-        	<div class="link"><a href="{/root/gui/url}/live/COBWEB-EULA-V3-Sep14.rtf">EULA</a></div>
-         	<div class="link"><a href="{/root/gui/url}/live/COBWEB-PrivacyPolicy-Oct14-v1.doc">Privacy Policy</a></div>
-         	<div class="link"><a href="{/root/gui/url}/live/COBWEB-CookiePolicy-Oct14-v1.doc">Cookie Policy</a></div>
-         	<div class="link"><a href="{/root/gui/url}/live/TakeDownPolicyv1.doc">Take Down Policy</a></div>
-        </footer>
+
       </body>
     </html>
   </xsl:template>

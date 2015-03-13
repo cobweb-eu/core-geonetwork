@@ -28,6 +28,7 @@
               uuid: '@gnRelated',
               template: '@',
               types: '@',
+			  icon: '@',
               title: '@',
               list: '@'
             },
@@ -67,7 +68,7 @@
               scope.$watch('uuid', function() {
                 scope.updateRelations();
               });
-              
+
               scope.$watch(scope.list, function() {
                 setTimeout(function() {scope.updateRelations()});
               });
