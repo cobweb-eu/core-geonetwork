@@ -581,24 +581,33 @@
         if (this.geoBox) {
           var coords = this.geoBox.split('|');
           try{
-		  return coords[2]-coords[0] + ',' + coords[3]-coords[1]; 
-		  } catch (e) { return null; }
+		  var x1 = parseFloat(coords[0]);
+		  var y1 = parseFloat(coords[1]);
+		  var x2 = parseFloat(coords[2]);
+		  var y2 = parseFloat(coords[3]);
+		  return (x1+(x2-x1)/2) + ',' + (y1+(y2-y1)/2);
+		  } catch (e) { return ""; }
         } else {
-          return null;
+          return "";
         }},
 		getBoundsYX: function() {
         if (this.geoBox) {
           var coords = this.geoBox.split('|');
-          try{
-		   return coords[3]-coords[1] + ',' + coords[2]-coords[0];
-		  } catch (e) { return null; }
+		  try{
+		  var x1 = parseFloat(coords[1]);
+		  var y1 = parseFloat(coords[0]);
+		  var x2 = parseFloat(coords[3]);
+		  var y2 = parseFloat(coords[2]);
+		  return (x1+(x2-x1)/2) + ',' + (y1+(y2-y1)/2);
+		  } catch (e) { return ""; }
         } else {
-          return null;
+          return "";
         }},
       getBoxAsPolygon: function() {
         // Polygon((4.6810%2045.9170,5.0670%2045.9170,5.0670%2045.5500,4.6810%2045.5500,4.6810%2045.9170))
         if (this.geoBox) {
           var coords = this.geoBox.split('|');
+		  try{
           return 'Polygon((' +
               coords[0] + ' ' +
               coords[1] + ',' +
@@ -610,6 +619,7 @@
               coords[3] + ',' +
               coords[0] + ' ' +
               coords[1] + '))';
+		  } catch (e) { return ""; }
         } else {
           return null;
         }
