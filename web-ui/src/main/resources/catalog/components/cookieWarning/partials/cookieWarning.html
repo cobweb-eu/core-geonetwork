@@ -1,14 +1,12 @@
 <div class="cookie-warning" data-ng-show="{{showCookieWarning}}"
 	data-ng-controller="CookieWarningController">
 
-	<p class="{showCookieWarning}">This webpage uses cookies. If you
-		continue navigating this page, we will assume you accept this.</p>
+	<p class="{showCookieWarning}"  data-translate="">useCookies</p>
 	<p>
-		<a href="http://sitebeam.net/cookielaw/" target="cookie_law">Want
-			to know more about this message?</a>
+		<a href="http://sitebeam.net/cookielaw/" target="cookie_law" data-translate="">learnMore</a>
 	</p>
 	<p>
-		<span data-ng-click="close()">Accept</span> or <span
-			data-ng-click="goAway()">Get me out of here</span>
+		<span class="btn btn-success btn-sm" data-ng-click="close()" data-translate="">Accept</span>  <span class="btn btn-warning btn-sm"
+			data-ng-click="goAway()" data-translate="">Leave</span>
 	</p>
 </div>

@@ -585,8 +585,8 @@
 		  var y1 = parseFloat(coords[1]);
 		  var x2 = parseFloat(coords[2]);
 		  var y2 = parseFloat(coords[3]);
-		  return (x1+(x2-x1)/2) + ',' + (y1+(y2-y1)/2);
-		  } catch (e) { return ""; }
+		  return (Math.round((x1+(x2-x1)/2)*1000)/1000) + ',' + (Math.round((y1+(y2-y1)/2)*1000)/1000);
+		  } catch (e) {  return ""; }
         } else {
           return "";
         }},
@@ -598,7 +598,7 @@
 		  var y1 = parseFloat(coords[0]);
 		  var x2 = parseFloat(coords[3]);
 		  var y2 = parseFloat(coords[2]);
-		  return (x1+(x2-x1)/2) + ',' + (y1+(y2-y1)/2);
+		  return (Math.round((x1+(x2-x1)/2)*1000)/1000) + ', ' + (Math.round((y1+(y2-y1)/2)*1000)/1000) + ';';
 		  } catch (e) { return ""; }
         } else {
           return "";

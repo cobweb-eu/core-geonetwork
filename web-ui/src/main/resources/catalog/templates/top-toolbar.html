@@ -24,11 +24,7 @@
     <span class="visible-lg" data-translate="">adminConsole</span>
 </a>
 
-
   <a class="btn navbar-link navbar-right navbar-btn" href="{{pages.signin}}" data-ng-show="!authenticated" data-ng-keypress="$event" data-translate="">signIn</a>
-
-  <liveregister/>
-  <liverecoverpassword/>
   
   <a ng-show="authenticated" href="../../j_spring_security_logout" title="{{'signout' | translate}}" class="btn navbar-link navbar-btn navbar-right">
     <i class="fa fa-sign-out"></i>
@@ -38,9 +34,9 @@
   </a>
   <a ng-show="authenticated" href="admin.console#/organization/users/{{user.username}}" title="{{'userDetails' | translate}}" class="btn navbar-link navbar-btn navbar-right">
     <img class="img-circle" data-ng-src="https://gravatar.com/avatar/{{u.email | md5}}?s=18"/>
-    {{user.name}} {{user.surname}} ({{user.profile | translate}})
+    {{user.name}} {{user.surname}} 
   </a>
-            <form class="navbar-form navbar-left" role="search">
+            <form class="navbar-form navbar-right" role="search">
                 <div class="form-group pull-right" data-gn-language-switcher="lang" data-langs="langs"/>
             </form>  
   <!--
