@@ -9,31 +9,31 @@
 	</div>
 	<div class="navbar-collapse collapse navbar-left">
 		<ul class="nav navbar-nav">
-			<li><a data-gn-active-tb-item="catalog.search#/home"><span class="fa fa-home"></span> {{"Home"| translate}}</a></li>
+			<li><a data-gn-active-tb-item="catalog.search#/home"><span class="fa fa-home"></span> {{"hotkeyHome"| translate}}</a></li>
 			<!--<li><a href="#" data-ng-click="tabToggle('project_container')"
 				class="container-btn">Surveys</a></li>-->
 			<li><a data-gn-active-tb-item="catalog.search#/search"
-				class="container-btn"><span class="fa fa-search"></span> {{"Search"| translate}}</a></li>
+				class="container-btn"><span class="fa fa-search"></span> {{"search"| translate}}</a></li>
 			<li><a  data-gn-active-tb-item="catalog.search#/map"
-				class="container-btn"><span class="fa fa-map-marker"></span> {{"Map"| translate}}</a></li>
+				class="container-btn"><span class="fa fa-map-marker"></span> {{"map"| translate}}</a></li>
 			<li><a  data-gn-active-tb-item="catalog.search#/about"
-				class="container-btn"><span class="fa fa-info"></span> {{"About"| translate}}</a></li>
+				class="container-btn"><span class="fa fa-info"></span> {{"about"| translate}}</a></li>
 			<li data-ng-show="info.env.node=='private'">
 			     <a data-ng-show="user.isEditorOrMore()"
 				 data-gn-active-tb-item="catalog.edit"
 				title="{{'editorBoard' | translate}}"><i class="fa fa-pencil"></i>
-					{{"Editor"|translate}} </a></li>
+					{{"editorBoard"|translate}} </a></li>
 			<li data-ng-show="info.env.node=='private'">
 			     <a data-ng-show="user.isEditorOrMore()"
 				data-gn-active-tb-item="admin.console" class="container-btn"
 				title="{{'adminConsole' | translate}}"><i class="fa fa-cog"></i>
-					{{"AdminConsole" | translate }}</a></li>
+					{{"adminConsole" | translate }}</a></li>
 			<li data-ng-show="info.env.node=='public'"><a
 				href="../../private/eng/catalog.search">
-				<i class="fa fa-user"></i> {{'Login'|translate}}</a></li>
+				<i class="fa fa-user"></i> {{'signIn'|translate}}</a></li>
 			<li data-ng-show="info.env.node=='private'"><a
 				href="/Shibboleth.sso/Logout"><i style="font-size: 1.2em"
-					class="fa glyphicon glyphicon-log-out"></i> {{'Logout'|translate}}</a></li>
+					class="fa glyphicon glyphicon-log-out"></i> {{'signout'|translate}}</a></li>
             <!-- <li data-ng-show="info.env.node=='public'"><a
                 href="/user/register.php"><i style="font-size: 1.2em"
                     class="fa glyphicon glyphicon-user"></i> {{'Register'|translate}}</a></li> -->
