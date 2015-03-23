@@ -270,6 +270,12 @@
   "intersectWith": "Intersects with",
   "fullyOutsideOf": "Fully outside of",
   "encloses": "Enclosing",
-  "within": "Within"
-
+  "within": "Within",
+  "addToMapservices": "View on map",
+  "HomeHeader": "Join a community and start contributing",
+  "Readmore": "Read more",
+  "SortBy": "Sort by",
+  "TakeTour": "Take a tour",
+  "recentSurveys": "Recent surveys",
+  "TourText": "<h1>COBWEB Tour</h1>Welcome to COBWEB Citiszen Science portal. REgister for a Survey, download the map and start contributing!"
 }

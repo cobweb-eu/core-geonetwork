@@ -216,7 +216,7 @@
 		<a class="btn btn-primary bottom-spacer width-100" 
 		    data-ng-show="user.canEditRecord(mdView.current.record) && mdView.current.record.type=='survey'
                 && groups[mdView.current.record.groupOwner]" title="QAconfig"
-			href="/qa-config/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
+			href="http://geoprocessing.nottingham.ac.uk:8080/jbpm-console/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
 			target="_blank" ><span data-translate="">md_QAconfig</span></a>
 	
         <a class="btn btn-primary bottom-spacer width-100"

@@ -174,5 +174,7 @@
     "searchKeyword": "Search ...",
     "searchOrTypeKeyword": "Type or search ...",
     "tagsAllowed": " tag(s) allowed",
-    "suggestionListError": "Oops, something went wrong when retrieving suggestions!"
+    "suggestionListError": "Oops, something went wrong when retrieving suggestions!",
+	"onlyMyRecord":"Only my records",
+	"editorBoardInfo":"The editor facilitates you to create and manage existing content."
 }
