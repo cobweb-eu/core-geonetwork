@@ -113,6 +113,10 @@ public class XmlSearch implements Service
             Element el = new Element("_groupOwner");
             el.setText(g);
             params.addContent(el);
+        } else if(!participants.isEmpty()) {
+            Element el = new Element("_groupOwner");
+            el.setText("1"); //all group
+            params.addContent(el);
         }
         // Cobweb - search my surveys
 
