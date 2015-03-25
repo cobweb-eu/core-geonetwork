@@ -138,7 +138,7 @@
 
 		<property name="contextSource" ref="contextSource" />
 	</bean>
-
+<!--
 	<bean name="ldapSynchronizer"
 		class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
 		<property name="jobClass"
@@ -161,7 +161,7 @@
 		</property>
 	</bean>
 
-	<bean id="cronTrigger"
+ 	<bean id="cronTrigger"
 		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail" ref="ldapSynchronizer" />
 		<property name="cronExpression" value="${ldap.sync.cron}" />
@@ -177,7 +177,7 @@
 				<ref bean="cronTrigger" />
 			</list>
 		</property>
-	</bean>
+	</bean> -->
 
 
 	<bean id="ldapUserDetailsService"
