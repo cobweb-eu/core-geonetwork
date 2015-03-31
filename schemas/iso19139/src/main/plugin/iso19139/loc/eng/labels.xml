@@ -206,7 +206,7 @@
 		<description>Information about spatial, vertical, and temporal extent</description>
 	</element>
 	<element name="gmd:EX_GeographicBoundingBox" id="343.0">
-		<label>Geographic bounding box</label>
+		<label>Survey area</label>
 		<description>Geographic position of the dataset</description>
 	</element>
 	<element name="gmd:EX_GeographicDescription" id="348.0">
@@ -218,7 +218,7 @@
 		<description>Extent with respect to date/time and spatial boundaries</description>
 	</element>
 	<element name="gmd:EX_TemporalExtent" id="350.0">
-		<label>Temporal Extent</label>
+		<label>Survey start and end date</label>
 		<description>Time period covered by the content of the dataset</description>
 	</element>
 	<element name="gmd:EX_VerticalExtent" id="354.0">
@@ -440,7 +440,7 @@
 		<description>URL</description>
 	</element>
 	<element name="gmd:abstract" id="25.0">
-		<label>Abstract</label>
+		<label>Description of survey</label>
 		<description>Brief narrative summary of the content of the resource(s)</description>
 		<condition>mandatory</condition>
 	</element>
@@ -888,7 +888,7 @@
 		<description>Role description</description>
 	</element>
 	<element name="gmd:descriptiveKeywords" id="33.0">
-		<label>Descriptive keywords</label>
+		<label>Search keywords</label>
 		<description>Provides category keywords, their type, and reference source</description>
 	</element>
 	<element name="gmd:descriptor" id="258.0">
@@ -1037,7 +1037,7 @@
             extended metadata elements. Information for all new metadata elements</description>
 	</element>
 	<element name="gmd:extent" id="45.0" context="gmd:MD_DataIdentification">
-		<label>Extent</label>
+		<label>Survey area and date</label>
 		<description>Extent information including the bounding polygon, vertical, and temporal
             extent of the dataset</description>
 		<_condition>Conditional / if hierarchyLevel equals "dataset"? Either
@@ -1190,8 +1190,8 @@
             or individual</description>
 	</element>
 	<element name="gmd:identificationInfo" id="15.0">
-		<label>Identification info</label>
-		<abbrLabel>Identification</abbrLabel>
+		<label>Survey overview</label>
+		<abbrLabel>Overview</abbrLabel>
 		<description>Basic information about the resource(s) to which the metadata
             applies</description>
 		<condition>mandatory</condition>
@@ -1853,7 +1853,7 @@
 		<condition>mandatory</condition>
 	</element>
 	<element name="gmd:pointOfContact" id="29.0">
-		<label>Point of contact</label>
+		<label>Survey contact</label>
 		<description>Identification of, and means of communication with, person(s) and
         organizations(s) associated with the resource(s)</description>
 	</element>
@@ -2207,7 +2207,7 @@
             keywords</description>
 	</element>
 	<element name="gmd:title" id="360.0">
-		<label>Title</label>
+		<label>Title of survey</label>
 		<description>Name by which the cited resource is known</description>
 		<condition>mandatory</condition>
 	</element>
