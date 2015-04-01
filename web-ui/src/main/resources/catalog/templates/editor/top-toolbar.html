@@ -1,5 +1,11 @@
+
 <nav class="navbar navbar-default navbar-fixed-top gn-top-bar" role="navigation"
      data-ng-if="!unsupportedSchema">
+	 
+  <!--<div class="hidden-xs" data-ng-include="'../../catalog/views/cobweb/templates/header.html'"></div>
+  
+  <div class="container">-->
+  
   <div>
     <ul class="gn-view-menu-button pull-left nav navbar-nav">
       <!-- An empty drown down updated when form is loaded -->
@@ -35,34 +41,37 @@
       <button class="btn btn-default dropdown-toggle"
               type="button"
               data-toggle="dropdown" aria-expanded="true">
-        <i class="fa fa-cog"/>
+        <i class="fa fa-lock"/> {{'UserAccess' | translate}}
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" role="menu">
         <li role="presentation">
           <a role="menuitem" tabindex="-1"
-             data-gn-click-and-spin="startVersioning()"
-             title="{{'startVersioning-help' | translate}}">
-            <i class="fa fa-history"/>&nbsp;
-            <span class="visible-lg" data-translate="">startVersioning</span>
+             data-ng-click="md.doPublish('all')"
+             title="{{'Anonymous-help' | translate}}">
+            <span data-translate="">Anonymous</span>
+			<i class="fa fa-check pull-right" data-ng-show="md['geonet:info'].isPublishedTo=='all'" />
+          </a>
+        </li>
+		<li role="presentation">
+          <a role="menuitem" tabindex="-1"
+             data-gn-click-and-spin="md.doPublish('guest')"
+             title="{{'Participants-help' | translate}}">
+            <span data-translate="">Participants</span>
+			<i class="fa fa-check pull-right" data-ng-show="md['geonet:info'].isPublishedTo=='guest'" />
+          </a>
+        </li>
+		<li role="presentation">
+          <a role="menuitem" tabindex="-1"
+             data-ng-click="md.doPublish('private')"
+             title="{{'Private-help' | translate}}">
+            <span data-translate="">Private</span>
+			<i class="fa fa-check pull-right" data-ng-show="!md['geonet:info'].isPublishedTo || md['geonet:info'].isPublishedTo=='private'" />
           </a>
         </li>
       </ul>
     </div>
-    <button type="button" 
-            data-ng-hide="md['geonet:info'].isPublishedToAll == 'true' 
-                            || md['geonet:info'].isPublishedToAll == true" 
-        class="btn btn-success navbar-btn" data-ng-click="md.doPublish()">
-      <i class="fa fa-thumbs-up"/>&nbsp;
-      <span class="visible-lg" data-translate="">publish</span>
-    </button>
-    <button type="button" 
-            data-ng-show="md['geonet:info'].isPublishedToAll == 'true' 
-                            || md['geonet:info'].isPublishedToAll == true"
-        class="btn btn-warning navbar-btn" data-ng-click="md.doUnpublish()">
-      <i class="fa fa-thumbs-down"/>&nbsp;
-      <span class="visible-lg" data-translate="">unpublish</span>
-    </button>
+    
     <button type="button" class="btn btn-default navbar-btn"
             title="{{'validate'|translate}}" gn-click-and-spin="validate()">
       <i class="fa fa-check"/>&nbsp;
@@ -105,5 +114,6 @@
         </li>
       </ul>
     </div>
+	<!--</div>-->
   </div>
 </nav>
