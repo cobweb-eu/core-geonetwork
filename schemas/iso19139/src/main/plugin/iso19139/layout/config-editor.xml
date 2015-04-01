@@ -1346,149 +1346,6 @@
           <field
             xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:abstract"
             if="count(gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification) > 0"/>
-		  <field
-            xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/srv:serviceType"/>
-
-          <field
-            xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/
-            gmd:descriptiveKeywords
-            [gmd:MD_Keywords/gmd:thesaurusName/gmd:CI_Citation/gmd:title/gco:CharacterString = 'INSPIRE Service taxonomy']"> </field>
-		
-            <field
-              xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/
-              srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox"/>
-            <field
-              xpath="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/
-              gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox"/>
-
-          <action type="add" name="extent" or="extent"
-            in="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification">
-            <template>
-              <snippet>
-                <gmd:extent>
-                  <gmd:EX_Extent>
-                    <gn:copy select="gmd:description"/>
-                    <gmd:geographicElement>
-                      <gmd:EX_GeographicBoundingBox>
-                        <gmd:westBoundLongitude>
-                          <gco:Decimal/>
-                        </gmd:westBoundLongitude>
-                        <gmd:eastBoundLongitude>
-                          <gco:Decimal/>
-                        </gmd:eastBoundLongitude>
-                        <gmd:southBoundLatitude>
-                          <gco:Decimal/>
-                        </gmd:southBoundLatitude>
-                        <gmd:northBoundLatitude>
-                          <gco:Decimal/>
-                        </gmd:northBoundLatitude>
-                      </gmd:EX_GeographicBoundingBox>
-                    </gmd:geographicElement>
-                    <gn:copy select="gmd:temporalElement"/>
-                    <gn:copy select="gmd:verticalElement"/>
-                  </gmd:EX_Extent>
-                </gmd:extent>
-              </snippet>
-            </template>
-          </action>
-
-          <action type="add" name="extent" or="extent"
-            in="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification">
-            <template>
-              <snippet>
-                <srv:extent>
-                  <gmd:EX_Extent>
-                    <gmd:geographicElement>
-                      <gmd:EX_GeographicBoundingBox>
-                        <gmd:westBoundLongitude>
-                          <gco:Decimal/>
-                        </gmd:westBoundLongitude>
-                        <gmd:eastBoundLongitude>
-                          <gco:Decimal/>
-                        </gmd:eastBoundLongitude>
-                        <gmd:southBoundLatitude>
-                          <gco:Decimal/>
-                        </gmd:southBoundLatitude>
-                        <gmd:northBoundLatitude>
-                          <gco:Decimal/>
-                        </gmd:northBoundLatitude>
-                      </gmd:EX_GeographicBoundingBox>
-                    </gmd:geographicElement>
-                  </gmd:EX_Extent>
-                </srv:extent>
-              </snippet>
-            </template>
-          </action>
-		
-		<field name="temporalRangeSection" templateModeOnly="true"
-            xpath="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement"
-            if="count(gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification) > 0">
-            <template>
-              <values>
-                <!-- -Need a * for gml:TimePeriodTypeCHOICE_ELEMENT2 added by editor enumerated tree -->
-                <key label="beginPosition"
-                  xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:beginPosition"
-                  use="gn-date-picker"
-                  tooltip="gmd:extent|gmd:EX_TemporalExtent">
-                  <directiveAttributes data-tag-name="gml:beginPosition"/>
-                </key>
-                <key label="endPosition"
-                  xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition"
-                  use="gn-date-picker"
-                  tooltip="gmd:extent|gmd:EX_TemporalExtent"
-                >
-                  <directiveAttributes
-                      data-tag-name="gml:endPosition"
-                      data-indeterminate-position="eval#gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition/@indeterminatePosition"/>
-                </key>
-              </values>
-              <snippet>
-                <gmd:temporalElement>
-                  <gmd:EX_TemporalExtent>
-                    <gmd:extent>
-                      <gml:TimePeriod gml:id="">
-                        {{beginPosition}}
-                        {{endPosition}}
-                      </gml:TimePeriod>
-                    </gmd:extent>
-                  </gmd:EX_TemporalExtent>
-                </gmd:temporalElement>
-              </snippet>
-            </template>
-          </field>
-
-          <field name="temporalRangeSection" templateModeOnly="true"
-            xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement"
-            if="count(gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification) > 0">
-            <template>
-              <values>
-                <key label="beginPosition"
-                     xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:beginPosition"
-                     use="gn-date-picker"
-                     tooltip="gmd:extent|gmd:EX_TemporalExtent"/>
-                <key label="endPosition"
-                     xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition"
-                     use="gn-date-picker"
-                     tooltip="gmd:extent|gmd:EX_TemporalExtent"
-                    />
-                <key label="indeterminatePosition"
-                     xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition/@indeterminatePosition"
-                     use="codelist"/>
-              </values>
-              <snippet>
-                <gmd:temporalElement>
-                  <gmd:EX_TemporalExtent>
-                    <gmd:extent>
-                      <gml:TimePeriod gml:id="">
-                        <gml:beginPosition>{{beginPosition}}</gml:beginPosition>
-                        <gml:endPosition indeterminatePosition="{{indeterminatePosition}}">{{endPosition}}</gml:endPosition>
-                      </gml:TimePeriod>
-                    </gmd:extent>
-                  </gmd:EX_TemporalExtent>
-                </gmd:temporalElement>
-              </snippet>
-            </template>
-          </field>
 
 		<field name="pointOfContact" templateModeOnly="true" notDisplayedIfMissing="true"
             xpath="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:pointOfContact"
@@ -1496,16 +1353,15 @@
             if="count(gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification) > 0">
             <template>
               <values readonlyIf="count(@xlink:href) > 0">
-                <key label="organisationName"
+                 <key label="individualName"
+                  xpath="gmd:CI_ResponsibleParty/gmd:gmd:individualName/gco:CharacterString">
+                </key>
+				<key label="organisationName"
                   xpath="gmd:CI_ResponsibleParty/gmd:organisationName/gco:CharacterString"/>
                 <key label="electronicMailAddress"
                   xpath="gmd:CI_ResponsibleParty/gmd:contactInfo/
                     gmd:CI_Contact/gmd:address/gmd:CI_Address/gmd:electronicMailAddress/gco:CharacterString"
                   use="email"/>
-                <key label="role"
-                  xpath="gmd:CI_ResponsibleParty/gmd:role/gmd:CI_RoleCode/@codeListValue">
-                  <codelist name="gmd:CI_RoleCode"/>
-                </key>
               </values>
               <snippet>
                 <gmd:pointOfContact>
@@ -1621,10 +1477,149 @@
                     data-template-type="contact"
                     data-variables="gmd:role/gmd:CI_RoleCode/@codeListValue~{role}"/>
           </action>
+            
+			<field name="temporalRangeSection" templateModeOnly="true"
+            xpath="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement"
+            if="count(gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification) > 0">
+            <template>
+              <values>
+                <!-- -Need a * for gml:TimePeriodTypeCHOICE_ELEMENT2 added by editor enumerated tree -->
+                <key label="beginPosition"
+                  xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:beginPosition"
+                  use="gn-date-picker"
+                  tooltip="gmd:extent|gmd:EX_TemporalExtent">
+                  <directiveAttributes data-tag-name="gml:beginPosition"/>
+                </key>
+                <key label="endPosition"
+                  xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition"
+                  use="gn-date-picker"
+                  tooltip="gmd:extent|gmd:EX_TemporalExtent"
+                >
+                  <directiveAttributes
+                      data-tag-name="gml:endPosition"
+                      data-indeterminate-position="eval#gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition/@indeterminatePosition"/>
+                </key>
+              </values>
+              <snippet>
+                <gmd:temporalElement>
+                  <gmd:EX_TemporalExtent>
+                    <gmd:extent>
+                      <gml:TimePeriod gml:id="">
+                        {{beginPosition}}
+                        {{endPosition}}
+                      </gml:TimePeriod>
+                    </gmd:extent>
+                  </gmd:EX_TemporalExtent>
+                </gmd:temporalElement>
+              </snippet>
+            </template>
+          </field>
+
+          <field name="temporalRangeSection" templateModeOnly="true"
+            xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/gmd:extent/gmd:EX_Extent/gmd:temporalElement"
+            if="count(gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification) > 0">
+            <template>
+              <values>
+                <key label="beginPosition"
+                     xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:beginPosition"
+                     use="gn-date-picker"
+                     tooltip="gmd:extent|gmd:EX_TemporalExtent"/>
+                <key label="endPosition"
+                     xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition"
+                     use="gn-date-picker"
+                     tooltip="gmd:extent|gmd:EX_TemporalExtent"
+                    />
+                <key label="indeterminatePosition"
+                     xpath="gmd:EX_TemporalExtent/gmd:extent/gml:TimePeriod/*/gml:endPosition/@indeterminatePosition"
+                     use="codelist"/>
+              </values>
+              <snippet>
+                <gmd:temporalElement>
+                  <gmd:EX_TemporalExtent>
+                    <gmd:extent>
+                      <gml:TimePeriod gml:id="">
+                        <gml:beginPosition>{{beginPosition}}</gml:beginPosition>
+                        <gml:endPosition indeterminatePosition="{{indeterminatePosition}}">{{endPosition}}</gml:endPosition>
+                      </gml:TimePeriod>
+                    </gmd:extent>
+                  </gmd:EX_TemporalExtent>
+                </gmd:temporalElement>
+              </snippet>
+            </template>
+          </field>
+
+			
+			<field
+              xpath="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification/
+              srv:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox"/>
+            <field
+              xpath="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification/
+              gmd:extent/gmd:EX_Extent/gmd:geographicElement/gmd:EX_GeographicBoundingBox"/>
+
+          <action type="add" name="extent" or="extent"
+            in="/gmd:MD_Metadata/gmd:identificationInfo/gmd:MD_DataIdentification">
+            <template>
+              <snippet>
+                <gmd:extent>
+                  <gmd:EX_Extent>
+                    <gn:copy select="gmd:description"/>
+                    <gmd:geographicElement>
+                      <gmd:EX_GeographicBoundingBox>
+                        <gmd:westBoundLongitude>
+                          <gco:Decimal/>
+                        </gmd:westBoundLongitude>
+                        <gmd:eastBoundLongitude>
+                          <gco:Decimal/>
+                        </gmd:eastBoundLongitude>
+                        <gmd:southBoundLatitude>
+                          <gco:Decimal/>
+                        </gmd:southBoundLatitude>
+                        <gmd:northBoundLatitude>
+                          <gco:Decimal/>
+                        </gmd:northBoundLatitude>
+                      </gmd:EX_GeographicBoundingBox>
+                    </gmd:geographicElement>
+                    <gn:copy select="gmd:temporalElement"/>
+                    <gn:copy select="gmd:verticalElement"/>
+                  </gmd:EX_Extent>
+                </gmd:extent>
+              </snippet>
+            </template>
+          </action>
+
+          <action type="add" name="extent" or="extent"
+            in="/gmd:MD_Metadata/gmd:identificationInfo/srv:SV_ServiceIdentification">
+            <template>
+              <snippet>
+                <srv:extent>
+                  <gmd:EX_Extent>
+                    <gmd:geographicElement>
+                      <gmd:EX_GeographicBoundingBox>
+                        <gmd:westBoundLongitude>
+                          <gco:Decimal/>
+                        </gmd:westBoundLongitude>
+                        <gmd:eastBoundLongitude>
+                          <gco:Decimal/>
+                        </gmd:eastBoundLongitude>
+                        <gmd:southBoundLatitude>
+                          <gco:Decimal/>
+                        </gmd:southBoundLatitude>
+                        <gmd:northBoundLatitude>
+                          <gco:Decimal/>
+                        </gmd:northBoundLatitude>
+                      </gmd:EX_GeographicBoundingBox>
+                    </gmd:geographicElement>
+                  </gmd:EX_Extent>
+                </srv:extent>
+              </snippet>
+            </template>
+          </action>
 		
-          <!-- FIXME: MUST be provided in template and thesaurus available in the catalog, to be displayed properly -->
+		
+		
+          <!-- FIXME: MUST be provided in template and thesaurus available in the catalog, to be displayed properly
         <section xpath="/gmd:MD_Metadata/gmd:distributionInfo" if="gmd:MD_Metadata/gmd:hierarchyLevel != 'survey'" />
-        <section xpath="/gmd:MD_Metadata/gmd:dataQualityInfo" if="gmd:MD_Metadata/gmd:hierarchyLevel != 'survey'" />
+        <section xpath="/gmd:MD_Metadata/gmd:dataQualityInfo" if="gmd:MD_Metadata/gmd:hierarchyLevel != 'survey'" /> -->
 			<field xpath="/gmd:MD_Metadata/gmd:language" or="language" in="/gmd:MD_Metadata"/>
           
           
