@@ -11,10 +11,14 @@
   <div class="btn-group flux" >
     <button gi-btn="active" class="btn btn-default"
             data-ng-class="{disabled:vector.getSource().getFeatures().length <= 0}"
-            ng-model="modifying" data-translate="">Modify</button>
-    <button gi-btn="active" class="btn btn-default"
+            ng-model="modifying"><i class="fa fa-fw fa-pencil"></i> {{"Modify"|translate}}</button>
+    <button gi-btn="active" class="btn btn-default" 
             data-ng-class="{disabled:vector.getSource().getFeatures().length <= 0}"
-            ng-model="deleteF.active" data-translate="">Remove</button>
+            ng-model="deleteF.active"><i class="fa fa-fw fa-eraser"></i> {{"Remove"|translate}}</button>
+	<a class="btn btn-default" data-ng-click="save($event)" id="export-geom" download="export.json"
+            data-ng-class="{disabled:vector.getSource().getFeatures().length <= 0}"
+            data-translate=""><i class="fa fa-fw fa-save"></i> {{"Save"|translate}}</a>		
+			
   </div>
   <div class="alert alert-warning" role="alert">
     <span class="fa fa-info-circle"></span>

@@ -65,7 +65,8 @@
               }
             }
           };
-          scope.featureStyleCfg = {
+          
+		  scope.featureStyleCfg = {
             fill: {
               color: 'rgba(255, 255, 255, 0.6)'
             },
@@ -92,7 +93,27 @@
 
           };
 
+		  scope.save = function($event) {
 
+			var exportElement = document.getElementById('export-geom');
+			if ('download' in exportElement && !exportElement.href) {
+			  var vectorSource = scope.vector.getSource();
+
+			  var features = [];
+				  vectorSource.forEachFeature(function(feature) {
+					var clone = feature.clone();
+					clone.setId(feature.getId());
+					clone.getGeometry().transform(map.getView().getProjection(), 'EPSG:4326');
+					features.push(clone);
+				  });
+				  var string = new ol.format.GeoJSON().writeFeatures(features);
+				  var base64 = base64EncArr(strToUTF8Arr(string));
+				  exportElement.href =
+					  'data:application/vnd.geo+json;base64,' + base64;
+				}
+			
+          };	 
+		  
           var textFeatStyleFn = function(resolution) {
             var text = this.get('name');
             if (!txtStyleCache[text]) {
@@ -221,7 +242,7 @@
           var modify = new ol.interaction.Modify({
             features: select.getFeatures()
           });
-
+		  
           var deleteF = new ol.interaction.Select();
           deleteF.getFeatures().on('add',
               function(evt) {
