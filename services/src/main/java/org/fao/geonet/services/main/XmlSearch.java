@@ -23,29 +23,48 @@
 
 package org.fao.geonet.services.main;
 
+import static org.springframework.data.jpa.domain.Specifications.where;
+import groovy.json.JsonBuilder;
+import groovy.json.JsonParser;
+
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
+import javax.servlet.http.Cookie;
 
 import jeeves.interfaces.Service;
 import jeeves.server.ServiceConfig;
 import jeeves.server.UserSession;
 import jeeves.server.context.ServiceContext;
+import net.sf.json.JSON;
+import net.sf.json.util.JSONBuilder;
+import net.sf.json.util.JSONUtils;
 
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.Util;
 import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.domain.Profile;
 import org.fao.geonet.domain.User;
+import org.fao.geonet.domain.UserGroup;
 import org.fao.geonet.kernel.SelectionManager;
 import org.fao.geonet.kernel.search.LuceneIndexField;
 import org.fao.geonet.kernel.search.MetaSearcher;
 import org.fao.geonet.kernel.search.SearchManager;
+import org.fao.geonet.repository.MetadataRepository;
 import org.fao.geonet.repository.UserGroupRepository;
 import org.fao.geonet.repository.UserRepository;
 import org.fao.geonet.repository.specification.UserGroupSpecs;
 import org.fao.geonet.kernel.search.SearcherType;
 import org.fao.geonet.services.util.SearchDefaults;
 import org.jdom.Element;
+import org.json.JSONArray;
+import org.json.JSONWriter;
+import org.springframework.data.jpa.domain.Specifications;
 
 //=============================================================================
 
@@ -95,9 +114,12 @@ public class XmlSearch implements Service
         for (String s : participants) {
             User u = userRepo.findOneByUsername(s);
             if (u != null) {
-                groups.addAll(userGroupRepo.findGroupIds(UserGroupSpecs
-                        .hasUserId(u.getId())));
-
+                groups.addAll(userGroupRepo.findGroupIds(
+                        Specifications.where(
+                                UserGroupSpecs.hasProfileOrEquivalent(
+                                        Profile.RegisteredUser))
+                                .and(UserGroupSpecs.hasUserId(u.getId()))));
+   
             }
         }
 
@@ -136,6 +158,35 @@ public class XmlSearch implements Service
         } else {
 			searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE);
         }
+        
+        // Cobweb - cookie with list of surveys
+        Cookie cookie = new Cookie("surveys", "{}");
+        cookie.setMaxAge(60 * 60 * 24 * 365); //set expire time to 1 year
+
+        EntityManager em = gc.getBean(EntityManagerFactory.class).createEntityManager();
+
+        
+        Query query = em.createNativeQuery("select m.uuid, min(ug.profile) from Metadata m, "
+                + "UserGroups ug where m.groupowner = ug.groupid and ug.userid = " + context.getUserSession().getUserId()
+                + " group by m.uuid;");
+        
+        List<Object> cookieContent = query.getResultList(); 
+        JSONArray array = new JSONArray();
+        for(Object tmp : cookieContent) {
+            Object[] o = (Object[]) tmp;
+            JSONArray elem = new JSONArray();
+            for(Object a : o) {
+                elem.put(a);
+            }
+            array.put(elem);
+        }
+        
+        cookie.setPath("/");
+        cookie.setSecure(true);
+        cookie.setValue(array.toString());
+        
+        context.addOrUpdateCookie(cookie);
+        // Cobweb - cookie with list of surveys!
 		
 		try {
 			

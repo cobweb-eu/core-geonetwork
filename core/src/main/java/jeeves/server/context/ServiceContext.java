@@ -32,6 +32,7 @@ import jeeves.server.sources.ServiceRequest.OutputMethod;
 import jeeves.server.sources.http.JeevesServlet;
 import jeeves.transaction.TransactionManager;
 import jeeves.transaction.TransactionTask;
+
 import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.Logger;
 import org.fao.geonet.kernel.GeonetworkDataDirectory;
@@ -43,8 +44,11 @@ import org.springframework.transaction.TransactionStatus;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.annotation.CheckForNull;
 import javax.persistence.EntityManager;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 //=============================================================================
 
@@ -272,6 +276,25 @@ public class ServiceContext extends BasicContext {
         return _statusCode;
     }
 
+    //Cobweb - workaround to get the cookie
+    /**
+     * @param response
+     */
+    public void setResponse(HttpServletResponse response) {
+        this.response = response;
+    }
+    public void addOrUpdateCookie(Cookie cookie) {
+        if(this.response == null){
+            return;
+        }
+        
+        this.response.addCookie(cookie);
+    }
+    
+    private HttpServletResponse response;
+    //Cobweb - workaround to get the cookie
+
+    
 }
 
 //=============================================================================

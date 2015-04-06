@@ -384,6 +384,8 @@ public class ServiceManager {
     public void dispatch(ServiceRequest req, UserSession session) {
         ServiceContext context = new ServiceContext(req.getService(), jeevesApplicationContext,
                 htContexts, entityManager);
+        
+        context.setResponse(req.getResponse());
         dispatch(req, session, context);
     }
 

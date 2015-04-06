@@ -5,6 +5,7 @@ import jeeves.server.JeevesEngine;
 import jeeves.server.UserSession;
 import jeeves.server.sources.ServiceRequest;
 import jeeves.server.sources.ServiceRequestFactory;
+
 import org.fao.geonet.Util;
 import org.fao.geonet.exceptions.FileUploadTooBigEx;
 import org.fao.geonet.utils.Log;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
+
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -103,7 +107,19 @@ public class GenericController {
             Log.error(Log.REQUEST, sb.toString());
         }
 
+        // Set the language of the request as the preferred language in a cookie
+        final Cookie langCookie = new Cookie(Jeeves.LANG_COOKIE, srvReq.getLanguage());
+        langCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(7));
+        langCookie.setComment("Keeps the last language chosen to be the preferred language");
+        langCookie.setVersion(1);
+        langCookie.setPath("/");
+        response.addCookie(langCookie);
+
         // --- execute request
+        
+        //Cobweb - we need the response to add a workaround cookie
+        srvReq.addResponse(response);        
+        //Cobweb
 
         jeeves.dispatch(srvReq, session);
     }

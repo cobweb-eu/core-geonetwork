@@ -24,6 +24,7 @@
 package jeeves.server.sources;
 
 import jeeves.constants.Jeeves;
+
 import org.fao.geonet.utils.Xml;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -32,6 +33,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 //=============================================================================
 
@@ -154,6 +158,22 @@ public class ServiceRequest
 	/** called when the system ends streaming data*/
 
 	public void endStream() throws IOException {}
+
+	//Cobweb - to get the cookie for the workaround
+    /**
+     * @param response
+     */
+    public void addResponse(HttpServletResponse response) {
+        this.response = response;
+    }
+    
+    public HttpServletResponse getResponse() {
+        return this.response;
+    }
+    
+    private HttpServletResponse response;
+    
+    //Cobweb - to get the cookie for the workaround
 }
 
 //=============================================================================
