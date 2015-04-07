@@ -166,19 +166,15 @@ public class XmlSearch implements Service
         EntityManager em = gc.getBean(EntityManagerFactory.class).createEntityManager();
 
         
-        Query query = em.createNativeQuery("select m.uuid, min(ug.profile) from Metadata m, "
-                + "UserGroups ug where m.groupowner = ug.groupid and ug.userid = " + context.getUserSession().getUserId()
-                + " group by m.uuid;");
+        Query query = em.createNativeQuery("select distinct m.uuid from Metadata m, "
+                + "UserGroups ug where m.groupowner = ug.groupid "
+                + " and ug.userid = " + context.getUserSession().getUserId()
+                + " and ug.profile < 4;");
         
         List<Object> cookieContent = query.getResultList(); 
         JSONArray array = new JSONArray();
         for(Object tmp : cookieContent) {
-            Object[] o = (Object[]) tmp;
-            JSONArray elem = new JSONArray();
-            for(Object a : o) {
-                elem.put(a);
-            }
-            array.put(elem);
+            array.put(tmp);
         }
         
         cookie.setPath("/");
