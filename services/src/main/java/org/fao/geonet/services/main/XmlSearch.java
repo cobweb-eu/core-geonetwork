@@ -172,14 +172,19 @@ public class XmlSearch implements Service
                 + " and ug.profile < 4;");
         
         List<Object> cookieContent = query.getResultList(); 
-        JSONArray array = new JSONArray();
+        StringBuilder array = null;
         for(Object tmp : cookieContent) {
-            array.put(tmp);
+            if(array == null) {
+                array = new StringBuilder();
+                array.append(tmp);
+            } else {
+                array.append("," + tmp.toString());
+            }
         }
         
         cookie.setPath("/");
         cookie.setSecure(true);
-        cookie.setValue(array.toString());
+        cookie.setValue((array != null? array.toString() : ""));
         
         context.addOrUpdateCookie(cookie);
         // Cobweb - cookie with list of surveys!
