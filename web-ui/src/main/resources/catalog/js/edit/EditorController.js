@@ -173,25 +173,17 @@
                 }
               }
               $scope.md = new Metadata(data.metadata[0]);
-              $scope.md.doPublish = function(type) {
-			  var privs = "";
-			  switch (type){
-			    case "private":
-					privs = '&_1_0=&_-1_0=&_'+$scope.md.groupOwner+'_0=on'
-				break;
-				case "guest":
-					privs = '&_1_0=&_-1_0=on&_'+$scope.md.groupOwner+'_0=on'
-				break;
-			    
-				case "all":
-					privs = '&_1_0=on&_-1_0=on&_'+$scope.md.groupOwner+'_0=on'; //123 should be group id
-				break;
-			}
-			  
-                $http.get('md.privileges.update?id='+this.getId()+privs).
-                             success(function(data){
-							 $scope.md['geonet:info'].isPublishedTo=type;
-						   });
+              $scope.md.doPublish = function() {
+                $http.get('md.privileges.update?id='+this.getId()+'&_1_0=on&_1_1=on&_1_5=on').
+                               success(function(data){
+                                 $scope.md['geonet:info'].isPublishedToAll=true;
+                               });
+              },
+              $scope.md.doUnpublish = function() {
+                $http.get('md.privileges.update?update=true&id='+this.getId()+'&_1_0=&_1_1=&_1_5=').
+                                success(function(data){
+                                  $scope.md['geonet:info'].isPublishedToAll=false;
+                                });
               },
               $scope.groupOwner = data.metadata[0].groupOwner;
               $scope.mdTitle = data.metadata[0].title ||

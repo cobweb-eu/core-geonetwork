@@ -517,9 +517,7 @@
         return this['geonet:info'].id;
       },
       isPublished: function() {
-        if (this['geonet:info'].isPublishedToAll === 'true') return 'anonymous';
-		else if (this['geonet:info'].isPublishedToGuest === 'true') return 'guest';
-		else return 'private';
+        return this['geonet:info'].isPublishedToAll === 'true';
       },
       publish: function() {
         this['geonet:info'].isPublishedToAll = this.isPublished() ?
