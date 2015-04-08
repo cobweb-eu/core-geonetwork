@@ -182,6 +182,8 @@ public class XmlSearch implements Service
             }
         }
         
+        em.close();
+        
         cookie.setPath("/");
         cookie.setSecure(true);
         cookie.setValue((array != null? array.toString() : ""));
