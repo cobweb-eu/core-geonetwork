@@ -14,7 +14,7 @@
     "addLinks": "Add links",
     "addOnlinesrc": "Add an online resource",
     "addOnlinesrcTitle": "Link an online resource to the current metadata",
-    "addRecord": "Add content",
+    "addRecord": "Create...",
     "addThumbnail": "Add a thumbnail",
     "addThumbnailTitle": "Add an overview to the current metadata",
     "allChangesCanceled": "All changes cancelled.",
@@ -125,6 +125,7 @@
     "recursive": "Also search in subfolders",
     "resetKeywordsAnyway": "Remove keywords",
     "saveAtimeAgo": "Last edit was {{timeAgo}}.",
+    "saveMetadata": "Save Survey",
     "saveMetadataError": "Error while saving metadata. You should reload the editor.",
     "saveMetadataSuccess": "All changes saved.",
     "saving": "Saving ...",
@@ -176,5 +177,5 @@
     "tagsAllowed": " tag(s) allowed",
     "suggestionListError": "Oops, something went wrong when retrieving suggestions!",
 	"onlyMyRecord":"Only my items",
-	"editorBoardInfo":"The editor facilitates you to create and manage existing content."
+	"editorBoardInfo":"The creation tool enables you to create, edit and manage existing surveys and data."
 }
