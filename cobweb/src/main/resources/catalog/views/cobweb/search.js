@@ -187,10 +187,18 @@
         }};
 		
 	   $scope.iFrameUrl = function(){
-	   if (mdView && mdView.current && mdView.current.record && mdView.current.record['geonet:info'].uuid){
-		return '/viewer/index.html?sid='+mdView.current.record['geonet:info'].uuid+'&pos=' + mdView.current.record.getBoundsYX().replace(' ','');
+	   if (mdView && mdView.current && mdView.current.record && mdView.current.record['geonet:info'].uuid && mdView.current.record.type=="survey"){
+	    //if logged in
+		var mapUrl = "/viewer";
+
+		if ($scope.info.env.node=='private'){
+			mapUrl = "/secure/viewer/private"
+		}
+		
+		return mapUrl + '/index.html?sid='+mdView.current.record['geonet:info'].uuid+'&pos=' + mdView.current.record.getBoundsYX().replace(' ','');
+	   
+	     }
 	   }
-	  }
 	  
       $scope.addLayerToMap = function(number) {
         // FIXME $scope.mainTabs.map.titleInfo = '+' + number;
