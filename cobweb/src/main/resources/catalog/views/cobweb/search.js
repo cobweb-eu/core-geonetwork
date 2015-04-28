@@ -192,7 +192,7 @@
 		var mapUrl = "/viewer";
 
 		if ($scope.info.env.node=='private'){
-			mapUrl = "/secure/viewer/private"
+			mapUrl = "/secure/viewer"
 		}
 		
 		return mapUrl + '/index.html?sid='+mdView.current.record['geonet:info'].uuid+'&pos=' + mdView.current.record.getBoundsYX().replace(' ','');
