@@ -168,7 +168,8 @@ public class XmlSearch implements Service
         
         Query query = em.createNativeQuery("select distinct m.uuid from Metadata m, "
                 + "UserGroups ug where m.groupowner = ug.groupid "
-                + " and ug.userid = " + context.getUserSession().getUserId() + ";");
+                + " and ug.userid = " + context.getUserSession().getUserId()
+                + " and ug.profile < 5;");
         
         List<Object> cookieContent = query.getResultList(); 
         StringBuilder array = null;
