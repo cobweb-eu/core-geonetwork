@@ -10,14 +10,14 @@
 	  <li class="active">{{mdView.current.record.title || mdView.current.record.defaultTitle}}</li>
 	  <li class="pull-right no-content">
 	  	 <a href="" 
-				  data-ng-class="mdView.current.index === 0 ? 'disabled' : ''"
+				  data-ng-class="mdView.current.index === 0 ? 'ng-hide' : ''"
 				  data-ng-show="mdView.records"
 				  data-ng-click="previousRecord()">
 			<i class="fa fa-angle-left"></i>
                 <span data-translate="">previous</span>
 		  </a>
 		  <a href="" 
-				  data-ng-class="mdView.current.index === mdView.records.length-1 ? 'disabled' : ''"
+				  data-ng-class="mdView.current.index === mdView.records.length-1 ? 'ng-hide' : ''"
 				  data-ng-show="mdView.records"
 				  data-ng-click="nextRecord()">
                     <span data-translate="">next</span>
