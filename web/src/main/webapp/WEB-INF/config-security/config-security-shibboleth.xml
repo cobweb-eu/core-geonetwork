@@ -18,17 +18,12 @@
 	<!-- the shibboleth authentication filter -->
 	<bean id="shibbolethPreAuthFilter"
 		class="org.fao.geonet.kernel.security.shibboleth.ShibbolethPreAuthFilter">
-		<property name="utils" ref="shibbolethUserUtils" />
-		<property name="configuration" ref="shibbolethConfiguration" />
 		<!--<property name="requestCache" ref="requestCache" /> -->
 	</bean>
 
 	<bean id="shibbolethUserUtils"
 		class="org.fao.geonet.kernel.security.shibboleth.ShibbolethUserUtils">
-		<property name="_userRepository" ref="userRepository" />
-		<property name="_groupRepository" ref="groupRepository" />
 		<property name="udetailsmapper" ref="ldapUserContextMapper"/>
-		<property name="authProvider" ref="geonetworkAuthenticationProvider" />
 		<property name="userDetailsManager" ref="ldapUserDetailsService" />
 	</bean>
 

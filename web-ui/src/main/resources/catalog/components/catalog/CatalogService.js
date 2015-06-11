@@ -654,8 +654,8 @@
               coords[3] + ',' +
               coords[0] + ' ' +
               coords[1] + '))';
-		  } catch (e) { return ""; }
-        } else {
+		   }
+       else {
           return null;
         }
       },

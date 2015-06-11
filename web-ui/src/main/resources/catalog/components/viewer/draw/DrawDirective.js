@@ -88,8 +88,7 @@
               }
             }
           };
-          
-		  scope.featureStyleCfg = {
+          scope.featureStyleCfg = {
             fill: {
               color: 'rgba(255, 255, 255, 0.6)'
             },
@@ -116,7 +115,6 @@
 
           };
 
-		  scope.save = function($event) {
 
           var textFeatStyleFn = function(feature) {
             var f;

@@ -244,4 +244,20 @@ public class ShibbolethUserUtils {
 		return value;
 	}
 
+    public UserDetailsManager getUserDetailsManager() {
+        return userDetailsManager;
+    }
+
+    public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
+        this.userDetailsManager = userDetailsManager;
+    }
+
+    public WritableUserDetailsContextMapper getUdetailsmapper() {
+        return udetailsmapper;
+    }
+
+    public void setUdetailsmapper(WritableUserDetailsContextMapper udetailsmapper) {
+        this.udetailsmapper = udetailsmapper;
+    }
+
 }

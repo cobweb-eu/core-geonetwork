@@ -1,4 +1,4 @@
-//package v300;
+package v300;
 
 import org.fao.geonet.DatabaseMigrationTask;
 import org.fao.geonet.constants.Geonet;
