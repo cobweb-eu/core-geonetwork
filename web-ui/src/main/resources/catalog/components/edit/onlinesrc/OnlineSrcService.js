@@ -19,7 +19,6 @@
    * The `gnOnlinesrc` service provides all tools required to manage
    * online resources like method to link or remove all kind of resources.
    */
-
   module.factory('gnOnlinesrc', [
     'gnBatchProcessing',
     'gnHttp',
@@ -74,12 +73,12 @@
       *   desc : title1,title2,title3
       */
       var setLayersParams = function(params) {
-        if (angular.isArray(params.layers) &&
-            params.layers.length > 0) {
+        if (angular.isArray(params.selectedLayers) &&
+            params.selectedLayers.length > 0) {
           var names = [],
               descs = [];
 
-          angular.forEach(params.layers, function(layer) {
+          angular.forEach(params.selectedLayers, function(layer) {
             names.push(layer.Name || layer.name);
             descs.push(layer.Title || layer.title);
           });
@@ -100,25 +99,28 @@
       var parseRelations = function(data) {
 
         var relations = {};
-        if (!angular.isArray(data.relation)) {
+        if (data === null) {
+          data = {relation: []};
+        } else if (!angular.isArray(data.relation)) {
           data.relation = [data.relation];
         }
         angular.forEach(data.relation, function(rel) {
+          if (angular.isDefined(rel)) {
+            var type = rel['@type'];
+            if (!relations[type]) {
+              relations[type] = [];
+            }
+            rel.type = type;
+            delete rel['@type'];
 
-          var type = rel['@type'];
-          if (!relations[type]) {
-            relations[type] = [];
-          }
-          rel.type = type;
-          delete rel['@type'];
-
-          if (rel['@subType']) {
-            rel.subType = rel['@subType'];
-            delete rel['@subType'];
-          }
-          if (angular.isString(rel.title) ||
-              type == 'thumbnail') {
-            relations[type].push(rel);
+            if (rel['@subType']) {
+              rel.subType = rel['@subType'];
+              delete rel['@subType'];
+            }
+            if (angular.isString(rel.title) ||
+                type == 'thumbnail') {
+              relations[type].push(rel);
+            }
           }
         });
         return relations;
@@ -321,7 +323,7 @@
           else {
             params[mode + 'Uuid'] = md.getUuid();
           }
-          runProcess(this, params).then(function() {
+          return runProcess(this, params).then(function() {
             closePopup(popupid);
           });
         },
@@ -361,8 +363,7 @@
         linkToService: function(params, popupid) {
           var qParams = setParams('dataset-add', params);
           var scope = this;
-
-          gnBatchProcessing.runProcessMdXml({
+          return gnBatchProcessing.runProcessMdXml({
             scopedName: qParams.name,
             uuidref: qParams.uuidDS,
             uuid: qParams.uuidSrv,
@@ -373,10 +374,17 @@
               scopedName: qParams.name,
               uuidref: qParams.uuidSrv,
               uuid: qParams.uuidDS,
+              url: qParams.url,
               process: qParams.process
             }).then(function() {
               closePopup(popupid);
             });
+          }, function(error) {
+            $rootScope.$broadcast('StatusUpdated', {
+              title: $translate('linkToServiceError'),
+              msg: error.statusText,
+              timeout: 0,
+              type: 'danger'});
           });
         },
 
@@ -396,8 +404,10 @@
           var qParams = setParams('onlinesrc-add', params);
           var scope = this;
 
-          gnBatchProcessing.runProcessMdXml({
-            scopedName: qParams.name,
+          return gnBatchProcessing.runProcessMdXml({
+            name: qParams.name,
+            desc: qParams.desc,
+            url: qParams.url,
             uuidref: qParams.uuidSrv,
             uuid: qParams.uuidDS,
             process: qParams.process
@@ -427,7 +437,7 @@
          * @param {string} popupid id of the popup to close after process.
          */
         linkToSibling: function(params, popupid) {
-          runProcess(this,
+          return runProcess(this,
               setParams('sibling-add', params)).then(function() {
             closePopup(popupid);
           });
@@ -511,9 +521,23 @@
           var params = {
             uuid: onlinesrc['geonet:info'].uuid,
             uuidref: gnCurrentEdit.uuid
-          };
-          runProcess(this,
-              setParams('services-remove', params));
+          }, service = this;
+
+          gnBatchProcessing.runProcessMdXml(
+              setParams('services-remove', params)).
+              then(function(data) {
+                $rootScope.$broadcast('StatusUpdated', {
+                  title: $translate('serviceDetachedToCurrentRecord'),
+                  timeout: 3
+                });
+                service.reload = true;
+              }, function(error) {
+                $rootScope.$broadcast('StatusUpdated', {
+                  title: $translate('removeServiceError'),
+                  error: error,
+                  timeout: 0,
+                  type: 'danger'});
+              });
         },
 
         /**

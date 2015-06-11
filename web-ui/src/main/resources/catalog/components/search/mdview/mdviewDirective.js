@@ -33,19 +33,26 @@
   );
 
   module.directive('gnMetadataDisplay', [
-    'gnMdView', function(gnMdView) {
+    'gnMdView', 'gnSearchSettings', function(gnMdView, gnSearchSettings) {
       return {
         templateUrl: '../../catalog/components/search/mdview/partials/' +
             'mdpanel.html',
         scope: true,
         link: function(scope, element, attrs, controller) {
+
+          var unRegister;
+
           scope.dismiss = function() {
+            unRegister();
             gnMdView.removeLocationUuid();
             element.remove();
             //TODO: is the scope destroyed ?
           };
 
-          scope.$on('closeMdView', function() {
+          if (gnSearchSettings.dismissMdView) {
+            scope.dismiss = gnSearchSettings.dismissMdView;
+          }
+          unRegister = scope.$on('locationBackToSearchFromMdview', function() {
             scope.dismiss();
           });
         }
@@ -69,17 +76,14 @@
             scope.rate = scope.md ? scope.md.rating : null;
           });
 
-          if (!scope.readonly) {
-            scope.$watch('rate', function(value, oldValue) {
-              if (value) {
-                return $http.get('md.rate?_content_type=json&' +
-                    'uuid=' + scope.md['geonet:info'].uuid +
-                    '&rating=' + value).success(function(data) {
-                  scope.rate = data[0];
-                });
-              }
+
+          scope.rateForRecord = function() {
+            return $http.get('md.rate?_content_type=json&' +
+                'uuid=' + scope.md['geonet:info'].uuid +
+                '&rating=' + scope.rate).success(function(data) {
+              scope.rate = data[0];
             });
-          }
+          };
         }
       };
     }]

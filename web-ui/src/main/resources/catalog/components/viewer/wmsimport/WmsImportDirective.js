@@ -1,12 +1,12 @@
 (function() {
-  goog.provide('gn_wmsimport_directive');
+  goog.provide('gn_wmsimport');
 
-  var module = angular.module('gn_wmsimport_directive', [
+  var module = angular.module('gn_wmsimport', [
   ]);
 
   /**
    * @ngdoc directive
-   * @name gn_wmsimport_directive.directive:gnWmsImport
+   * @name gn_viewer.directive:gnWmsImport
    *
    * @description
    * Panel to load WMS capabilities service and pick layers.
@@ -16,8 +16,12 @@
     'gnOwsCapabilities',
     'gnMap',
     '$translate',
+    '$timeout',
+    'gnSearchManagerService',
+    'Metadata',
     'gnViewerSettings',
-    function(gnOwsCapabilities, gnMap, $translate, gnViewerSettings) {
+    function(gnOwsCapabilities, gnMap, $translate, $timeout,
+             gnSearchManagerService, Metadata, gnViewerSettings) {
       return {
         restrict: 'A',
         replace: true,
@@ -46,12 +50,38 @@
           };
         }],
         link: function(scope, element, attrs) {
-
-
-          scope.format = attrs['gnWmsImport'];
-          scope.servicesList = gnViewerSettings.servicesUrl[scope.format];
-
           scope.loading = false;
+          scope.format = attrs['gnWmsImport'];
+          scope.serviceDesc = null;
+          scope.servicesList = gnViewerSettings.servicesUrl[scope.format];
+          scope.catServicesList = [];
+
+          // Get the list of services registered in the catalog
+          if (attrs.servicesListFromCatalog) {
+            // FIXME: Only load the first 100 services
+            gnSearchManagerService.gnSearch({
+              fast: 'index',
+              _content_type: 'json',
+              from: 1,
+              to: 100,
+              serviceType: 'OGC:WMS'
+            }).then(function(data) {
+              angular.forEach(data.metadata, function(record) {
+                var md = new Metadata(record);
+                angular.forEach(md.getLinksByType('wms'), function(link) {
+                  if (link.url) {
+                    scope.catServicesList.push({
+                      title: md.title || md.defaultTitle,
+                      uuid: md.getUuid(),
+                      name: link.name,
+                      desc: link.desc,
+                      url: link.url
+                    });
+                  }
+                });
+              });
+            });
+          }
 
           // This event focus on map, display the WMSImport and request
           // a getCapabilities
@@ -59,35 +89,50 @@
           var type = scope.format.toUpperCase();
           var event = 'requestCapLoad' + type;
           scope.$on(event, function(e, url) {
-            $('#layers').removeClass('force-hide');
-            $('[gn-wms-import]').removeClass('collapsed');
             var button = $('[data-gn-import-button=' + type + ']');
-            var element = button.parent().parent();
-
-            element.find('.btn-group.flux button').removeClass('active');
-            element.addClass('active');
-            button.addClass('active');
-            element.find('.layers').addClass('collapsed');
-            element.find('.panel-carousel').removeClass('collapsed');
-            element.find('.unfold').css('opacity', 1);
-            element.find('.panel-carousel-container').css('left',
-                '-' + (button.index() * 100) + '%');
-
+            if (button) {
+              var panel = button.parents('.panel-tools'),
+                  toolId = panel && panel.attr('id');
+              if (toolId) {
+                $timeout(function() {
+                  var menu = $('*[rel=#' + toolId + ']');
+                  if (!menu.hasClass('active')) {
+                    menu.click();
+                  }
+                });
+              }
+            }
             scope.url = url;
-            scope.load(url);
           });
 
-          scope.load = function(url) {
-            scope.loading = true;
-            gnOwsCapabilities['get' + scope.format.toUpperCase() +
-                'Capabilities'](url).then(function(capability) {
-              scope.loading = false;
-              scope.capability = capability;
-            });
+          scope.setUrl = function(srv) {
+            scope.url = angular.isObject(srv) ? srv.url : srv;
+            scope.serviceDesc = angular.isObject(srv) ? srv : null;
+            scope.load();
+          };
+
+          scope.load = function() {
+            if (scope.url) {
+              scope.loading = true;
+              gnOwsCapabilities['get' + scope.format.toUpperCase() +
+                  'Capabilities'](scope.url).then(function(capability) {
+                scope.loading = false;
+                scope.capability = capability;
+              });
+            }
           };
         }
       };
     }]);
+
+  /**
+   * @ngdoc directive
+   * @name gn_viewer.directive:gnKmlImport
+   *
+   * @description
+   * Panel to load KML and KMZ files. You could load them with file input or
+   * drag & drop them in the map.
+   */
 
   module.directive('gnKmlImport', [
     'ngeoDecorateLayer',
@@ -273,7 +318,7 @@
 
   /**
    * @ngdoc directive
-   * @name gn_wmsimport_directive.directive:gnCapTreeCol
+   * @name gn_wmsimport.directive:gnCapTreeCol
    *
    * @description
    * Directive to manage a collection of nested layers from
@@ -296,7 +341,7 @@
 
   /**
    * @ngdoc directive
-   * @name gn_wmsimport_directive.directive:gnCapTreeElt
+   * @name gn_wmsimport.directive:gnCapTreeElt
    *
    * @description
    * Directive to manage recursively nested layers from a capabilities

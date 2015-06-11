@@ -241,9 +241,9 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 
             //--- remove the metadata directory including the public and private directories.
             IO.deleteFileOrDirectory(Lib.resource.getMetadataDir(context.getBean(GeonetworkDataDirectory.class), id));
-			
-			// Remove metadata
-			dataMan.deleteMetadata (context, id);
+
+            // Remove metadata
+            dataMan.deleteMetadata(context, id);
 			
 			result.locallyRemoved ++;
 		}

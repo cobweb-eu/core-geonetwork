@@ -44,12 +44,13 @@
     '$scope', '$http', '$rootScope', '$translate', '$compile',
     '$q', '$timeout', '$routeParams', '$location',
     'gnSearchManagerService',
-    'gnUtilityService', 'gnSearchSettings',
-    function($scope, $http, $rootScope, $translate, $compile, 
+    'gnUtilityService', 'gnSearchSettings', 'gnGlobalSettings',
+    function($scope, $http, $rootScope, $translate, $compile,
         $q, $timeout, $routeParams, $location,
             gnSearchManagerService, 
-            gnUtilityService, gnSearchSettings) {
-
+            gnUtilityService, gnSearchSettings, gnGlobalSettings) {
+      $scope.modelOptions =
+          angular.copy(gnGlobalSettings.modelOptions);
 
       $scope.pageMenu = {
         folder: 'tools/',
@@ -382,7 +383,7 @@
                     param.value = urlParam;
                   }
                 });
-                $scope.selectedProcess = p;
+                $scope.data.selectedProcess = p;
               }
             });
           }
@@ -500,6 +501,24 @@
             });
       };
 
+      $scope.clearFormatterCache = function() {
+        return $http.get('admin.format.clear')
+            .success(function(data) {
+              $rootScope.$broadcast('StatusUpdated', {
+                msg: $translate('formatterCacheCleared'),
+                timeout: 2,
+                type: 'success'});
+              // TODO: Does this is asynch and make the search unavailable?
+            })
+            .error(function(data) {
+              $rootScope.$broadcast('StatusUpdated', {
+                title: $translate('formatCacheClearFailure'),
+                error: data,
+                timeout: 0,
+                type: 'danger'});
+            });
+      };
+
 
 
 
@@ -545,6 +564,17 @@
             timeout: 0,
             type: 'danger'});
         }
+      };
+
+      $scope.downloadReplacementConfig = function($event) {
+        var content = 'data:text/json;charset=utf-8,' +
+                      encodeURIComponent(
+            JSON.stringify(
+                          $scope.replacer.replacements));
+        $($event.target).parent('a')
+            .attr('download', 'config.json')
+            .attr('href', content);
+        $event.stopPropagation();
       };
 
       $scope.$watch('replacer.group', function(newValue, oldValue) {

@@ -27,8 +27,8 @@ import jeeves.server.context.ServiceContext;
 import jeeves.server.dispatchers.ServiceManager;
 import jeeves.services.ReadWriteController;
 import lizard.tiff.Tiff;
-
 import org.apache.commons.lang.StringUtils;
+import org.fao.geonet.ApplicationContextHolder;
 import org.fao.geonet.GeonetContext;
 import org.fao.geonet.Util;
 import org.fao.geonet.constants.Geonet;
@@ -38,7 +38,6 @@ import org.fao.geonet.kernel.DataManager;
 import org.fao.geonet.lib.Lib;
 import org.fao.geonet.utils.IO;
 import org.jdom.Element;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,7 +57,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -79,8 +77,6 @@ public class Set {
     private static final String IMAGE_TYPE   = "png";
     private static final String SMALL_SUFFIX = "_s";
     private static final String FNAME_PARAM   = "fname=";
-    @Autowired
-    private ServiceManager serviceManager;
 
 
     @RequestMapping(value = {"/{lang}/md.thumbnail.upload"}, produces = {
@@ -100,6 +96,7 @@ public class Set {
                                         @RequestParam(value = Params.SMALL_SCALING_FACTOR, defaultValue = "0") int smallScalingFactor
                                         ) throws Exception {
 
+        ServiceManager serviceManager = ApplicationContextHolder.get().getBean(ServiceManager.class);
         ServiceContext context = serviceManager.createServiceContext("md.thumbnail.upload", lang, request);
 
 		Lib.resource.checkEditPrivilege(context, id);
@@ -128,7 +125,7 @@ public class Set {
 
 		if (createSmall)
 		{
-			Path smallFile = getFileName(file.getName(), true);
+			Path smallFile = getFileName(file.getOriginalFilename(), true);
             Path outFile   = metadataPublicDatadir.resolve(smallFile);
 
 			removeOldThumbnail(context, id, "small", false);
@@ -143,7 +140,7 @@ public class Set {
 
 		if (scaling)
 		{
-			Path newFile = getFileName(file.getName(), type.equals("small"));
+			Path newFile = getFileName(file.getOriginalFilename(), type.equals("small"));
 			Path outFile = metadataPublicDatadir.resolve(newFile);
 
 			createThumbnail(file, outFile, scalingFactor, scalingDir);
@@ -153,9 +150,9 @@ public class Set {
 		else
 		{
 			//--- move uploaded file to destination directory
-            Files.copy(file.getInputStream(), metadataPublicDatadir.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file.getInputStream(), metadataPublicDatadir.resolve(file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
 
-			dataMan.setThumbnail(context, id, type.equals("small"), file.getName(), false);
+			dataMan.setThumbnail(context, id, type.equals("small"), file.getOriginalFilename(), false);
 		}
 
         dataMan.indexMetadata(id, true);

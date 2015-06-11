@@ -11,17 +11,28 @@
   <div class="btn-group flux" >
     <button gi-btn="active" class="btn btn-default"
             data-ng-class="{disabled:vector.getSource().getFeatures().length <= 0}"
-            ng-model="modifying"><i class="fa fa-fw fa-pencil"></i> {{"Modify"|translate}}</button>
-    <button gi-btn="active" class="btn btn-default" 
+            ng-model="modifying">
+      <i class="fa fa-pencil"></i>&nbsp;
+      <span data-translate="">Modify</button>
+    <button gi-btn="active" class="btn btn-default"
             data-ng-class="{disabled:vector.getSource().getFeatures().length <= 0}"
-            ng-model="deleteF.active"><i class="fa fa-fw fa-eraser"></i> {{"Remove"|translate}}</button>
-	<a class="btn btn-default" data-ng-click="save($event)" id="export-geom" download="export.json"
-            data-ng-class="{disabled:vector.getSource().getFeatures().length <= 0}"
-            data-translate=""><i class="fa fa-fw fa-save"></i> {{"Save"|translate}}</a>		
-			
+            ng-model="deleteF.active">
+      <i class="fa fa-eraser"></i>&nbsp;
+      <span data-translate="">Remove</span>
+    </button>
+    <a class="btn btn-default" data-ng-click="save()" id="export-geom" download="export.json"
+       data-ng-class="{disabled:vector.getSource().getFeatures().length <= 0}">
+      <i class="fa fa-fw fa-save"></i> {{"save"|translate}}</a>
+
+    <a class="btn btn-default import" data-ng-click="save()" id="import-geom">
+      <i class="fa fa-fw fa-upload"></i> {{"load"|translate}}</a>
+
+    <input class="hidden" type="file"
+           accept="application/json" id="features-file-input"/>
+
   </div>
   <div class="alert alert-warning" role="alert">
     <span class="fa fa-info-circle"></span>
-	{{'drawInstruction'|translate}}</span>
+    {{'drawInstruction'|translate}}</span>
   </div>
 </div>

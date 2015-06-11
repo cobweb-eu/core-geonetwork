@@ -111,7 +111,8 @@ public final class Geonet {
 		public static final String ID         = "id";
 		public static final String ON         = "on";
 		public static final String METADATA   = "metadata";
-		public static final String NAME       = "name";
+        public static final String NAME       = "name";
+        public static final String ORGANISATION   = "organisation";
         public static final String NOTIFICATIONS = "notifications";
 		public static final String SURNAME    = "surname";
 		public static final String PROFILE    = "profile";
@@ -420,8 +421,9 @@ public final class Geonet {
         public static final String SUMMARY_ONLY = "summaryOnly";
         public static final String REQUESTED_LANGUAGE = "requestedLanguage";
         public static final String SUMMARY_ITEMS = "summaryItems";
+		public static final java.lang.String EXTRA_DUMP_FIELDS = "extraDumpFields";
 
-        /**
+		/**
          * TODO javadoc.
          */
         public static final class ResultType  {

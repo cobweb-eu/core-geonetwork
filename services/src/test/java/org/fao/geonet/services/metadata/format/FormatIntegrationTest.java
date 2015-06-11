@@ -5,6 +5,7 @@ import jeeves.config.springutil.JeevesDelegatingFilterProxy;
 import jeeves.server.context.ServiceContext;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Level;
+import org.fao.geonet.AbstractCoreIntegrationTest;
 import org.fao.geonet.MockRequestFactoryGeonet;
 import org.fao.geonet.SystemInfo;
 import org.fao.geonet.constants.Geonet;
@@ -27,6 +28,7 @@ import org.fao.geonet.utils.MockXmlRequest;
 import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.Namespace;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +57,7 @@ import javax.servlet.ServletContext;
 
 import static org.fao.geonet.schema.iso19139.ISO19139Namespaces.GCO;
 import static org.fao.geonet.schema.iso19139.ISO19139Namespaces.GMD;
+import static org.fao.geonet.services.metadata.format.FormatterWidth._100;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -129,13 +132,13 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
             });
             dataManager.indexMetadata(Lists.newArrayList("" + this.id));
 
-            final String formatterName = configureGroovyTestFormatter();
+            final String formatterName = "full_view";
 
             MockHttpServletRequest request = new MockHttpServletRequest();
             request.addParameter("h2IdentInfo", "true");
 
             MockHttpServletResponse response = new MockHttpServletResponse();
-            formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, new ServletWebRequest(request, response));
+            formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, _100, new ServletWebRequest(request, response));
             final String lastModified = response.getHeader("Last-Modified");
             assertEquals("no-cache", response.getHeader("Cache-Control"));
             final String viewString = response.getContentAsString();
@@ -146,7 +149,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
             response = new MockHttpServletResponse();
 
             request.addHeader("If-Modified-Since", Long.valueOf(lastModified));
-            formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, new ServletWebRequest(request, response));
+            formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, _100,new ServletWebRequest(request, response));
             assertEquals(HttpStatus.SC_NOT_MODIFIED, response.getStatus());
             final ISODate newChangeDate = new ISODate();
             metadataRepository.update(id, new Updater<Metadata>() {
@@ -163,7 +166,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
             response = new MockHttpServletResponse();
 
             request.addHeader("If-Modified-Since", Long.valueOf(lastModified));
-            formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, new ServletWebRequest(request, response));
+            formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, _100, new ServletWebRequest(request, response));
              assertEquals(HttpStatus.SC_OK, response.getStatus());
         } finally {
             systemInfo.setStagingProfile(stage);
@@ -177,7 +180,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
         fparams.context = this.serviceContext;
         fparams.webRequest = webRequest;
         // make sure context is cleared
-        EnvironmentProxy.setCurrentEnvironment(fparams, mapper);
+        EnvironmentProxy.setCurrentEnvironment(fparams);
 
 
         final String formatterName = "groovy-illegal-env-access-formatter";
@@ -189,7 +192,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
         Files.deleteIfExists(formatterDir.resolve(functionsXslName));
         IO.copyDirectoryOrFile(testFormatter.getParent().resolve(functionsXslName), formatterDir.resolve(functionsXslName), false);
 
-        formatService.exec("eng", "html", "" + id, null, formatterName, null, null, webRequest);
+        formatService.exec("eng", "html", "" + id, null, formatterName, null, null, _100, webRequest);
     }
 
     @Test
@@ -204,7 +207,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
             fparams.context = this.serviceContext;
             fparams.webRequest = request;
             // make sure context is cleared
-            EnvironmentProxy.setCurrentEnvironment(fparams, mapper);
+            EnvironmentProxy.setCurrentEnvironment(fparams);
 
 
             final String formatterName = "logging-null-pointer";
@@ -217,7 +220,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
             IO.copyDirectoryOrFile(testFormatter.getParent().resolve(functionsXslName), formatterDir.resolve(functionsXslName), false);
 
 
-            formatService.exec("eng", "html", "" + id, null, formatterName, null, null, request);
+            formatService.exec("eng", "html", "" + id, null, formatterName, null, null, _100, request);
 
             // no Error is success
         } finally {
@@ -237,7 +240,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
             JeevesDelegatingFilterProxy.setApplicationContextAttributeKey(srvAppContext);
             RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-            formatService.exec("eng", "html", "" + id, null, formatter.getId(), "true", false, new ServletWebRequest(request, response));
+            formatService.exec("eng", "html", "" + id, null, formatter.getId(), "true", false, _100, new ServletWebRequest(request, response));
 
             final String view = response.getContentAsString();
             try {
@@ -248,7 +251,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
             }
             try {
                 response = new MockHttpServletResponse();
-                formatService.exec("eng", "testpdf", "" + id, null, formatter.getId(), "true", false,
+                formatService.exec("eng", "testpdf", "" + id, null, formatter.getId(), "true", false, _100,
                         new ServletWebRequest(request, response));
 //                Files.write(Paths.get("e:/tmp/view.pdf"), response.getContentAsByteArray());
 //                System.exit(0);
@@ -282,7 +285,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
         JeevesDelegatingFilterProxy.setApplicationContextAttributeKey(applicationContextAttributeKey);
 
         final MockHttpServletResponse response = new MockHttpServletResponse();
-        formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, new ServletWebRequest(request, response));
+        formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, _100, new ServletWebRequest(request, response));
         final String viewXml = response.getContentAsString();
         final Element view = Xml.loadString(viewXml, false);
         assertEqualsText("fromFunction", view, "*//p");
@@ -296,12 +299,28 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        formatService.execXml("eng", "xml", "partial_view", Xml.getString(element), null, "iso19139",
+        formatService.execXml("eng", "xml", "partial_view", Xml.getString(element), null, "iso19139", _100, null,
                 new ServletWebRequest(request, response));
 
         final String view = response.getContentAsString();
         assertTrue(view.contains("KML (1)"));
         assertTrue(view.contains("Format"));
+    }
+
+    @Test
+    public void testXmlFormatUploadWithXpath() throws Exception {
+        final URL resource = AbstractCoreIntegrationTest.class.getResource("kernel/valid-getrecordbyidresponse.iso19139.xml");
+        final Element sampleMetadataXml = Xml.loadStream(resource.openStream());
+        final Element element = Xml.selectElement(sampleMetadataXml, "*//csw:GetRecordByIdResponse",
+                Lists.newArrayList(Namespace.getNamespace("csw", "http://www.opengis.net/cat/csw/2.0.2")));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        formatService.execXml("eng", "xml", "partial_view", Xml.getString(sampleMetadataXml), null, "iso19139", _100, "gmd:MD_Metadata",
+                new ServletWebRequest(request, response));
+
+        final String view = response.getContentAsString();
+        assertTrue(view.contains("KML (1)"));
     }
 
     @Test @DirtiesContext
@@ -316,7 +335,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        formatService.execXml("eng", "xml", "partial_view", null, url, "iso19139", new ServletWebRequest(request, response));
+        formatService.execXml("eng", "xml", "partial_view", null, url, "iso19139", _100, null, new ServletWebRequest(request, response));
 
         final String view = response.getContentAsString();
         assertTrue(view.contains("KML (1)"));
@@ -336,7 +355,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
-        formatService.execXml("eng", "xml", "partial_view", null, "request", "iso19139", new ServletWebRequest(request, response));
+        formatService.execXml("eng", "xml", "partial_view", null, "request", "iso19139", _100, null, new ServletWebRequest(request, response));
 
         final String view = response.getContentAsString();
         assertTrue(view.contains("KML (1)"));
@@ -351,7 +370,7 @@ public class FormatIntegrationTest extends AbstractServiceIntegrationTest {
         request.addParameter("h2IdentInfo", "true");
 
         final MockHttpServletResponse response = new MockHttpServletResponse();
-        formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, new ServletWebRequest(request, response));
+        formatService.exec("eng", "html", "" + id, null, formatterName, "true", false, _100, new ServletWebRequest(request, response));
         final String viewString = response.getContentAsString();
 //        com.google.common.io.Files.write(viewString, new File("e:/tmp/view.html"), Constants.CHARSET);
 

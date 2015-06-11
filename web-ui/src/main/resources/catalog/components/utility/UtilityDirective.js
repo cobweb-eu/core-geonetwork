@@ -4,9 +4,27 @@
   var module = angular.module('gn_utility_directive', [
   ]);
 
+  module.directive('gnConfirmClick', [
+    function() {
+      return {
+        priority: -1,
+        restrict: 'A',
+        link: function(scope, element, attrs) {
+          element.bind('click', function(e) {
+            var message = attrs.gnConfirmClick;
+            if (message && !confirm(message)) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+            }
+          });
+        }
+      };
+    }
+  ]);
+
   /**
    * @ngdoc directive
-   * @name gn_fields_directive.directive:gnCountryPicker
+   * @name gn_utility.directive:gnCountryPicker
    * @deprecated Use gnRegionPicker instead
    *
    * @description
@@ -145,7 +163,7 @@
 
   /**
    * @ngdoc directive
-   * @name gn_fields_directive.directive:gnLanguagePicker
+   * @name gn_utility.directive:gnLanguagePicker
    * @function
    *
    * @description
@@ -241,7 +259,7 @@
 
   /**
    * @ngdoc directive
-   * @name gn_fields_directive.directive:gnDirectoryEntryPicker
+   * @name gn_utility.directive:gnDirectoryEntryPicker
    * @function
    *
    * @description
@@ -303,7 +321,7 @@
 
   /**
    * @ngdoc directive
-   * @name gn_utility_directive.directive:gnAutogrow
+   * @name gn_utility.directive:gnAutogrow
    * @function
    *
    * @description
@@ -430,11 +448,14 @@
               //if (forceAsyncEvents[eventName] && $rootScope.$$phase) {
               //  scope.$evalAsync(callback);
               //} else {
-			  try {
+              try {
                 callback().then(function() {
                   done();
                 });
-			  } catch(e){}
+              }
+              catch (e) {
+                done();
+              }
               //if (angular.isFunction(callback.then)) {
               //  callback().then(function() {
               //    done();
@@ -545,7 +566,7 @@
 
   /**
    * @ngdoc directive
-   * @name gn_utility_directive.directive:gnPaginationList
+   * @name gn_utility.directive:gnPaginationList
    * @function
    *
    * @description
@@ -802,6 +823,43 @@
         ngModel.$parsers.push(into);
         ngModel.$formatters.push(out);
 
+      }
+    };
+  });
+  module.directive('gnImgModal', function() {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attr, ngModel) {
+
+        element.bind('click', function() {
+          var md = scope.$eval(attr['gnImgModal']);
+          var imgs = md.getThumbnails();
+          var img = imgs.big || imgs.small;
+
+          if (img) {
+            var modalElt = angular.element('' +
+                '<div class="modal fade in">' +
+                '<div class="modal-dialog in">' +
+                '  <button type=button class="btn btn-default ' +
+                'gn-btn-modal-img">&times</button>' +
+                '    <img src="' + img + '">' +
+                '</div>' +
+                '</div>');
+            modalElt.find('img').on('load', function() {
+              var w = this.clientWidth;
+              modalElt.find('.modal-dialog').css('width', w + 'px');
+            });
+
+            $(document.body).append(modalElt);
+            modalElt.modal();
+            modalElt.on('hidden.bs.modal', function() {
+              modalElt.remove();
+            });
+            modalElt.find('.gn-btn-modal-img').on('click', function() {
+              modalElt.modal('hide');
+            });
+          }
+        });
       }
     };
   });

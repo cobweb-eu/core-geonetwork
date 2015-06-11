@@ -63,16 +63,21 @@ input[type=text], input[type=number], select {
   }
 }
 
+[data-gn-metadata-category-updater] .dropdown-menu > .disabled > a:hover,
+[data-gn-metadata-group-updater] .dropdown-menu > .disabled > a:hover {
+  cursor: pointer !important;
+}
 
 .gn-editor-container {
   padding: 20px 5px;
   margin-top: 45px;
 }
 
+
 form.gn-editor {
   /* Move each sub fieldset to the left */
   @editor-fieldset-padding-left: 5px;
-  
+
   /**
    * Make space on the following element of a well 
    */
@@ -147,7 +152,7 @@ form.gn-editor {
       color: #6a6a6a;
       font-weight: 200;
       padding-top: 0px;
-      line-height: 1em;
+      line-height: 22px;
 
   }
   
@@ -175,29 +180,17 @@ form.gn-editor {
   //    opacity: .7;
     }
   }
-  
-  .gn-multilingual-field {
-    .nav > li > a {
-      padding: 2px 5px;
-      margin-top: 2px;
-      font-size: 8px;
-    }
-    .label {
-      line-height: 2;
-      font-size: 8px;
-    }
-    .no-data a {
-      color: @gray-light;
-    }
-  }
 
   /* Date picker is composed of a date and
    * a time input. Align them on the same
    * line instead of 100% width in input group.
    */
   .gn-date-picker {
-    > input.gn-date {
-      width: 50%;
+    > input[type=date] {
+      width: 60%;
+    }
+    > input[type=time] {
+      width: 40%;
     }
     .gn-indeterminate-position {
       display: table-cell;
@@ -266,7 +259,7 @@ form.gn-editor {
   .gn-field {
       border-radius: 3px;
       margin: 0px;
-      padding: 5px;
+      //padding: 5px;
   }
   .field-bg {
       background-color: #f7f7f7;
@@ -321,6 +314,10 @@ form.gn-tab-inspire {
   }
   .list-group.fixed {
     min-height: 100px;
+    /* Avoid the content of the div
+    to be higher than view port
+    as the modal does not have overflow. */
+    max-height: 50vh;
     li.active {
         background-color: #428bca;
     }
@@ -353,4 +350,28 @@ form.gn-tab-inspire {
 }
 .navbar-collapse {
   padding-right: 0px;
+}
+
+.open > .dropdown-menu {
+  max-height: 25em;
+  overflow-y: auto;
+}
+
+.schematron-result-list-label-info .text-info {
+  color: @label-primary-bg;
+}
+
+.gn-multilingual-field {
+  .nav > li > a {
+    padding: 2px 5px;
+    margin-top: 2px;
+    font-size: 8px;
+  }
+  .label {
+    line-height: 2;
+    font-size: 8px;
+  }
+  .no-data a {
+    color: @gray-light;
+  }
 }

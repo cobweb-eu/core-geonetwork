@@ -6,7 +6,7 @@
   ]);
 
   module.provider('gnOwsCapabilities', function() {
-    this.$get = ['$http', 'gnUrlUtils', 'gnGlobalSettings', '$q',
+    this.$get = ['$http', 'gnUrlUtils', 'gnGlobalSettings', '$q', 
       function($http, gnUrlUtils, gnGlobalSettings, $q) {
 
         var displayFileContent = function(data) {
@@ -84,6 +84,7 @@
 
         };
         return {
+          mergeDefaultParams: mergeDefaultParams,
 
           getWMSCapabilities: function(url) {
             var defer = $q.defer();
@@ -115,7 +116,8 @@
             var defer = $q.defer();
             if (url) {
               url = mergeDefaultParams(url, {
-                REQUEST: 'GetCapabilities'
+                REQUEST: 'GetCapabilities',
+                service: 'WMTS'
               });
 
               if (gnUrlUtils.isValid(url)) {
@@ -146,41 +148,120 @@
             //var olExtent = [ext[1],ext[0],ext[3],ext[2]];
             // TODO fix using layer.BoundingBox[0].extent
             // when sextant fix his capabilities
-            if (angular.isArray(layer.BoundingBox)) {
-              extent = ol.proj.transformExtent(layer.EX_GeographicBoundingBox,
-                  //layer.BoundingBox[0].crs,
+            if (angular.isArray(layer.EX_GeographicBoundingBox)) {
+              extent = ol.proj.transformExtent(
+                  layer.EX_GeographicBoundingBox,
                   'EPSG:4326',
                   srsCode);
+            } else if (angular.isArray(layer.BoundingBox)) {
+              for (var i = 0; i < layer.BoundingBox.length; i++) {
+                var bbox = layer.BoundingBox[i];
+                // Use the bbox with the code matching the map projection
+                // or the first one.
+                if (bbox.crs === srsCode || layer.BoundingBox.length === 1) {
+                  extent = ol.proj.transformExtent(bbox.extent,
+                      bbox.crs || 'EPSG:4326',
+                      srsCode);
+                  break;
+                }
+              }
             }
             return extent;
           },
           getLayerInfoFromCap: function(name, capObj, uuid) {
             var needles = [];
-			var layers = capObj.layers || capObj.Layer;
-            for (var i = 0, len = layers.length;i < len; i++) {
-			  //todo: what happens if there are multiple matches?
-              if (name == layers[i].Name) { //check layername
-                needles.push(layers[i]);
-              } //check dataset identifer match
-			  if (angular.isArray(layers[i].Identifier)) {
-				angular.forEach(layers[i].Identifier, function(id) {
-					if (id==uuid){ 
-						needles.push(layers[i]);
-					}
-				});
-				}
-			   //check uuid from metadata url
-			   if (angular.isArray(layers[i].MetadataURL)) {
-					angular.forEach(layers[i].MetadataURL, function(mdu) {
-						if (mdu && mdu.OnlineResource && mdu.OnlineResource.indexOf(uuid)>0) needles.push(layers[i]);
-					});
-				}
-				
-			  } 
-			  //todo: allow multiple, remove duplicates
-			  if (needles.length > 0) return needles[0];
-			  else return;
+            var layers = capObj.layers || capObj.Layer;
+
+            for (var i = 0, len = layers.length; i < len; i++) {
+              //check layername
+              if (name == layers[i].Name) {
+                layers[i].nameToUse = name;
+                return layers[i];
+              }
+
+              //check dataset identifer match
+              if (uuid != null) {
+                if (angular.isArray(layers[i].Identifier)) {
+                  angular.forEach(layers[i].Identifier, function(id) {
+                    if (id == uuid) {
+                      needles.push(layers[i]);
+                    }
+                  });
+                }
+              }
+
+              //check uuid from metadata url
+              if (uuid != null) {
+                if (angular.isArray(layers[i].MetadataURL)) {
+                  angular.forEach(layers[i].MetadataURL, function(mdu) {
+                    if (mdu && mdu.OnlineResource &&
+                        mdu.OnlineResource.indexOf(uuid) > 0) {
+                      needles.push(layers[i]);
+                    }
+                  });
+                }
+              }
             }
+
+            //FIXME: allow multiple, remove duplicates
+            if (needles.length > 0) {
+              return needles[0];
+            }
+            else {
+              return;
+            }
+          },
+          
+
+          getLayerInfoFromWfsCap: function(name, capObj, uuid) {
+            var needles = [];
+            var layers = capObj.featureTypeList.featureType;
+
+            for (var i = 0, len = layers.length; i < len; i++) {
+              //check layername
+              if (name == layers[i].name.localPart ||
+                  name == layers[i].name.prefix + ":" + layers[i].name.localPart
+                  || name == layers[i].Name) {
+                return layers[i];
+              }  
+              
+              //check title
+              if (name == layers[i].title || name == layers[i].Title) {
+                return layers[i];
+              }
+
+              //check dataset identifer match
+              if (uuid != null) {
+                if (angular.isArray(layers[i].Identifier)) {
+                  angular.forEach(layers[i].Identifier, function(id) {
+                    if (id == uuid) {
+                      needles.push(layers[i]);
+                    }
+                  });
+                }
+              }
+
+              //check uuid from metadata url
+              if (uuid != null) {
+                if (angular.isArray(layers[i].MetadataURL)) {
+                  angular.forEach(layers[i].MetadataURL, function(mdu) {
+                    if (mdu && mdu.OnlineResource &&
+                        mdu.OnlineResource.indexOf(uuid) > 0) {
+                      needles.push(layers[i]);
+                    }
+                  });
+                }
+              }
+            }
+
+            //FIXME: allow multiple, remove duplicates
+            if (needles.length > 0) {
+              return needles[0];
+            }
+            else {
+              return;
+            }
+          }
         };
       }];
   });

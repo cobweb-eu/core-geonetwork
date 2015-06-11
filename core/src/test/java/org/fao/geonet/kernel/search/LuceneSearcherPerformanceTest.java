@@ -13,6 +13,7 @@ import org.fao.geonet.kernel.search.index.FSDirectoryFactory;
 import org.fao.geonet.repository.UserRepository;
 import org.fao.geonet.repository.UserRepositoryTest;
 import org.jdom.Element;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,7 +54,7 @@ public class LuceneSearcherPerformanceTest extends AbstractCoreIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Test //@Ignore
+    @Test @Ignore
     public void testSearchAndPresent() throws Exception {
         final ServiceContext context = createServiceContext();
         loginAsAdmin(context);
@@ -83,17 +84,18 @@ public class LuceneSearcherPerformanceTest extends AbstractCoreIntegrationTest {
 
             @Override
             public void exec() throws Exception {
-                final MetaSearcher searcher = searchManager.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE);
+                try (MetaSearcher searcher = searchManager.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE)) {
 
-                Element request = new Element("request").addContent(Arrays.asList(
-                        new Element("fast").setText("index"),
-                        new Element("from").setText("1"),
-                        new Element("to").setText("10")
-                ));
+                    Element request = new Element("request").addContent(Arrays.asList(
+                            new Element("fast").setText("index"),
+                            new Element("from").setText("1"),
+                            new Element("to").setText("10")
+                    ));
 
-                searcher.search(context, request, new ServiceConfig());
-                final Element results = searcher.present(context, request, new ServiceConfig());
+                    searcher.search(context, request, new ServiceConfig());
+                    final Element results = searcher.present(context, request, new ServiceConfig());
 //                System.out.println(results.getChild("summary").getAttributeValue("count"));
+                }
             }
         };
     }

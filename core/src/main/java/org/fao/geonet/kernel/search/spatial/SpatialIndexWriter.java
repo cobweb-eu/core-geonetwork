@@ -508,7 +508,11 @@ public class SpatialIndexWriter implements FeatureListener
                 return descriptor.getName();
             }
         }
-        return new NameImpl(_IDS_ATTRIBUTE_NAME);
+
+        if (featureSource.getSchema().getDescriptor("fid") != null) {
+            return featureSource.getSchema().getDescriptor("fid").getName();
+        }
+        return null;
     }
 
     public static MultiPolygon toMultiPolygon(Geometry geometry)

@@ -30,6 +30,12 @@
       <i class="fa fa-key"></i>&nbsp;
       <span data-translate="">privileges</span>
     </a></li>
+    <li data-ng-if="md.isOwned() && user.isUserAdminOrMore()">
+        <a data-ng-href=""
+           data-ng-click="mdService.openTransferOwnership(md, getCatScope())">
+      <i class="fa fa-user"></i>&nbsp;
+      <span data-translate="">transferOwnership</span>
+    </a></li>
     <li data-ng-if="user.canEditRecord(md) && user.isReviewerOrMore()">
       <a data-ng-click="mdService.publish(md)">
         <i class="fa"
@@ -55,7 +61,6 @@
       <span data-translate="">enableWorkflow</span>
     </a></li>
     <li class="divider" data-ng-if="user.isConnected()"></li>
-    <!-- TODO: rating -->
     <li><a data-ng-href=""
            data-ng-if="user.isEditorOrMore()"
            data-ng-click="mdService.duplicate(md)">

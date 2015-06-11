@@ -30,19 +30,14 @@
               icon: 'fa-archive',
               href: '#/metadata/metadata-and-template'
             },{
-              type: 'template-sort',
-              label: 'sortTemplate',
-              icon: 'fa-sort',
-              href: '#/metadata/template-sort'
-            },{
               type: 'formatter',
               label: 'metadataFormatter',
-              icon: 'fa-print',
+              icon: 'fa-eye',
               href: '#/metadata/formatter'
             },{
               type: 'schematron',
               label: 'schematron',
-              icon: 'fa-eye',
+              icon: 'fa-check',
               href: '#/metadata/schematron'
             }]
       };
@@ -55,15 +50,16 @@
       $scope.sampleLoadRunning = false;
 
       function loadSchemas() {
-        $http.get('admin.schema.list@json').success(function(data) {
-          for (var i = 0; i < data.length; i++) {
-            $scope.schemas.push(data[i]['#text'].trim());
-          }
-          $scope.schemas.sort();
+        $http.get('admin.schema.list?_content_type=json').
+            success(function(data) {
+              for (var i = 0; i < data.length; i++) {
+                $scope.schemas.push(data[i]['#text'].trim());
+              }
+              $scope.schemas.sort();
 
-          // Trigger load action according to route params
-          launchActions();
-        });
+              // Trigger load action according to route params
+              launchActions();
+            });
       }
 
       function launchActions() {
@@ -130,7 +126,7 @@
 
       $scope.loadTemplates = function() {
         $scope.tplLoadRunning = true;
-        $http.get('admin.load.templates@json?schema=' +
+        $http.get('admin.load.templates?_content_type=json&schema=' +
             $scope.selectedSchemas.join(',')
         ).success(function(data) {
           $scope.loadTplReport = data;
@@ -142,8 +138,9 @@
 
       $scope.loadSamples = function() {
         $scope.sampleLoadRunning = true;
-        $http.get('admin.load.samples@json?file_type=mef&uuidAction=overwrite' +
-                '&schema=' +
+        $http.get('admin.load.samples?_content_type=json&' +
+                  'file_type=mef&uuidAction=overwrite' +
+                  '&schema=' +
             $scope.selectedSchemas.join(',')
         ).success(function(data) {
           $scope.loadReport = data;
@@ -157,23 +154,9 @@
       $scope.templates = null;
 
       var loadTemplates = function() {
-        $http.get('admin.templates.list@json')
+        $http.get('admin.templates.list?_content_type=json')
         .success(function(data) {
               $scope.templates = data;
-            });
-      };
-
-      $scope.saveOrder = function(formId) {
-        $http.get('admin.templates.save.order?' + $(formId).serialize())
-          .success(function(data) {
-              loadTemplates();
-            })
-          .error(function(data) {
-              $rootScope.$broadcast('StatusUpdated', {
-                title: $translate('saveTemplateOrderError'),
-                error: data,
-                timeout: 0,
-                type: 'danger'});
             });
       };
 
@@ -300,7 +283,7 @@
             params.schema = $scope.formatterSelected.schema;
           }
           $http({
-            url: 'md.formatter.edit@json',
+            url: 'md.formatter.edit?_content_type=json',
             method: 'POST',
             data: $.param(params),
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -312,7 +295,7 @@
 
       $scope.saveFormatterFile = function(formId) {
         $http({
-          url: 'md.formatter.update@json',
+          url: 'md.formatter.update?_content_type=json',
           method: 'POST',
           data: $(formId).serialize(),
           headers: {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -350,9 +333,7 @@
         window.open(url, '_blank');
       };
 
-      if ($routeParams.tab === 'template-sort') {
-        loadTemplates();
-      } else if ($routeParams.tab === 'formatter') {
+      if ($routeParams.tab === 'formatter') {
         loadFormatter();
       } else if ($routeParams.schemaName || $routeParams.tab === 'schematron') {
         $routeParams.tab = 'schematron';

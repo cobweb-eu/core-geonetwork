@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.fao.geonet.domain.Group;
 import org.fao.geonet.domain.Profile;
 import org.fao.geonet.events.group.GroupCreated;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
@@ -36,9 +35,6 @@ public class AutoCreateGroups implements ApplicationListener<GroupCreated>, Orde
     private final Log logger = LogFactory.getLog(AutoCreateGroups.class);
 
     private static Integer lastGidNumber = null;
-
-    @Autowired
-    private AbstractLDAPUserDetailsContextMapper ldapMapper;
 
     @SuppressWarnings("unused")
     private ContextSource contextSource;
@@ -141,10 +137,6 @@ public class AutoCreateGroups implements ApplicationListener<GroupCreated>, Orde
         } catch (org.springframework.ldap.NameNotFoundException e) {
             return false;
         }
-    }
-
-    public void setLdapMapper(AbstractLDAPUserDetailsContextMapper ldapMapper) {
-        this.ldapMapper = ldapMapper;
     }
 
     public void setTemplate(LdapTemplate template) {

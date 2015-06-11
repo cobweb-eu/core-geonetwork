@@ -67,7 +67,7 @@
  used on {{metadata[n].type | split:',':0 }}*/
 .filter('split', function() {
         return function(input, splitChar, splitIndex) {
-          if (!input) {
+          if (!input || !angular.isFunction(input.split)) {
             return '';
           }
           if (!splitIndex) {

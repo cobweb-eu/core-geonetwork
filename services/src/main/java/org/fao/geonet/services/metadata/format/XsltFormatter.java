@@ -1,13 +1,15 @@
 package org.fao.geonet.services.metadata.format;
 
-import org.fao.geonet.kernel.GeonetworkDataDirectory;
 import org.fao.geonet.kernel.SchemaManager;
 import org.fao.geonet.utils.Xml;
 import org.jdom.Element;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import static org.fao.geonet.services.metadata.format.SchemaLocalizations.loadSchemaLocalizations;
 
@@ -33,8 +35,6 @@ import static org.fao.geonet.services.metadata.format.SchemaLocalizations.loadSc
  */
 @Component
 public class XsltFormatter implements FormatterImpl {
-    @Autowired
-    GeonetworkDataDirectory dataDirectory;
 
     public String format(FormatterParams fparams) throws Exception {
 
@@ -81,9 +81,12 @@ public class XsltFormatter implements FormatterImpl {
                     Element schemaEl = new Element(currentSchema);
                     schemas.addContent(schemaEl);
 
-                    schemaEl.addContent((Element) schemaLocalization.getLabels(fparams.context.getLanguage()).clone());
-                    schemaEl.addContent((Element) schemaLocalization.getCodelists(fparams.context.getLanguage()).clone());
-                    schemaEl.addContent((Element) schemaLocalization.getStrings(fparams.context.getLanguage()).clone());
+                    Element labels = schemaLocalization.getLabels(fparams.context.getLanguage());
+                    schemaEl.addContent((Element) labels.setName("labels").clone());
+                    Element strings = schemaLocalization.getStrings(fparams.context.getLanguage());
+                    schemaEl.addContent((Element) strings.setName("strings").clone());
+                    Element codelists = schemaLocalization.getCodelists(fparams.context.getLanguage());
+                    schemaEl.addContent((Element) codelists.setName("codelists").clone());
                 }
             }
         }

@@ -22,6 +22,20 @@
 //==============================================================================
 package org.fao.geonet.kernel.security.ldap;
 
+import org.fao.geonet.ApplicationContextHolder;
+import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.domain.Group;
+import org.fao.geonet.domain.LDAPUser;
+import org.fao.geonet.domain.Profile;
+import org.fao.geonet.domain.User;
+import org.fao.geonet.domain.UserGroup;
+import org.fao.geonet.repository.GroupRepository;
+import org.fao.geonet.repository.UserGroupRepository;
+import org.fao.geonet.repository.UserRepository;
+import org.fao.geonet.repository.specification.UserGroupSpecs;
+import org.fao.geonet.utils.Log;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +44,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -66,15 +79,6 @@ public class LDAPUtils {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
-    private UserRepository userRepo;
-
-    @Autowired
-    private GroupRepository groupRepo;
-
-    @Autowired
-    private UserGroupRepository userGroupRepo;
-
     /**
      * Save or update an LDAP user to the local GeoNetwork database.
      * 
@@ -107,6 +111,8 @@ public class LDAPUtils {
     @Transactional
     private User getUser(LDAPUser user, boolean importPrivilegesFromLdap,
             String userName) {
+        UserRepository userRepo = ApplicationContextHolder.get().getBean(UserRepository.class);
+
         User loadedUser = userRepo.findOneByUsername(userName);
         User toSave;
         if (loadedUser != null) {
@@ -142,6 +148,8 @@ public class LDAPUtils {
     @Transactional
     private List<UserGroup> getPrivilegesAndCreateGroups(LDAPUser user,
             boolean createNonExistingLdapGroup, User toSave) {
+        GroupRepository groupRepo = ApplicationContextHolder.get().getBean(GroupRepository.class);
+
         List<UserGroup> ug = new LinkedList<UserGroup>();
         for (Map.Entry<String, Profile> privilege : user.getPrivileges()
                 .entries()) {
@@ -202,6 +210,7 @@ public class LDAPUtils {
             throws Exception {
         
         Profile highestProfile = Profile.RegisteredUser;
+        UserGroupRepository userGroupRepo = ApplicationContextHolder.get().getBean(UserGroupRepository.class);;
 
         Collection<UserGroup> all = userGroupRepo.findAll(UserGroupSpecs
                 .hasUserId(user.getId()));

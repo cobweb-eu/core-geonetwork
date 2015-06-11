@@ -1,7 +1,9 @@
 (function() {
   goog.provide('gn_relatedresources_service');
 
-  var module = angular.module('gn_relatedresources_service', []);
+  goog.require('gn_wfs_service');
+
+  var module = angular.module('gn_relatedresources_service', ['gn_wfs_service']);
 
   /**
    * Standarizes the way to handle resources. Given a type of resource, you get
@@ -23,92 +25,93 @@
         'gnSearchSettings',
         'ngeoDecorateLayer',
         'gnSearchLocation',
+        'gnWfsService',
         function(gnMap, gnOwsCapabilities, gnSearchSettings, 
-            ngeoDecorateLayer, gnSearchLocation) {
+            ngeoDecorateLayer, gnSearchLocation, gnWfsService) {
 
           this.configure = function(options) {
             angular.extend(this.map, options);
           };
 
-          var addWMSToMap = function(link,uuid) {		  
-			//see if a uuid is provided, this is the uuid of the source record
-			if (!uuid) uuid="none";
-			//a link can have a wms url directly in link.url or as a md.link (name||url|protocol)
-			if (!link.url && link.link && link.link.split('|').length > 2) link.url = link.link.split('|')[2];
-			if (!link.url || link.url == ""){
-				alert('No WMS service to add');
-				return;
-			}
-			//make sure the name param exists and is an array
-		    if (!link.name || link.name == "") link.name = uuid;
-			if (!angular.isArray(link.name)) link.name = [link.name];
-		  
+          var addWMSToMap = function(link, md) {
+
+            if (link.name &&
+                (angular.isArray(link.name) && link.name.length > 0)) {
               angular.forEach(link.name, function(name) {
-                gnOwsCapabilities.getWMSCapabilities(link.url).then(
-                   function(capObj) {
-                     var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(name, capObj, uuid);
-					 if (typeof layerInfo !='undefined'){ //layer found
-                       gnMap.addWmsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
-					 } else { //add service
-					   alert('Unable to find a proper layer, so adding full service.');
-					   gnMap.addOwsServiceToMap(link.url, 'WMS');
-					 }
-                   });
-				   gnSearchLocation.setMap();
-              });    
-			
+                     gnMap.addWmsFromScratch(gnSearchSettings.viewerMap, link.url, name, false, md);
+              });
+            } else if (link.name && !angular.isArray(link.name)) {
+              gnMap.addWmsFromScratch(gnSearchSettings.viewerMap, link.url, link.name, false, md);
+            } else {
+              gnMap.addOwsServiceToMap(link.url, 'WMS');
+            }
+
+            gnSearchLocation.setMap();
           };
 
 
-          var addWMTSToMap = function(link,uuid) {
-			//see if a uuid is provided, this is the uuid of the source record
-			if (!uuid) uuid="none";
-			//a link can have a wms url directly in link.url or as a md.link (name||url|protocol)
-			if (!link.url && link.link && link.link.split('|').length > 2) link.url = link.link.split('|')[2];
-			if (!link.url || link.url == ""){
-				alert('No WMTS service to add');
-				return;
-			}
-			//make sure the name param exists and is an array
-		    if (!link.name || link.name == "") link.name = [uuid];
-			if (!angular.isArray(link.name)) link.name = [link.name];
+          var addWFSToMap = function(link, md) {
+
+
+            if (link.name &&
+                (angular.isArray(link.name) && link.name.length > 0)) {
+              angular.forEach(link.name, function(name) {
+                     gnMap.addWfsFromScratch(gnSearchSettings.viewerMap, link.url, name, false, md);
+              });
+            } else if (link.name && !angular.isArray(link.name)) {
+              gnMap.addWfsFromScratch(gnSearchSettings.viewerMap, link.url, link.name, false, md);
+            } else {
+              gnMap.addOwsServiceToMap(link.url, 'WFS');
+            }
+
+            gnSearchLocation.setMap();
+          };
+
+
+          var addWMTSToMap = function(link, md) {
+
+            if (link.name &&
+                (angular.isArray(link.name) && link.name.length > 0)) {
               angular.forEach(link.name, function(name) {
                 gnOwsCapabilities.getWMTSCapabilities(link.url).then(
                    function(capObj) {
-                     var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(name, capObj, uuid);
-					 if (typeof layerinfo !='undefined'){ //layer found
-                       gnMap.addWmtsToMapFromCap(gnSearchSettings.viewerMap, layerInfo, capObj);
-					 } else { //add service
-					   alert('Unable to find a proper layer, so adding full service.');
-					   gnMap.addOwsServiceToMap(link.url, 'WMTS');
-					 }
+                     var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(
+                     name, capObj, uuid);
+                     gnMap.addWmtsToMapFromCap(
+                     gnSearchSettings.viewerMap, layerInfo, capObj);
                    });
-				   gnSearchLocation.setMap();
-              });    
-			
-          };
-
-          var addWFSToMap = function(md) {
-            //TODO open dialog to download features
-            gnSearchLocation.setMap();
-          };
-
-          var addKMLToMap = function(md) {
-            gnMap.addKmlToMap(md.name, md.url, gnSearchSettings.viewerMap);
-            gnSearchLocation.setMap();
-          };
-
-          var openMd = function(md) {
-            return window.location.hash = '#/metadata/' +
-                (md.uuid || md['geonet:info'].uuid);
-          };
-
-          var openLink = function(link) {
-            if (link.url.indexOf('http') == 0 ||
-                link.url.indexOf('ftp') == 0) {
-              return window.open(link.url, '_blank');
+              });
+              gnSearchLocation.setMap();
+            } else if (link.name && !angular.isArray(link.name)) {
+              gnOwsCapabilities.getWMTSCapabilities(link.url).then(
+                  function(capObj) {
+                    var layerInfo = gnOwsCapabilities.getLayerInfoFromCap(
+                   link.name, capObj, uuid);
+                    gnMap.addWmtsToMapFromCap(
+                        gnSearchSettings.viewerMap, layerInfo, capObj);
+                  });
+              gnSearchLocation.setMap();
             } else {
-              return window.location.assign(link.title);
+              gnMap.addOwsServiceToMap(link.url, 'WMTS');
+            }
+          };
+
+          var addKMLToMap = function(record, md) {
+            gnMap.addKmlToMap(record.name, record.url, gnSearchSettings.viewerMap);
+            gnSearchLocation.setMap();
+          };
+
+          var openMd = function(record, md) {
+            return window.location.hash = '#/metadata/' +
+                (record.uuid || record['geonet:info'].uuid);
+          };
+
+          var openLink = function(record, link) {
+            if (record.url.indexOf('http') == 0 ||
+                record.url.indexOf('ftp') == 0) {
+              return window.open(record.url, '_blank');
+            } else {
+              return window.location.assign(record.title);
             }
           };
 
@@ -126,6 +129,16 @@
             'WFS' : {
               iconClass: 'fa-link',
               label: 'webserviceLink',
+              action: addWFSToMap
+            },
+            'DB' : {
+              iconClass: 'fa-database',
+              label: 'dbLink',
+              action: null
+            },
+            'FILE' : {
+              iconClass: 'fa-file',
+              label: 'fileLink',
               action: openLink
             },
             'KML' : {
@@ -183,45 +196,40 @@
           };
 
           this.getLabel = function(type) {
-            return this.map[type].label ||
-               this.map['DEFAULT'].label;
+            return this.map[type || 'DEFAULT'].label;
           };
           this.getAction = function(type) {
-            return this.map[type].action || this.map['DEFAULT'].action;
+            return this.map[type || 'DEFAULT'].action;
           };
 
-          this.doAction = function(type, parameters, uuid) {
+          this.doAction = function(type, parameters, md) {
             var f = this.getAction(type);
-            f(parameters, uuid);
+            f(parameters, md);
           };
 
           this.getType = function(resource) {
-            if ((resource.protocol && resource.protocol.contains('WMS')) ||
-                (resource.serviceType && resource.serviceType
-                          .contains('WMS'))) {
-              return 'WMS';
-            } else if ((resource.protocol &&
-                        resource.protocol.contains('WMTS')) ||
-                (resource.serviceType && resource.serviceType
-                    .contains('WMTS'))) {
-              return 'WMTS';
-            } else if ((resource.protocol && resource.protocol
-                      .contains('WFS')) ||
-               (resource.serviceType && resource.serviceType
-                          .contains('WFS'))) {
-              return 'WFS';
-            } else if ((resource.protocol && resource.protocol
-                      .contains('KML')) ||
-               (resource.serviceType && resource.serviceType
-                          .contains('KML'))) {
-              return 'KML';
-            } else if (resource.protocol &&
-               resource.protocol.contains('DOWNLOAD')) {
-              return 'LINKDOWNLOAD';
-            } else if (resource.protocol &&
-                    resource.protocol.contains('LINK')) {
-              return 'LINK';
-            } else if (resource['@type'] &&
+            var protocolOrType = resource.protocol + resource.serviceType;
+            if (angular.isString(protocolOrType)) {
+              if (protocolOrType.match(/wms/i)) {
+                return 'WMS';
+              } else if (protocolOrType.match(/wmts/i)) {
+                return 'WMTS';
+              } else if (protocolOrType.match(/wfs/i)) {
+                return 'WFS';
+              } else if (protocolOrType.match(/db:/i)) {
+                return 'DB';
+              } else if (protocolOrType.match(/file:/i)) {
+                return 'FILE';
+              } else if (protocolOrType.match(/kml/i)) {
+                return 'KML';
+              } else if (protocolOrType.match(/download/i)) {
+                return 'LINKDOWNLOAD';
+              } else if (protocolOrType.match(/link/i)) {
+                return 'LINK';
+              }
+            }
+
+            if (resource['@type'] &&
                 (resource['@type'] === 'parent' ||
                     resource['@type'] === 'children')) {
               return 'MDFAMILY';
@@ -233,6 +241,7 @@
               return 'MDSOURCE';
             } else if (resource['@type'] &&
                (resource['@type'] === 'associated' ||
+               resource['@type'] === 'services' ||
                resource['@type'] === 'hasfeaturecat' ||
                resource['@type'] === 'datasets')) {
               return 'MD';
@@ -243,5 +252,22 @@
             return 'DEFAULT';
           };
         }
-          ]);
+      ]);
+
+  /**
+   * AngularJS Filter. Filters an array of relations by the given tpye.
+   * Uses : relations | relationsfilter:'children children'
+   */
+  module.filter('gnRelationsFilter', function() {
+    return function(relations, types) {
+      var result = [];
+      var types = types.split(' ');
+      angular.forEach(relations, function(rel) {
+        if (types.indexOf(rel['@type']) >= 0) {
+          result.push(rel);
+        }
+      });
+      return result;
+    }
+  });
 })();

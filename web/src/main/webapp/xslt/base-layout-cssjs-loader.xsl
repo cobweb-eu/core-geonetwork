@@ -24,7 +24,6 @@
       <link href="{/root/gui/url}/static/nv.d3.css{$minimizedParam}" rel="stylesheet" media="screen" />
     </xsl:if>
 
-    <link rel="shortcut icon" type="image/x-icon" href="../../images/logos/favicon.ico" />
     <link href="{/root/gui/url}/static/{$customFilename}.css{$minimizedParam}" rel="stylesheet" media="screen" />
 
     <link href="{/root/gui/url}/static/{/root/gui/nodeId}_custom_style.css{$minimizedParam}" rel="stylesheet" media="screen" />
@@ -33,7 +32,7 @@
 
   <xsl:template name="javascript-load">
 
-    <script>var geonet={provide:function(s){},require:function(s){}}</script>
+    <script>var geonet = {provide:function(s){},require:function(s){}};</script>
     <xsl:choose>
       <xsl:when test="$isDebugMode">
 
@@ -41,7 +40,6 @@
         <script src="{$uiResourcesPath}lib/closure/base.js"></script>
 
         <script src="{$uiResourcesPath}lib/base64.js"></script>
-
         <script src="{$uiResourcesPath}lib/jquery-2.0.3.js"></script>
 
         <script src="{$uiResourcesPath}lib/moment+langs.min.js"></script>
@@ -69,6 +67,8 @@
         <script src="{$uiResourcesPath}lib/jquery.ext/jquery-ui-slider.min.js"></script>
         <script src="{$uiResourcesPath}lib/proj4js-compressed.js"></script>
         <script src="{$uiResourcesPath}lib/ngeo/ngeo-debug.js"></script>
+
+
         <xsl:if test="$withD3">
           <script src="{$uiResourcesPath}lib/d3.v3.js"></script>
           <script src="{$uiResourcesPath}lib/nv.d3.js"></script>
@@ -76,19 +76,12 @@
 
         <xsl:if test="$angularApp = 'gn_search'">
           <script src="{$uiResourcesPath}lib/zip/zip.js"></script>
+          <!-- Jsonix resources (OWS Context) -->
+          <script src="{$uiResourcesPath}lib/jsonix/jsonix/Jsonix-min.js"></script>
           <script type="text/javascript">
             zip.workerScriptsPath = "../../catalog/lib/zip/";
           </script>
         </xsl:if>
-
-        <!-- Jsonix resources (OWS Context) -->
-        <script src="{$uiResourcesPath}lib/jsonix/jsonix/Jsonix-min.js"></script>
-        <script src="{$uiResourcesPath}lib/jsonix/w3c-schemas/XLink_1_0.js"></script>
-        <script src="{$uiResourcesPath}lib/jsonix/ogc-schemas/OWS_1_0_0.js"></script>
-        <script src="{$uiResourcesPath}lib/jsonix/ogc-schemas/Filter_1_0_0.js"></script>
-        <script src="{$uiResourcesPath}lib/jsonix/ogc-schemas/GML_2_1_2.js"></script>
-        <script src="{$uiResourcesPath}lib/jsonix/ogc-schemas/SLD_1_0_0.js"></script>
-        <script src="{$uiResourcesPath}lib/jsonix/ogc-schemas/OWC_0_3_1.js"></script>
 
 
         <!--<xsl:if test="$isEditing">-->
@@ -108,6 +101,25 @@
       </xsl:otherwise>
     </xsl:choose>
 
+    <!-- Load JS libs required for 3D maps when enabled
+    Those scripts are not bundle by Wro4j to avoid to increase size
+    of the bundle when 3D mode is not anabled.
+    -->
+    <xsl:if test="$is3DModeAllowed">
+      <script>var CESIUM_BASE_URL = '<xsl:value-of select="$uiResourcesPath"/>lib/ol3cesium/Cesium/';</script>
+      <xsl:choose>
+        <xsl:when test="/root/request/debug">
+          <script src="{$uiResourcesPath}lib/ol3cesium/Cesium/Cesium.js"></script>
+          <script src="{$uiResourcesPath}lib/ol3cesium/ol3cesium.js"></script>
+        </xsl:when>
+        <xsl:otherwise>
+          <script src="{/root/gui/url}/static/libcesium.js"></script>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+
+
+
     <xsl:choose>
         <xsl:when test="/root/request/debug">
             <!-- Use Closure to load the application scripts -->
@@ -121,6 +133,10 @@
             <script src="{/root/gui/url}/static/{$angularModule}.js{$minimizedParam}"></script>
         </xsl:otherwise>
     </xsl:choose>
+
+
+
+
 
 
     <xsl:variable name="mapConfig"

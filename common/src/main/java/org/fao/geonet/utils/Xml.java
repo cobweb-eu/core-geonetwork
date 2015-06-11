@@ -80,7 +80,6 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -339,11 +338,18 @@ public final class Xml
 	public static Element loadString(String data, boolean validate)
 												throws IOException, JDOMException
 	{
-		//SAXBuilder builder = new SAXBuilder(validate);
-		SAXBuilder builder = getSAXBuilderWithPathXMLResolver(validate, null); // oasis catalogs are used
-		Document   jdoc    = builder.build(new StringReader(data));
+        try {
+            SAXBuilder builder = getSAXBuilderWithPathXMLResolver(validate, null); // oasis catalogs are used
+            Document jdoc = builder.build(new StringReader(data));
 
-		return (Element) jdoc.getRootElement().detach();
+            return (Element) jdoc.getRootElement().detach();
+        } catch (Exception e) {
+            Log.warning(Log.XML_RESOLVER,
+                    String.format("Error loading string %s as XML. Error is: %s",
+                            data, e.getMessage())
+            );
+            throw e;
+        }
 	}
 
 	//--------------------------------------------------------------------------
@@ -505,7 +511,7 @@ public final class Xml
 
          boolean isFile;
          try {
-             final Path file = Paths.get(new URI(s.getSystemId()));
+             final Path file = IO.toPath(new URI(s.getSystemId()));
              isFile = Files.isRegularFile(file);
          } catch (Exception e) {
              isFile = false;

@@ -22,6 +22,8 @@ import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.languages.IsoLanguagesMapper;
 import org.fao.geonet.services.metadata.format.FormatType;
 import org.fao.geonet.services.metadata.format.FormatterParams;
+import org.fao.geonet.services.metadata.format.FormatterWidth;
+import org.fao.geonet.services.region.GetMap;
 import org.jdom.Element;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -49,10 +51,12 @@ public class EnvironmentImpl implements Environment {
     private final Element jdomMetadata;
     private final ServiceContext serviceContext;
     private final WebRequest webRequest;
+    private final FormatterWidth width;
     private Multimap<String, String> indexInfo = null;
 
     public EnvironmentImpl(FormatterParams fparams, IsoLanguagesMapper mapper) {
         jdomMetadata = fparams.metadata;
+        this.width = fparams.width;
         this.lang3 = fparams.context.getLanguage();
         this.lang2 = mapper.iso639_2_to_iso639_1(lang3, "en");
 
@@ -158,6 +162,11 @@ public class EnvironmentImpl implements Environment {
     }
 
     @Override
+    public FormatterWidth getEmbeddingWidth() {
+        return this.width;
+    }
+
+    @Override
     public Element getMetadataElement() {
         return this.jdomMetadata;
     }
@@ -196,10 +205,10 @@ public class EnvironmentImpl implements Environment {
     @Override
     public MapConfig getMapConfiguration() {
         final SettingManager settingManager = this.serviceContext.getBean(SettingManager.class);
-        final String background = settingManager.getValue("region/getmap/background");
-        final String mapproj = settingManager.getValue("region/getmap/mapproj");
-        final Integer width = settingManager.getValueAsInt("region/getmap/width");
-        final Integer thumbnailWidth = settingManager.getValueAsInt("region/getmap/summaryWidth");
+        final String background = settingManager.getValue(GetMap.REGION_GETMAP_BACKGROUND);
+        final String mapproj = settingManager.getValue(GetMap.REGION_GETMAP_MAPPROJ);
+        final Integer width = settingManager.getValueAsInt(GetMap.REGION_GETMAP_WIDTH);
+        final Integer thumbnailWidth = settingManager.getValueAsInt(GetMap.REGION_GETMAP_SUMMARY_WIDTH);
         return new MapConfig(background, mapproj, width, thumbnailWidth);
     }
 

@@ -49,31 +49,15 @@
       $scope.report = {};
       $scope.report.suggestedDate = '';
 
-      $scope.report.dateFrom = moment().format('YYYY-MM-DD');
-      $scope.report.dateTo = moment().format('YYYY-MM-DD');
+      $scope.report.dateFrom = new Date(moment().format('YYYY-MM-DD'));
+      $scope.report.dateTo = new Date(moment().format('YYYY-MM-DD'));
 
       /**
        * Creates the records updated report
        */
       $scope.createReport = function(formId, service) {
-        $http({
-          method: 'POST',
-          url: service,
-          data: $(formId).serialize(),
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        })
-          .success(function(data) {
-              // Download the csv file. The AngularJs friendly way!
-              var element = angular.element('<a/>');
-              element.attr({
-                href: 'data:attachment/csv;charset=utf-8,' + encodeURI(data),
-                target: '_blank',
-                download: service
-              })[0].click();
-
-            });
+        $(formId).attr('action', service);
+        $(formId).submit();
       };
 
       /**
@@ -98,9 +82,10 @@
               var month = today.format('MM');
               var year = today.format('YYYY');
 
-              $scope.report.dateFrom = year + '-' + month + '-' + '01';
-              $scope.report.dateTo = year + '-' + month + '-' +
-                  today.daysInMonth();
+              $scope.report.dateFrom =
+                  new Date(year + '-' + month + '-' + '01');
+              $scope.report.dateTo = new Date(year + '-' + month + '-' +
+                  today.daysInMonth());
 
             } else if (newValue === 'previousMonth') {
               // Set previous month
@@ -109,15 +94,16 @@
               var month = today.format('MM');
               var year = today.format('YYYY');
 
-              $scope.report.dateFrom = year + '-' + month + '-' + '01';
-              $scope.report.dateTo = year + '-' + month + '-' +
-                  today.daysInMonth();
+              $scope.report.dateFrom =
+                  new Date(year + '-' + month + '-' + '01');
+              $scope.report.dateTo = new Date(year + '-' + month + '-' +
+                  today.daysInMonth());
 
             } else if (newValue == 'currentYear') {
               var year = today.format('YYYY');
 
-              $scope.report.dateFrom = year + '-' + '01' + '-' + '01';
-              $scope.report.dateTo = year + '-' + '12' + '-' + '31';
+              $scope.report.dateFrom = new Date(year + '-' + '01' + '-' + '01');
+              $scope.report.dateTo = new Date(year + '-' + '12' + '-' + '31');
 
             } else if (newValue == 'previousYear') {
               // Set previous year
@@ -125,8 +111,8 @@
 
               var year = today.format('YYYY');
 
-              $scope.report.dateFrom = year + '-' + '01' + '-' + '01';
-              $scope.report.dateTo = year + '-' + '12' + '-' + '31';
+              $scope.report.dateFrom = new Date(year + '-' + '01' + '-' + '01');
+              $scope.report.dateTo = new Date(year + '-' + '12' + '-' + '31');
 
             }
           });

@@ -17,6 +17,10 @@
     <cssSource webappPath="catalog/views" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
     <cssSource webappPath="catalog/style" pathOnDisk="${project.basedir}/../web-ui/src/main/resources" />
   </require>
+  <declarative name="libcesium" pathOnDisk="web-ui/src/main/resources">
+    <jsSource webappPath="/catalog/lib/ol3cesium/Cesium/Cesium.js"/>
+    <jsSource webappPath="/catalog/lib/ol3cesium/ol3cesium.js"/>
+  </declarative>
   <declarative name="lib" pathOnDisk="web-ui/src/main/resources">
     <jsSource webappPath="/catalog/lib/modernizr.js"/>
     <jsSource webappPath="/catalog/lib/jquery-2.0.3.min.js"/>
@@ -45,12 +49,6 @@
     <jsSource webappPath="/catalog/lib/nv.d3.min.js"/>
 
     <jsSource webappPath="/catalog/lib/jsonix/jsonix/Jsonix-min.js" minimize="false" />
-    <jsSource webappPath="/catalog/lib/jsonix/w3c-schemas/XLink_1_0.js" />
-    <jsSource webappPath="/catalog/lib/jsonix/ogc-schemas/OWS_1_0_0.js" />
-    <jsSource webappPath="/catalog/lib/jsonix/ogc-schemas/Filter_1_0_0.js" />
-    <jsSource webappPath="/catalog/lib/jsonix/ogc-schemas/GML_2_1_2.js" />
-    <jsSource webappPath="/catalog/lib/jsonix/ogc-schemas/SLD_1_0_0.js" />
-    <jsSource webappPath="/catalog/lib/jsonix/ogc-schemas/OWC_0_3_1.js" />
 
     <jsSource webappPath="/catalog/lib/jquery.ext/jquery.ui.widget.js"/>
     <jsSource webappPath="/catalog/lib/jquery.ext/jquery.iframe-transport.js"/>
@@ -65,5 +63,6 @@
     <jsSource webappPath="/catalog/lib/bootstrap.ext/datepicker/bootstrap-datepicker.js"/>
     <jsSource webappPath="/catalog/lib/zip/zip.js"/>
     <jsSource webappPath="/catalog/lib/zip/include.js"/>
+    <jsSource webappPath="/catalog/lib/base64.js"/>
   </declarative>
 </sources>

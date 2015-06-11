@@ -281,13 +281,11 @@ ul.gn-resultview {
     margin-bottom: 10px;
     position: relative;
     [typeahead] {
-      width: 300px;
       vertical-align: middle;
       display: inline-block;
     }
     [typeahead-popup] {
       text-align: left;
-      width: 300px;
     }
     .inner-spinner {
       position: absolute;
@@ -297,6 +295,12 @@ ul.gn-resultview {
     }
     .gn-form-any {
       max-width: 45vw;
+      input[type="text"], button {
+        height: 36px;
+      }
+      button.btn-lg, input[type="text"].input-lg {
+        height: 46px;
+      }
     }
   }
   .loading {
@@ -332,7 +336,7 @@ ul.gn-resultview {
 }
 
 [ngeo-map] {
-  height: 86vh;
+  height: 89.9vh;
   &.gn-search-map {
     height: 200px;
     border: 1px solid #ccc;
@@ -437,6 +441,27 @@ ul.gn-resultview {
     float:right;
   }
 }
+
+[gn-main-viewer] {
+  margin-top: -18px;
+  .panel-tools {
+    .panel-heading {
+      background-color: transparent;
+    }
+  }
+
+  .nav-tabs {
+    > li {
+      cursor: pointer;
+    }
+  }
+
+  [gn-kml-import] {
+    input {
+      margin-top: 15px;
+    }
+  }
+}
 /*
     Place bottom-bar at the bottom of page; approach is based on http://matthewjamestaylor.com/blog/bottom-footer-demo.htm
 */
@@ -450,7 +475,7 @@ ul.gn-resultview {
   border-radius: 0px;
 }
 .gn-search-page {
-  padding-bottom:70px;
+  padding-bottom:50px;
 }
 
 .cookie-warning {
@@ -497,4 +522,5 @@ html, body {
     //width: calc(~"33% - 15px");
   }
 }
+
 @import "gn_view.less";

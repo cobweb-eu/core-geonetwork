@@ -62,7 +62,9 @@ import org.openrdf.sesame.sail.StatementIterator;
 import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,6 +75,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Nonnull;
 
 public class Thesaurus {
 	private static final String DEFAULT_THESAURUS_NAMESPACE = "http://custom.shared.obj.ch/concept#";
@@ -137,7 +140,10 @@ public class Thesaurus {
 		this.fname = fname;
 		this.type = type;
 		this.dname = dname;
-		this.thesaurusFile = thesaurusFile; 
+		this.thesaurusFile = thesaurusFile;
+        if (!siteUrl.endsWith("/")) {
+            siteUrl += '/';
+        }
 		this.downloadUrl = buildDownloadUrl(fname, type, dname, siteUrl);
 		this.keywordUrl = buildKeywordUrl(fname, type, dname, siteUrl);
 		
@@ -182,10 +188,26 @@ public class Thesaurus {
 	}
 
     public String getDate() {
-		return date;
-	}
+        return date;
+    }
 
-  public String getDownloadUrl() {
+    @Nonnull
+    public FileTime getLastModifiedTime() {
+        FileTime lastModified;
+        try {
+            lastModified = Files.getLastModifiedTime(getFile());
+        } catch (IOException e) {
+            lastModified = FileTime.fromMillis(System.currentTimeMillis());
+        }
+
+        if (Log.isDebugEnabled(Geonet.THESAURUS)) {
+            Log.debug(Geonet.THESAURUS, title + " has lastModified of: " + lastModified.toMillis());
+        }
+
+        return lastModified;
+    }
+
+    public String getDownloadUrl() {
 		return downloadUrl;
 	}
 
@@ -216,14 +238,14 @@ public class Thesaurus {
 
 	protected String buildDownloadUrl(String fname, String type, String dname, String siteUrl) {
 		if (type.equals(Geonet.CodeList.REGISTER)) {
-			return siteUrl + "/?uuid="+fname.substring(0, fname.indexOf(".rdf"));
+			return siteUrl + "?uuid="+fname.substring(0, fname.indexOf(".rdf"));
 		} else {
-			return siteUrl + "/thesaurus.download?ref="+Thesaurus.buildThesaurusKey(fname, type, dname);
+			return siteUrl + "thesaurus.download?ref="+Thesaurus.buildThesaurusKey(fname, type, dname);
 		}
 	}
 
     protected String buildKeywordUrl(String fname, String type, String dname, String siteUrl) {
-		return siteUrl + "/xml.keyword.get?thesaurus="+Thesaurus.buildThesaurusKey(fname, type, dname) + "&amp;id="; 
+		return siteUrl + "xml.keyword.get?thesaurus="+Thesaurus.buildThesaurusKey(fname, type, dname) + "&amp;id=";
 		// needs to have term/concept id tacked onto the end
 	}
 
@@ -704,22 +726,19 @@ public class Thesaurus {
     /**
      * Retrieves the thesaurus title from rdf file.
      *
-     * Used to set the thesaurusName and thesaurusDate for keywords
-     * @param ignoreMissingError 
-     *
+     * Used to set the thesaurusName and thesaurusDate for keywords.
      */
     private void retrieveThesaurusTitle(Path thesaurusFile, String defaultTitle, boolean ignoreMissingError) {
-				// set defaults as in the case of a local thesaurus file, this info
-				// may not be present yet
-				this.title = defaultTitle;
-        this.date = new ISODate().toString();
+        // set defaults as in the case of a local thesaurus file, this info
+        // may not be present yet
+        this.title = defaultTitle;
 
         try {
             Element thesaurusEl = Xml.loadFile(thesaurusFile);
 
             List<Namespace> theNSs = new ArrayList<Namespace>();
             Namespace rdfNamespace = Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-			theNSs.add(rdfNamespace);
+            theNSs.add(rdfNamespace);
             theNSs.add(Namespace.getNamespace("skos", "http://www.w3.org/2004/02/skos/core#"));
             theNSs.add(Namespace.getNamespace("dc", "http://purl.org/dc/elements/1.1/"));
             theNSs.add(Namespace.getNamespace("dcterms", "http://purl.org/dc/terms/"));
@@ -734,15 +753,15 @@ public class Thesaurus {
                 this.title = defaultTitle;
                 this.defaultNamespace = DEFAULT_THESAURUS_NAMESPACE;
             }
-            
+
             try {
-            	new java.net.URI(this.defaultNamespace);
+                new java.net.URI(this.defaultNamespace);
             } catch (Exception e) {
-            	this.defaultNamespace = DEFAULT_THESAURUS_NAMESPACE;
+                this.defaultNamespace = DEFAULT_THESAURUS_NAMESPACE;
             }
-            
-            if(!this.defaultNamespace.endsWith("#")) {
-            	this.defaultNamespace += "#";
+
+            if (!this.defaultNamespace.endsWith("#")) {
+                this.defaultNamespace += "#";
             }
 
             Element dateEl = Xml.selectElement(thesaurusEl, "skos:ConceptScheme/dcterms:issued|skos:Collection/dc:date", theNSs);
@@ -758,7 +777,27 @@ public class Thesaurus {
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                 this.date = df.format(thesaususDate);
             }
-            
+
+            FileTime lastModifiedTime = null;
+            if (this.date != null) {
+                try {
+                    lastModifiedTime = FileTime.fromMillis(ISODate.parseBasicOrFullDateTime(this.date).toDate().getTime());
+                } catch (IOException e) {
+                    Log.warning(Geonet.THESAURUS, "Unable to parse " + this.date + " into an actual java.util.Date object", e);
+                }
+            }
+
+            if (lastModifiedTime == null) {
+                try {
+                    lastModifiedTime = Files.getLastModifiedTime(thesaurusFile);
+                } catch (IOException e) {
+                    lastModifiedTime = FileTime.fromMillis(new Date().getTime());
+                }
+                if (this.date == null) {
+                    this.date = new ISODate(lastModifiedTime.toMillis(), true).toString();
+                }
+            }
+
             if (Log.isDebugEnabled(Geonet.THESAURUS_MAN)) {
                 Log.debug(Geonet.THESAURUS_MAN, "Thesaurus information: " + this.title + " (" + this.date + ")");
             }
