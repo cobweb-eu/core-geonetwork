@@ -1,6 +1,13 @@
 <div class="row gn-md-view"
      data-ng-controller="GnMdViewController" style="background-color:white">
 
+  <div class="alert alert-warning"
+       data-ng-hide="mdView.current.record"
+       data-translate=""
+       data-translate-values="{uuid: '{{recordIdentifierRequested}}'}">
+    recordNotFound
+  </div>
+
 <div class="row">
 	
 	<div class="col-md-12">
@@ -28,6 +35,26 @@
 	</div>
 </div>
 <div class="row">	
+	<div class="col-md-12">
+       <div class="btn-group pull-right">
+      <button type="button" class="btn btn-link dropdown-toggle"
+              data-toggle="dropdown"
+              aria-expanded="false">
+        <i class="fa fa-eye"></i>&nbsp;
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li class="dropdown-header" data-translate="">chooseAView</li>
+        <li data-ng-class="currentFormatter === undefined ? 'disabled' : ''">
+          <a href="" data-ng-click="format()" data-translate="">defaultView</a>
+        </li>
+        <li data-ng-repeat="f in formatter.list"
+            data-ng-class="f === currentFormatter ? 'disabled' : ''">
+          <a href="" data-ng-click="format(f)">{{f.label | translate}}</a>
+        </li>
+      </ul>
+    </div>
+	</div>
 	<div class="col-md-10">
 		<h2><i class="fa gn-icon-{{mdView.current.record.type}}"></i> {{mdView.current.record.title || mdView.current.record.defaultTitle}}</h2>
 	</div>
@@ -45,7 +72,9 @@
                 <i class="fa fa-envelope-square fa-4x"></i>
            </a>            
     </div>
-</div>		
+</div>	
+      
+
 <div class="row">	
     <div class="col-md-9">	
 		<div class="col-md-7">
@@ -64,7 +93,7 @@
 		   {{'days until close date' | translate}}</span></div>
    </div>
 </div>
-		
+
 <div class="row">
 	<div class="col-md-9">
 
@@ -103,18 +132,14 @@
 		
 		</div>
 		
+			
 		<div class="row">
 			<div class="col-md-6">
-
-				
-
-			  <div data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
+			  <div data-gn-related="mdView.current.record"
 				   data-types="online|service|dataset"
 				   data-icon="download"
 				   data-template="../../catalog/views/cobweb/templates/related.html"
 				   data-title="{{'md_resources'|translate}}"></div>
-					
-			
 			
 			<div class="panel panel-default" data-ng-if="mdView.current.record.getContacts().length > 0">
 				<div class="panel-heading">
@@ -133,7 +158,8 @@
 				</div>
 			</div>
 			
-					<div class="panel-body" data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
+			
+     		<div class="panel-body" data-gn-related="mdView.current.record"
 					   data-types="parent|children|hasfeaturecat"
 					   data-template="../../catalog/views/cobweb/templates/related.html"
 					   data-icon="link"
@@ -145,16 +171,16 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title"><span class="fa fa-map-marker"></span> {{'md_location' | translate}}</h3>
-					</div>
+	    </div>
 					<iframe data-ng-show="mdView.current.record.type=='survey'" style="width:100%;height: 300px;" src="{{iFrameUrl()}}" ></iframe>
 					<img data-ng-hide="mdView.current.record.type=='survey'" style="width: 100%; max-height: 300px;" data-ng-src="region.getmap.png?mapsrs=EPSG:3857&width=250&background=osm&geomsrs=EPSG:4326&geom={{mdView.current.record.getBoxAsPolygon()}}">
 					<div class="panel-body">
 						<span>{{'Location' | translate}}: <i>{{mdView.current.record.getBoundsXY()}}</i></span>
-					</div>
+        </div>
 
-				</div>
+        </div>
 
-			
+
 				<div class="panel panel-default" data-ng-show="mdView.current.record.keyword.length>0">
 					<div class="panel-heading">
 						<h3 class="panel-title"><span class="fa fa-tags"></span> {{'md_keywords' | translate}}</h3>
@@ -172,20 +198,20 @@
 				ng-show="{{mdView.current.record.type=='dataset'&&mdView.current.record.Constraints.length!=0}}">
 				<div class="panel-heading">
 					<h3 class="panel-title">{{'md_license' | translate}}</h3>
-				</div>
+        </div>
 				<ul class="list-group" style="word-break: break-all;">
 					<li class="list-group-item" data-ng-repeat="c in mdView.current.record.Constraints">{{
 						c }}</li>
-				</ul>
-			</div>
-			
-			</div>
-		</div>
-		
-		
-	
+                </ul>
+                </div>
 
-	</div>
+        </div>
+        </div>
+
+
+
+
+      </div>
 
 	<!-- ************** Sidebar **************** -->
 	<div class="col-md-3 sidebar-offcanvas">
@@ -199,13 +225,13 @@
 		      data-ng-show="user.canEditRecord(mdView.current.record) && mdView.current.record.type=='survey'
                 && groups[mdView.current.record.groupOwner]" 
 		      title="Open Survey Authoring Tool configuration"
-			  href="/cobweb-authoring-tool/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
+			  href="/cobweb-authoring-tool/?survey={{mdView.current.record.title}}&sid={{mdView.current.record.getUuid()}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
 			  target="_blank" ></span> {{'md_AuthoringTool' | translate}}</a>
 	
 		<a class="btn btn-primary bottom-spacer width-100" 
 		    data-ng-show="user.canEditRecord(mdView.current.record) && mdView.current.record.type=='survey'
                 && groups[mdView.current.record.groupOwner]" title="QAconfig"
-			href="http://geoprocessing.nottingham.ac.uk:8080/jbpm-console/?survey={{mdView.current.record.title}}&sid={{mdView.current.record['geonet:info'].uuid}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
+			href="http://geoprocessing.nottingham.ac.uk:8080/jbpm-console/?survey={{mdView.current.record.title}}&sid={{mdView.current.record.getUuid()}}&group={{groups[mdView.current.record.groupOwner]}}&role={{user.profile}}&public={{mdView.current.record['geonet:info'].isPublishedToAll}}&lang={{mdView.current.record.docLocale}}"
 			target="_blank" ><span data-translate="">md_QAconfig</span></a>
 	
         <a class="btn btn-primary bottom-spacer width-100"
@@ -219,16 +245,5 @@
 			data-ng-click="deleteRecord(mdView.current.record)" 
 			value="{{'md_delete' | translate}}"></input>		
 				
-				<!-- todo: this should use a related query that filters surveys on matching geometry, group and/or keywords   
-	<div data-gn-related="{{mdView.current.record['geonet:info'].uuid}}"
-         data-title="{{'Related' | translate}}"
-         data-template="../../catalog/views/cobweb/templates/similarcarousel.html"
-         data-list="{{mdView.similar}}">
-    </div>
-	-->
-</div>
-	 
-	
-</div>
-
+  </div>
 </div>

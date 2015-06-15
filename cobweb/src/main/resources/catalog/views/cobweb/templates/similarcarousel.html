@@ -19,19 +19,19 @@
 
 							<div class="gn-resultview" data-ng-if="md.getThumbnails().list[0].url">
 								<div class="gn-md-thumbnail">
-									<a href="#metadata/{{md['geonet:info'].uuid}}">
+									<a href="#metadata/{{md.getUuid()}}">
 					                <img class="gn-img-thumbnail"
 					                    data-ng-src="{{md.getThumbnails().list[0].url}}"
 					                     /></a>
 					            </div>
 							</div>
 							<div class="txt text-left ng-binding">
-								<a href="#metadata/{{md['geonet:info'].uuid}}"><p>
+								<a href="#metadata/{{md.getUuid()}}"><p>
 										<b class="ng-binding">{{md.title || md.defaultTitle | limitTo:100}}</b>
 									</p></a> {{md.abstract | words: 20}}
 							</div>
 							<div>
-								<a href="#metadata/{{md['geonet:info'].uuid}}"
+								<a href="#metadata/{{md.getUuid()}}"
 									class="pull-right btn btn-primary ng-binding" data-translate="">Readmore</a>
 							</div>
 						</div>

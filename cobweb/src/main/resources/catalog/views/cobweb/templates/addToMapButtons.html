@@ -1,7 +1,7 @@
 <div data-ng-repeat="md in relations" data-interval="false">
-    {{md['geonet:info'].uuid}}
+    {{md.getUuid()}}
 	<div data-ng-controller="AddToMapController" 
-	   data-uuid="{{md['geonet:info'].uuid}}">
+	   data-uuid="{{md.getUuid()}}">
 	   <div data-ng-repeat="link in links">
 	       {{link}}
 	   </div>

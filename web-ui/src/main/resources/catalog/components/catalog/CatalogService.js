@@ -627,6 +627,9 @@
       },
 	getBoundsYX: function() {
         if (this.geoBox) {
+          if($.isArray(this.geoBox) && this.geoBox.length == 1) {
+            this.geoBox = this.geoBox[0];
+          }
           var coords = this.geoBox.split('|');
 		  try{
 		  var x1 = parseFloat(coords[1]);

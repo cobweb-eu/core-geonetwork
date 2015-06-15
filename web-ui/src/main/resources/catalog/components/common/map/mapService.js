@@ -1146,7 +1146,6 @@
             map.addLayer(this.createOlWMTSFromCap(map,
                 getCapLayer, capabilities));
           },
-
           /**
            * @ngdoc method
            * @methodOf gn_map.service:gnMap
@@ -1300,18 +1299,16 @@
           feedLayerMd: function(layer) {
             if (layer.get('metadataUrl')) {
 
-              var mdUrl = gnUrlUtils.urlResolve(layer.get('metadataUrl'));
-              if (mdUrl.host == gnSearchLocation.host()) {
-                gnSearchManagerService.gnSearch({
-                  uuid: layer.get('metadataUuid'),
-                  fast: 'index',
-                  _content_type: 'json'
-                }).then(function(data) {
-                  if (data.metadata.length == 1) {
-                    layer.set('md', new Metadata(data.metadata[0]));
-                  }
-                });
-              }
+              return gnSearchManagerService.gnSearch({
+                uuid: layer.get('metadataUuid'),
+                fast: 'index',
+                _content_type: 'json'
+              }).then(function(data) {
+                if (data.metadata.length == 1) {
+                  layer.set('md', new Metadata(data.metadata[0]));
+                }
+                return layer;
+              });
             }
           }
 

@@ -26,7 +26,7 @@
                  <tab-heading><span class='fa fa-table'></span> {{'Calendar' | translate}}</tab-heading>
               <ul class="list-group">
                 <li class="list-group-item" data-ng-repeat="md in events">
-                    <a href="#metadata/{{md['geonet:info'].uuid}}">
+                    <a href="#metadata/{{md.getUuid()}}">
                         <i>{{md.tempExtentBegin | date:"yyyy/M/d"}}</i> {{md.title | limitTo:75}}</a>
                     <br/>{{md.abstract | limitTo:150}}
                 </li>
