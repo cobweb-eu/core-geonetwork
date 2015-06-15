@@ -16,6 +16,33 @@
        'gn_search_default_directive', 'gn_related_directive',
        'cookie_warning', 'gn_mdactions_directive','join_survey']);
 
+
+  module.controller('gnsSearchPopularController', [
+    '$scope', 'gnSearchSettings',
+    function($scope, gnSearchSettings) {
+      $scope.searchObj = {
+        permalink: false,
+        params: {
+          sortBy: 'popularity',
+          from: 1,
+          to: 9
+        }
+      };
+    }]);
+
+
+  module.controller('gnsSearchLatestController', [
+    '$scope',
+    function($scope) {
+      $scope.searchObj = {
+        permalink: false,
+        params: {
+          sortBy: 'changeDate',
+          from: 1,
+          to: 9
+        }
+      };
+    }]);
 	   
   /**
    * @ngdoc controller
@@ -38,18 +65,27 @@
     'gnMap',
     'gnMdView',
     'gnMdViewObj',
+    'gnWmsQueue',
     'gnSearchLocation',
     'gnOwsContextService',
     'hotkeys',
-	'Metadata',
-	'gnSearchManagerService',
+	  'Metadata',
+	  'gnSearchManagerService',
+    'gnGlobalSettings',
     function($scope, $location, suggestService, $http, $translate,
              gnUtilityService, gnSearchSettings, gnViewerSettings,
-             gnMap, gnMdView, mdView, gnSearchLocation, gnOwsContextService,
-             hotkeys,Metadata,gnSearchManagerService) {
+             gnMap, gnMdView, mdView, gnWmsQueue,
+             gnSearchLocation, gnOwsContextService,
+             hotkeys,Metadata,gnSearchManagerService, 
+             gnGlobalSettings) {
 
       var viewerMap = gnSearchSettings.viewerMap;
       var searchMap = gnSearchSettings.searchMap;
+
+
+      $scope.modelOptions = angular.copy(gnGlobalSettings.modelOptions);
+      $scope.modelOptionsForm = angular.copy(gnGlobalSettings.modelOptions);
+      $scope.gnWmsQueue = gnWmsQueue;
       $scope.$location = $location;
       $scope.activeTab = '/home';
       $scope.resultTemplate = gnSearchSettings.resultTemplate;
@@ -139,7 +175,9 @@
       // TODO: Previous record should be stored on the client side
       $scope.mdView = mdView;
       gnMdView.initMdView();
-
+      $scope.goToSearch = function (any) {
+        $location.path('/search').search({'any': any});
+      };
       $scope.canEdit = function(record) {
         // TODO: take catalog config for harvested records
         if (record && record['geonet:info'] &&
@@ -200,29 +238,36 @@
 	     }
 	   }
 	  
-      $scope.addLayerToMap = function(number) {
-        // FIXME $scope.mainTabs.map.titleInfo = '+' + number;
+      $scope.resultviewFns = {
+        addMdLayerToMap: function (link, md) {
+
+          if (gnMap.isLayerInMap(viewerMap,
+              link.name, link.url)) {
+            return;
+          }
+          gnMap.addWmsFromScratch(viewerMap, link.url, link.name, false, md);
+      },
+        addAllMdLayersToMap: function (layers, md) {
+          angular.forEach(layers, function (layer) {
+            $scope.resultviewFns.addMdLayerToMap(layer, md);
+          });
+        },
+        loadMap: function (map, md) {
+          gnOwsContextService.loadContextFromUrl(map.url, viewerMap);
+        }
       };
 
-      $scope.$on('addLayerFromMd', function(evt, getCapLayer) {
-        gnMap.addWmsToMapFromCap(viewerMap, getCapLayer);
-      });
-
-	  
       // Manage route at start and on $location change
       if (!$location.path()) {
         $location.path('/home');
       }
-	  try {
-      $scope.activeTab = $location.path().match(/^(\/[a-zA-Z0-9]*)($|\/.*)/)[1];
-	  } catch (e) { $scope.activeTab = ""; }
+      $scope.activeTab = $location.path().
+          match(/^(\/[a-zA-Z0-9]*)($|\/.*)/)[1];
 
       $scope.$on('$locationChangeSuccess', function(next, current) {
-	  
-	    try {
-		$scope.activeTab = $location.path().match(/^(\/[a-zA-Z0-9]*)($|\/.*)/)[1];
-		} catch (e) { $scope.activeTab = ""; }
-		
+        $scope.activeTab = $location.path().
+            match(/^(\/[a-zA-Z0-9]*)($|\/.*)/)[1];
+
         if (gnSearchLocation.isSearch() && (!angular.isArray(
             searchMap.getSize()) || searchMap.getSize().indexOf(0) >= 0)) {
           setTimeout(function() {
