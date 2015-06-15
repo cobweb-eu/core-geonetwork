@@ -1,4 +1,4 @@
-ALTER TABLE ServiceParameters ADD COLUMN occur varchar(1) default '+';
+#ALTER TABLE ServiceParameters ADD COLUMN occur varchar(1) default '+';
 UPDATE ServiceParameters SET occur='+';
 
 create sequence serviceparameter_id_seq start with 1 increment by 1;
