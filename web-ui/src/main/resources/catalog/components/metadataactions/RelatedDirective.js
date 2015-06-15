@@ -28,7 +28,6 @@
               md: '=gnRelated',
               template: '@',
               types: '@',
-			  icon: '@',
               title: '@',
               list: '@'
             },
