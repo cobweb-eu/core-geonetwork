@@ -648,7 +648,7 @@
       getBoxAsPolygon: function(i) {
         // Polygon((4.6810%2045.9170,5.0670%2045.9170,5.0670%2045.5500,4.6810%2045.5500,4.6810%2045.9170))
         var bboxes = [];
-        if (this.geoBox[i]) {
+        if (this.geoBox && this.geoBox[i]) {
           var coords = this.geoBox[i].split('|');
           return 'Polygon((' +
               coords[0] + ' ' +
