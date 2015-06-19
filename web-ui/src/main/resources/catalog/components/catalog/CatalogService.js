@@ -536,7 +536,11 @@
 
     Metadata.prototype = {
       getUuid: function() {
-        return this['geonet:info'].uuid;
+        if(this && this['geonet:info']) {
+          return this['geonet:info'].uuid;
+        } else {
+          return "";
+        }
       },
       getId: function() {
         return this['geonet:info'].id;
