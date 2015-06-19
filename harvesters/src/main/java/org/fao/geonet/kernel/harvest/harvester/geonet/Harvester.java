@@ -23,30 +23,6 @@
 
 package org.fao.geonet.kernel.harvest.harvester.geonet;
 
-import jeeves.server.context.ServiceContext;
-import org.fao.geonet.Logger;
-import org.fao.geonet.constants.Edit;
-import org.fao.geonet.constants.Geonet;
-import org.fao.geonet.domain.Source;
-import org.fao.geonet.exceptions.BadServerResponseEx;
-import org.fao.geonet.exceptions.BadSoapResponseEx;
-import org.fao.geonet.exceptions.BadXmlResponseEx;
-import org.fao.geonet.exceptions.OperationAbortedEx;
-import org.fao.geonet.exceptions.UserNotFoundEx;
-import org.fao.geonet.kernel.harvest.harvester.HarvestError;
-import org.fao.geonet.kernel.harvest.harvester.HarvestResult;
-import org.fao.geonet.kernel.harvest.harvester.IHarvester;
-import org.fao.geonet.kernel.harvest.harvester.RecordInfo;
-import org.fao.geonet.kernel.setting.SettingManager;
-import org.fao.geonet.lib.Lib;
-import org.fao.geonet.repository.SourceRepository;
-import org.fao.geonet.resources.Resources;
-import org.fao.geonet.utils.GeonetHttpRequestFactory;
-import org.fao.geonet.utils.IO;
-import org.fao.geonet.utils.Xml;
-import org.fao.geonet.utils.XmlRequest;
-import org.jdom.Element;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -61,6 +37,32 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import jeeves.server.context.ServiceContext;
+
+import org.fao.geonet.Logger;
+import org.fao.geonet.constants.Edit;
+import org.fao.geonet.constants.Geonet;
+import org.fao.geonet.domain.Source;
+import org.fao.geonet.exceptions.BadServerResponseEx;
+import org.fao.geonet.exceptions.BadSoapResponseEx;
+import org.fao.geonet.exceptions.BadXmlResponseEx;
+import org.fao.geonet.exceptions.OperationAbortedEx;
+import org.fao.geonet.exceptions.UserNotFoundEx;
+import org.fao.geonet.kernel.DataManager;
+import org.fao.geonet.kernel.harvest.harvester.HarvestError;
+import org.fao.geonet.kernel.harvest.harvester.HarvestResult;
+import org.fao.geonet.kernel.harvest.harvester.IHarvester;
+import org.fao.geonet.kernel.harvest.harvester.RecordInfo;
+import org.fao.geonet.kernel.setting.SettingManager;
+import org.fao.geonet.lib.Lib;
+import org.fao.geonet.repository.SourceRepository;
+import org.fao.geonet.resources.Resources;
+import org.fao.geonet.utils.GeonetHttpRequestFactory;
+import org.fao.geonet.utils.IO;
+import org.fao.geonet.utils.Xml;
+import org.fao.geonet.utils.XmlRequest;
+import org.jdom.Element;
+
 //=============================================================================
 
 class Harvester implements IHarvester<HarvestResult> {
@@ -71,12 +73,14 @@ class Harvester implements IHarvester<HarvestResult> {
 	//---
 	//--------------------------------------------------------------------------
 
-	public Harvester(AtomicBoolean cancelMonitor, Logger log, ServiceContext context, GeonetParams params)
+	public Harvester(AtomicBoolean cancelMonitor, Logger log, ServiceContext context, 
+	        GeonetParams params, DataManager dataMan)
 	{
         this.cancelMonitor = cancelMonitor;
 		this.log    = log;
 		this.context= context;
 		this.params = params;
+		this.dataman = dataMan;
 	}
 
 	//--------------------------------------------------------------------------
@@ -177,7 +181,8 @@ class Harvester implements IHarvester<HarvestResult> {
 
 		//--- align local node
 
-		Aligner      aligner = new Aligner(cancelMonitor, log, context, req, params, remoteInfo);
+		Aligner      aligner = new Aligner(cancelMonitor, log, context, req, 
+		        params, remoteInfo, dataman);
 		HarvestResult result  = aligner.align(records, errors);
 
 		Map<String, String> sources = buildSources(remoteInfo);
@@ -383,6 +388,7 @@ class Harvester implements IHarvester<HarvestResult> {
 	private Logger         log;
 	private GeonetParams   params;
     private ServiceContext context;
+    protected DataManager dataman;
     public List<HarvestError> getErrors() {
         return errors;
     }
