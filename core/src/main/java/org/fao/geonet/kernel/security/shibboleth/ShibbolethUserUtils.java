@@ -20,15 +20,23 @@
 
 package org.fao.geonet.kernel.security.shibboleth;
 
+import java.util.List;
+
 import jeeves.component.ProfileManager;
+
 import org.apache.batik.util.resources.ResourceManager;
 import org.fao.geonet.ApplicationContextHolder;
+import org.fao.geonet.domain.ISODate;
 import org.fao.geonet.domain.LDAPUser;
 import org.fao.geonet.domain.Profile;
 import org.fao.geonet.domain.User;
+import org.fao.geonet.domain.UserGroup;
 import org.fao.geonet.kernel.security.GeonetworkAuthenticationProvider;
 import org.fao.geonet.kernel.security.WritableUserDetailsContextMapper;
+import org.fao.geonet.repository.GroupRepository;
+import org.fao.geonet.repository.UserGroupRepository;
 import org.fao.geonet.repository.UserRepository;
+import org.fao.geonet.repository.specification.UserGroupSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -127,7 +135,9 @@ public class ShibbolethUserUtils {
 	@Transactional
 	protected UserDetails setupUser(ServletRequest request,
 			ShibbolethUserConfiguration config) throws Exception {
-		UserRepository userRepository = ApplicationContextHolder.get().getBean(UserRepository.class);
+        UserRepository userRepository = ApplicationContextHolder.get().getBean(UserRepository.class);
+        GroupRepository groupRepository = ApplicationContextHolder.get().getBean(GroupRepository.class);
+        UserGroupRepository userGroupRepository = ApplicationContextHolder.get().getBean(UserGroupRepository.class);
 		GeonetworkAuthenticationProvider authProvider = ApplicationContextHolder.get().getBean(GeonetworkAuthenticationProvider.class);
 
 		// Read in the data from the headers
@@ -221,7 +231,32 @@ public class ShibbolethUserUtils {
 
 				user = ldapUserDetails.getUser();
 			} else {
-				userRepository.saveAndFlush(user);
+			    //Cobweb specific moving from LDAP
+			    if(user.getLastLoginDate() != null) {
+    			    
+			        List<UserGroup> usergroups = 
+			                userGroupRepository.findAll(UserGroupSpecs.hasUserId(user.getId()));
+			        
+			        for(UserGroup ug : usergroups) {
+			            if(ug.getProfile().compareTo(user.getProfile()) < 0) {
+			                user.setProfile(ug.getProfile());
+			            }
+			        }
+    			    
+                    user.setLastLoginDate(new ISODate().toString());
+                    userRepository.saveAndFlush(user);
+			    } else {
+			        //new user
+                    user.setProfile(Profile.RegisteredUser);
+                    user.setLastLoginDate(new ISODate().toString());
+                    userRepository.saveAndFlush(user);
+                    UserGroup userGroup = new UserGroup();
+                    userGroup.setGroup(groupRepository.findByName("anonsurvey"));
+                    userGroup.setUser(user);
+                    userGroup.setProfile(Profile.RegisteredUser);
+                    userGroupRepository.save(userGroup);
+			    }
+                //Cobweb specific moving from LDAP
 			}
 
 			return user;
@@ -243,21 +278,5 @@ public class ShibbolethUserUtils {
 
 		return value;
 	}
-
-    public UserDetailsManager getUserDetailsManager() {
-        return userDetailsManager;
-    }
-
-    public void setUserDetailsManager(UserDetailsManager userDetailsManager) {
-        this.userDetailsManager = userDetailsManager;
-    }
-
-    public WritableUserDetailsContextMapper getUdetailsmapper() {
-        return udetailsmapper;
-    }
-
-    public void setUdetailsmapper(WritableUserDetailsContextMapper udetailsmapper) {
-        this.udetailsmapper = udetailsmapper;
-    }
 
 }

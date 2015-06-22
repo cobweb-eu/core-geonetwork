@@ -83,10 +83,12 @@ public class GeonetworkAuthenticationProvider extends AbstractUserDetailsAuthent
 			UserRepository userRepository = applicationContext.getBean(UserRepository.class);
 
 			// Only check user with local db user (ie. authtype is '')
-	        User user = userRepository.findOneByUsernameAndSecurityAuthTypeIsNullOrEmpty(username);
+			//Cobweb specific: moved from LDAP to local database
+	        User user = userRepository.findOneByUsername(username);
             if (user == null && checkUserNameOrEmail) {
-                user = userRepository.findOneByEmailAndSecurityAuthTypeIsNullOrEmpty(username);
+                user = userRepository.findOneByEmail(username);
             }
+            //Cobweb specific: moved from LDAP to local database
 			if (user != null) {
 				if (authentication != null && authentication.getCredentials() != null) {
 					if(PasswordUtil.hasOldHash(user)) {

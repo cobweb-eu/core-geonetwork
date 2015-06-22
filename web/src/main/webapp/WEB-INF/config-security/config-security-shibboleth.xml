@@ -23,8 +23,8 @@
 
 	<bean id="shibbolethUserUtils"
 		class="org.fao.geonet.kernel.security.shibboleth.ShibbolethUserUtils">
-		<property name="udetailsmapper" ref="ldapUserContextMapper"/>
-		<property name="userDetailsManager" ref="ldapUserDetailsService" />
+		<!-- <property name="userDetailsManager" ref="ldapUserDetailsService" /> -->
+		<!-- <property name="udetailsmapper" ref="ldapUserContextMapper"/> -->
 	</bean>
 
 	<!-- Configuration bean -->
