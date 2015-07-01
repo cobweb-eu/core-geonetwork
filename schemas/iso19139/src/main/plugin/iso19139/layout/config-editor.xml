@@ -144,6 +144,7 @@
     <name>gmd:verticalCRS</name>
     <name>gml:verticalCS</name>
     <name>gml:verticalDatum</name>
+    <name>gmd:identifier</name>
   </fieldsWithFieldset>
 
   <multilingualFields>
@@ -175,6 +176,7 @@
       <name>gmd:dataSetURI</name>
       <name>gmd:postalCode</name>
       <name>gmd:city</name>
+      <name>gmd:language</name>
       <name>gmd:administrativeArea</name>
       <name>gmd:voice</name>
       <name>gmd:facsimile</name>
@@ -1182,7 +1184,7 @@
                     </gmd:contactInfo>
                     <gmd:role>
                       <gmd:CI_RoleCode
-                        codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_RoleCode"
+                        codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_RoleCode"
                         codeListValue="{{role}}"/>
                     </gmd:role>
                   </gmd:CI_ResponsibleParty>
@@ -1249,7 +1251,7 @@
                     </gmd:contactInfo>
                     <gmd:role>
                       <gmd:CI_RoleCode
-                        codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_RoleCode"
+                        codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_RoleCode"
                         codeListValue="{{role}}"/>
                     </gmd:role>
                   </gmd:CI_ResponsibleParty>
@@ -1318,7 +1320,7 @@
                     </gmd:contactInfo>
                     <gmd:role>
                       <gmd:CI_RoleCode
-                        codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/Codelist/ML_gmxCodelists.xml#CI_RoleCode"
+                        codeList="http://standards.iso.org/ittf/PubliclyAvailableStandards/ISO_19139_Schemas/resources/codelist/ML_gmxCodelists.xml#CI_RoleCode"
                         codeListValue="{{role}}"/>
                     </gmd:role>
                   </gmd:CI_ResponsibleParty>
@@ -1652,11 +1654,14 @@
       <!-- Elements that should not use the "flat" mode --> 
       <flatModeExceptions>
         <for name="gmd:descriptiveKeywords" />
+        <for name="gmd:keyword"/>
+        <for name="gmd:spatialResolution"/>
         <for name="gmd:pointOfContact"/>
         <for name="gmd:distributor"/>
         <for name="gmd:contact"/>
         <for name="gmd:processor"/>
         <for name="gmd:citedResponsibleParty"/>
+        <for name="gmd:topicCategory"/>
       </flatModeExceptions>
 
       <!--

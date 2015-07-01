@@ -27,12 +27,11 @@ import com.google.common.base.Optional;
 import com.vividsolutions.jts.awt.ShapeWriter;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
-import jeeves.interfaces.Service;
-import jeeves.server.ServiceConfig;
 import jeeves.server.context.ServiceContext;
-
 import jeeves.server.dispatchers.ServiceManager;
+
 import org.apache.commons.io.IOUtils;
 import org.fao.geonet.constants.Params;
 import org.fao.geonet.exceptions.BadParameterEx;
@@ -42,10 +41,13 @@ import org.fao.geonet.kernel.region.RegionsDAO;
 import org.fao.geonet.kernel.region.Request;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.projection.ProjectionException;
-import org.jdom.Element;
+import org.opengis.metadata.extent.Extent;
+import org.opengis.metadata.extent.GeographicBoundingBox;
+import org.opengis.metadata.extent.GeographicExtent;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +61,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Shape;
+import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -73,11 +76,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -230,12 +229,18 @@ public class GetMap{
             if (request.checkNotModified(geomParam + srs + background)) {
                 return null;
             }
-
             GeomFormat format = GeomFormat.find(geomType);
             geom = format.parse(geomParam);
             if (!geomSrs.equals(srs)) {
                 CoordinateReferenceSystem mapCRS = Region.decodeCRS(srs);
                 CoordinateReferenceSystem geomCRS = Region.decodeCRS(geomSrs);
+
+                // Check if coordinates provided
+                // are in projection scope to avoid.
+                // eg. java.lang.RuntimeException:
+                // org.geotools.referencing.operation.projection.ProjectionException:
+                // Latitude 90°00.0'S is too close to a pole.
+                geom = computeGeomInDomainOfValidity(geom, mapCRS);
                 MathTransform transform = CRS.findMathTransform(geomCRS, mapCRS, true);
                 try {
                     geom = JTS.transform(geom, transform);
@@ -249,6 +254,7 @@ public class GetMap{
         double expandFactor = calculateExpandFactor(bboxOfImage, srs);
         bboxOfImage.expandBy(bboxOfImage.getWidth() * expandFactor, bboxOfImage.getHeight() * expandFactor);
         Dimension imageDimensions = calculateImageSize(bboxOfImage, width, height);
+
 
         Exception error = null;
         if (background != null) {
@@ -321,6 +327,50 @@ public class GetMap{
             }
             headers.add("Content-Type", "image/"+imageFormat);
             return new HttpEntity<>(out.toByteArray(), headers);
+        }
+    }
+
+    /**
+     * Check if a geometry is in the domain of validity of a projection
+     * and if not return the intersection of the geometry with the
+     * coordinate system domain of validity.
+     *
+     * @param geom
+     * @param mapCRS
+     * @return
+     */
+    private static Geometry computeGeomInDomainOfValidity(Geometry geom, CoordinateReferenceSystem mapCRS) {
+        final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+        final Extent domainOfValidity = mapCRS.getDomainOfValidity();
+        Geometry adjustedGeom = geom;
+        if (domainOfValidity != null) {
+            for (final GeographicExtent extent :
+                            domainOfValidity.getGeographicElements()) {
+                if (Boolean.FALSE.equals(extent.getInclusion())) {
+                    continue;
+                }
+                if (extent instanceof GeographicBoundingBox) {
+                    if (extent != null) {
+                        GeographicBoundingBox box = (GeographicBoundingBox) extent;
+
+                        Envelope env = new Envelope(
+                                box.getWestBoundLongitude(),
+                                box.getEastBoundLongitude(),
+                                box.getSouthBoundLatitude(),
+                                box.getNorthBoundLatitude());
+                        if (env.contains(geom.getEnvelopeInternal())) {
+                            return geom;
+                        } else {
+                            adjustedGeom = geometryFactory.toGeometry(
+                                    env.intersection(geom.getEnvelopeInternal())
+                            );
+                        }
+                    }
+                }
+            }
+            return adjustedGeom;
+        } else {
+            return geom;
         }
     }
 
