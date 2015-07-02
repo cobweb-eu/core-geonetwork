@@ -659,12 +659,17 @@
                     function(f, output) {
                       if (output.indexOf('json') > 0 ||
                          output.indexOf('JSON') > 0) {
-                        vectorFormat = ol.format.JSONFeature(
+                        vectorFormat = new ol.format.JSONFeature(
                            {srsName_: getCapLayer.defaultSRS});
                       }
                     });
               }
 
+              //Cobweb specific
+              vectorFormat = new ol.format.TopoJSON(
+                 {defaultDataProjection: ol.proj.EPSG3857_});
+              //Cobweb specific
+              
               var vectorSource = new ol.source.ServerVector({
                 format: vectorFormat,
                 loader: function(extent, resolution, projection) {
@@ -683,6 +688,7 @@
                         request: 'GetFeature',
                         version: '1.1.0',
                         srsName: 'EPSG:3857',
+                        outputFormat: 'json',
                         //maxFeatures: 10,
                         typename: getCapLayer.name.prefix + ':' +
                                    getCapLayer.name.localPart})));
@@ -691,20 +697,78 @@
                     url: proxyUrl
                   })
                     .done(function(response) {
-                        vectorSource.addFeatures(vectorSource.
-                            readFeatures(response.firstElementChild));
+                       //Cobweb specific
+                      var extent = ol.extent.createEmpty();
+                      var geoJSON = new ol.format.GeoJSON();
+                      $.each(response.features, function(key, feature){
                         
-                        var extent = ol.extent.createEmpty();
-                        var features = vectorSource.getFeatures();
-                        for (var i = 0; i < features.length; ++i) {
-                            var feature = features[i];
-                            var geometry = feature.getGeometry();
-                            if (!goog.isNull(geometry)) {
-                                  ol.extent.extend(extent, geometry.getExtent());
+                         var f = new ol.Feature();
+                         var geometry= geoJSON.readGeometryFromObject(feature.geometry);
+                         
+                         if (!goog.isNull(geometry)) {
+                           ol.extent.extend(extent, geometry.getExtent());
+                         }
+                         
+                         f.setGeometry(geometry);
+                         
+                         
+                         var html = '';
+                         var recordname = feature.properties.qa_name;
+                         
+                         while(recordname.contains("_")) {
+                           recordname = recordname.replace("_", " ");
+                         }
+
+                         var sid = getCapLayer.name.localPart.substring(4);
+                         
+                         $.each(feature.properties, function(key, value) {
+                           f.set(key, value);
+                           
+                           if (key == 'styleUrl' || key == 'userid'
+                                 || key == 'id' || key == 'record_id'
+                                   || key == 'bbox') {
+                             return;
                             }
-                        }
-                        
-                        map.getView().fitExtent(extent, map.getSize());
+                           
+                           //convert to string:
+                           value = value + "";
+                           
+                           if(value && (value.endsWith(".jpg") || 
+                               value.endsWith(".JPG"))) {
+
+                             var imagefile = value;
+                             
+                             if(imagefile.contains("/")) {
+                               imagefile = 
+                                 imagefile.substring(imagefile.lastIndexOf("/") + 1);
+                             }
+                             
+                             var url =  "/1.3/pcapi/fs/local/" + 
+                                   sid + "/records/" + 
+                                   recordname + "/" 
+                                   + imagefile;
+                             
+                             //TODO
+                             url =  "/1.3/pcapi/records/local/" + 
+                                   sid + "/" + 
+                                   recordname + "/" 
+                                   + imagefile;
+                             
+                             html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
+                             html += '<dd><img src="' + url + '"/></dd>';
+                           } else {
+                             html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
+                             html += '<dd>' + value + '</dd>';
+                           }
+                         });
+                         html = '<dl class="dl-horizontal">' + html + '</dl>';
+                         f.set("description", html);
+                         
+                         vectorSource.addFeature(f);
+                      });
+                      //Cobweb specific
+                      
+                      map.getView().fitExtent(extent, map.getSize());
                       })
                     .then(function() {
                         this.loadingLayer = false;
@@ -716,9 +780,49 @@
                 projection: 'EPSG:3857'
               });
 
-              var layer = new ol.layer.Vector({
+              var clusterSource = new ol.source.Cluster({
+                distance: 40, 
                 source: vectorSource
               });
+
+              var styleCache = {};
+              var layer = new ol.layer.Vector({
+                source: clusterSource,
+                style: function(feature, resolution) {
+                  var size = feature.get('features').length;
+                  
+                  if(size == 1) {
+                    feature.set("description", 
+                        feature.get("features")[0].get("description"));
+                  } else {
+                    feature.set("description", "Zoom in to see details");
+                  }
+                  
+                  var style = styleCache[size];
+                  if (!style) {
+                    style = [new ol.style.Style({
+                      image: new ol.style.Circle({
+                        radius: 10,
+                        stroke: new ol.style.Stroke({
+                          color: '#fff'
+                        }),
+                        fill: new ol.style.Fill({
+                          color: '#3399CC'
+                        })
+                      }),
+                      text: new ol.style.Text({
+                        text: size.toString(),
+                        fill: new ol.style.Fill({
+                          color: '#fff'
+                        })
+                      })
+                    })];
+                    styleCache[size] = style;
+                  }
+                  return style;
+                }
+              });
+              
               layer.set('errors', errors);
               ngeoDecorateLayer(layer);
               layer.displayInLayerManager = true;
