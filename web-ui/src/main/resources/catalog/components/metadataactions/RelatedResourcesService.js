@@ -68,7 +68,13 @@
               gnMap.addWfsFromScratch(gnSearchSettings.viewerMap,
                  link.url, link.name, false, md);
             } else {
-              gnMap.addOwsServiceToMap(link.url, 'WFS');
+              //Cobweb specific
+              link.name = "sid-" + md.getUuid();
+              link.url = link.link.substring(link.link.indexOf("|") + 1);
+              link.url = link.url.substring(0, link.url.indexOf("|"));
+              gnMap.addWfsFromScratch(gnSearchSettings.viewerMap,
+                 link.url, link.name, false, md);
+              //Cobweb specific
             }
 
             gnSearchLocation.setMap();

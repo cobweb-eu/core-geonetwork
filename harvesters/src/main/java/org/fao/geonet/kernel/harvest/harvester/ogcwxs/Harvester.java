@@ -250,7 +250,7 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
         
         dataMan.batchIndexInThreadPool(context, ids);
         
-        result.totalMetadata = result.addedMetadata + result.layer + result.updatedMetadata;
+        result.totalMetadata = result.addedMetadata + result.unchangedMetadata + result.updatedMetadata;
     
       //-----------------------------------------------------------------------
         //--- remove old metadata
@@ -503,6 +503,7 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 				scr.addContent(scopedName);
 				coupledResource.addContent(scr);
 				
+				
 				// Add coupled resource before coupling type element
 				root.addContent(coupledResourceIdx, coupledResource);
 				
@@ -511,16 +512,18 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 		
 				// Add operatesOn element at the end of identification section.
 				Element op = new Element ("operatesOn", srv);
-                if (params.ogctype.startsWith("WMS")) {
+                if (params.ogctype.startsWith("WMS") 
+                        || params.ogctype.startsWith("WFS")) {
                     if (params.identifierType.equalsIgnoreCase("DS-ID")) {
                         op.setAttribute("uuidref", layer.dsUuid + "");
                     } else {
-				op.setAttribute("uuidref", layer.uuid);
+                        op.setAttribute("uuidref", layer.uuid);
                     }
-
                 } else {
                     op.setAttribute("uuidref", layer.uuid);
                 }
+                
+                op.setAttribute("title", layer.name);
 
 
                 String hRefLink =  context.getBean(SettingManager.class).getSiteURL(context) + "/xml.metadata.get?uuid=" + layer.uuid;
@@ -568,6 +571,7 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
         boolean loaded = false;
 
         boolean isWMSService = (params.ogctype.substring(0,3).equals("WMS"));
+        boolean isWFSService = (params.ogctype.substring(0,3).equals("WFS"));
 
         if (isWMSService) {
 			Element name;
@@ -583,7 +587,7 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 				return null;
 			}
 			reg.name = name.getValue();
-		} else if (params.ogctype.substring(0,3).equals("WFS")) {
+		} else if (isWFSService) {
 			Namespace wfs = Namespace.getNamespace("http://www.opengis.net/wfs");
 			reg.name 	= layer.getChild ("Name", wfs).getValue ();
 		} else if (params.ogctype.substring(0,3).equals("WCS")) {
@@ -600,8 +604,8 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 		reg.uuid = Sha1Encoder.encodeString(this.capabilitiesUrl+"#"+reg.name); // the dataset identifier
 	
 		//--- Trying loading metadataUrl element
-		if (params.useLayerMd && !isWMSService) {
-			log.info("  - MetadataUrl harvester only supported for WMS layers.");
+		if (params.useLayerMd && (!isWMSService || !isWFSService)) {
+			log.info("  - MetadataUrl harvester only supported for WMS and WFS layers.");
 		}
 		
 		if (params.useLayerMd && isWMSService) {
@@ -609,7 +613,7 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 			Namespace xlink 	= Namespace.getNamespace ("http://www.w3.org/1999/xlink");
 			
 			// Get metadataUrl xlink:href
-			// TODO : add support for WCS & WFS metadataUrl element.
+			// TODO : add support for WCS metadataUrl element.
 
 
             // Check if add namespace prefix to Xpath queries.  If layer.getNamespace() is:
@@ -748,6 +752,51 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
 
             } 
         }
+        
+        if(isWFSService) {
+            //Check if the layer already exists
+            try {
+                reg.dsUuid = reg.name.substring(reg.name.indexOf(":") + 1);
+                if(reg.dsUuid.startsWith("sid-")) {
+                    reg.dsUuid = reg.dsUuid.substring(4);
+                }
+                
+                //Cobweb: link to existing surveys
+                if(dataMan.existsMetadataUuid(reg.dsUuid)) {
+                    reg.uuid = reg.dsUuid;
+                }
+                
+                if(dataMan.existsMetadataUuid(reg.uuid)) {
+                    reg.id = dataMan.getMetadataId(reg.uuid);
+                    //Return reference to current layer
+                    result.unchangedMetadata++;
+                    return reg;
+                } else {
+                    //Create new layer
+                    try {
+                        //--- set XSL param to filter on layer and set uuid
+
+                        Map<String, Object> param = new HashMap<String, Object>();
+                        param.put("uuid", reg.uuid);
+                        param.put("Name", reg.name);
+                        param.put("lang", params.lang);
+                        param.put("topic", params.topic);
+                        
+                        xml = Xml.transform (capa, styleSheet, param);
+                        if(log.isDebugEnabled()) {
+                            log.debug("  - Layer loaded using GetCapabilities document.");
+                        }
+
+                        loaded = true;
+                    } catch (Exception e) {
+                        log.warning("  - Failed to do XSLT transformation on Layer element : " + e.getMessage());
+                    }
+                }
+            } catch (Exception e) {
+                log.error(e);
+                loaded = false;
+            }
+        }
 
 		//--- using GetCapabilities document
 		if (!loaded && params.useLayer){
@@ -796,10 +845,8 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
                 metadata.getCategories().add(metadataCategory);
             }
             if(!dataMan.existsMetadataUuid(reg.uuid)) {
-                result.addedMetadata++;
                 metadata = dataMan.insertMetadata(context, metadata, xml, true, false, false, UpdateDatestamp.NO, false, false);
             } else {
-                result.updatedMetadata++;
                 String id = dataMan.getMetadataId(reg.uuid);
                 metadata.setId(Integer.valueOf(id));
                 dataMan.updateMetadata(context, id, xml, false, false, false, 
