@@ -18,22 +18,22 @@
 				class="container-btn"><span class="fa fa-map-marker"></span> {{"map"| translate}}</a></li>
 			<li><a  data-gn-active-tb-item="catalog.search#/about"
 				class="container-btn"><span class="fa fa-info"></span> {{"about"| translate}}</a></li>
-			<li data-ng-show="info.env.node=='private'">
+			<li>
 			     <a data-ng-show="user.isEditorOrMore()"
 				 data-gn-active-tb-item="catalog.edit"
 				title="{{'editorBoard' | translate}}"><i class="fa fa-pencil"></i>
 					{{"editorBoard"|translate}} </a></li>
-			<li data-ng-show="info.env.node=='private'">
+			<li>
 			     <a data-ng-show="user.isEditorOrMore()"
 				data-gn-active-tb-item="admin.console" class="container-btn"
 				title="{{'adminConsole' | translate}}"><i class="fa fa-cog"></i>
 					{{"adminConsole" | translate }}</a></li>
-			<li data-ng-show="info.env.node=='public'"><a
+			<li data-ng-show="!authenticated"><a
 				href="../../private/eng/catalog.search">
 				<i class="fa fa-user"></i> {{'signIn'|translate}}</a></li>
-			<li data-ng-show="info.env.node=='private'"><a
+			<li data-ng-show="authenticated"><a
 				href="https://ds.cobweb.secure-dimensions.de/WAYF/logout?return=https%3A%2F%2Fdyfi.cobwebproject.eu%2FShibboleth.sso%2FLogout%3Freturn%3Dhttps%3A%2F%2Fdyfi.cobwebproject.eu"><i class="fa fa-sign-out"></i> {{'signout'|translate}}</a></li>
-            <li data-ng-show="info.env.node=='public'"><a
+            <li data-ng-show="!authenticated"><a
                 href="/user/register.php"><i style="font-size: 1.2em"
                     class="fa glyphicon glyphicon-user"></i> {{'Register'|translate}}</a></li> 
 
@@ -42,7 +42,7 @@
 			data-langs="langs" /> -->
 		</div>
 		<ul class="nav navbar-nav navbar-right">
-		<li data-ng-show="user.isRegisteredUserOrMore()"><a href="#"><img
+		<li data-ng-show="authenticated"><a href="#"><img
 					class="img-circle"
 					data-ng-src="https://gravatar.com/avatar/{{u.email | md5}}?s=18" />
 					{{user.name}} {{user.surname}}</a></li>

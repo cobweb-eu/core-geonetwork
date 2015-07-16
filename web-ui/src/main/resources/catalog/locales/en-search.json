@@ -98,6 +98,7 @@
   "md_license":"License",
   "md_QAconfig":"Quality Configuration",
   "md_modify":"Modify",
+  "md_clone":"Clone Survey",
   "md_delete":"Remove",
   "mostPopular": "Most popular",
   "recentChanges": "Recent changes",

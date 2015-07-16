@@ -229,7 +229,7 @@
 	    //if logged in
 		var mapUrl = "/viewer";
 
-		if ($scope.info.env.node=='private'){
+		if (mdView.current.record['geonet:info'].isPublishedToAll != 'true'){
 			mapUrl = "/secure/viewer"
 		}
 		

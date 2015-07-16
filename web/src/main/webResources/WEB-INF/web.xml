@@ -332,19 +332,7 @@
         <load-on-startup>0</load-on-startup>
     </servlet>
 
-        <!-- Spring dispatcher servlet -->
-    <servlet>
-        <servlet-name>public</servlet-name>
-        <servlet-class>
-            jeeves.config.springutil.JeevesDispatcherServlet
-        </servlet-class>
-        <init-param>
-            <param-name>nodeId</param-name>
-            <param-value>public</param-value>
-        </init-param>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
-    
+        <!-- Spring dispatcher servlet -->    
     <servlet>
         <servlet-name>private</servlet-name>
         <servlet-class>
@@ -356,20 +344,15 @@
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>
-
+    
     <servlet-mapping>
-        <servlet-name>public</servlet-name>
-        <url-pattern>/public/*</url-pattern>
+        <servlet-name>private</servlet-name>
+        <url-pattern>/portal/*</url-pattern>
     </servlet-mapping>
+
 
     <servlet-mapping>
         <servlet-name>private</servlet-name>
-        <url-pattern>/private/*</url-pattern>
-    </servlet-mapping>
-
-
-    <servlet-mapping>
-        <servlet-name>public</servlet-name>
         <url-pattern>/home</url-pattern>
     </servlet-mapping>
 
@@ -379,7 +362,7 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>public</servlet-name>
+        <servlet-name>private</servlet-name>
         <url-pattern>/accessDenied.jsp</url-pattern>
     </servlet-mapping>
 
