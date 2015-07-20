@@ -212,6 +212,24 @@ public class UserSession
 		}
 		return null;
 	}
+	
+	/**
+	 * @see java.lang.Object#toString()
+	 * @return
+	 */
+	@Override
+	public String toString() {
+	    StringBuilder sb = new StringBuilder("UserSession[");
+
+        sb.append("id=" + this.getUserIdAsInt() + ", ");
+        sb.append("username=" + this.getUsername() + ", ");
+        sb.append("email=" + this.getEmailAddr() + ", ");
+        sb.append("profile=" + this.getProfile());
+	    
+	    
+	    sb.append("]");
+	    return sb.toString();
+	}
 
 }
 

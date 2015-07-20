@@ -1,16 +1,17 @@
 <sources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../../../../../../web/src/main/webapp/WEB-INF/wro-sources.xsd" >
   <require pathOnDisk="web-ui/src/main/resources" >
-    <jsSource webappPath="/cobweb/js"  pathOnDisk="cobweb/src/main/resources" />
-    <jsSource webappPath="/cobweb/components" pathOnDisk="cobweb/src/main/resources" />
-    <jsSource webappPath="/catalog/js/" />
-    <jsSource webappPath="/catalog/views/" />
-    <jsSource webappPath="/catalog/components/" />
-
-    <cssSource webappPath="/catalog/views/" />
-    <cssSource webappPath="/catalog/style/" />
-    <cssSource webappPath="/cobweb/style" pathOnDisk="cobweb/src/main/resources" />
-   </require>
+      <jsSource webappPath="/cobweb/js/" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+      <jsSource webappPath="/cobweb/components/" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />  
+      <jsSource webappPath="/catalog/js/" />
+      <jsSource webappPath="/catalog/views/" />
+      <!-- <jsSource webappPath="/catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" /> -->
+      <jsSource webappPath="/catalog/components/" />
+      <cssSource webappPath="/cobweb/style/" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
+      <cssSource webappPath="/catalog/views/" />
+      <!-- <cssSource webappPath="/catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" /> -->
+      <cssSource webappPath="/catalog/style/" />
+  </require>
   <declarative name="libcesium" pathOnDisk="web-ui/src/main/resources">
     <jsSource webappPath="/catalog/lib/ol3cesium/Cesium/Cesium.js"/>
     <jsSource webappPath="/catalog/lib/ol3cesium/ol3cesium.js"/>

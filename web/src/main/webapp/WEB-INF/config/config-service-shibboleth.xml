@@ -5,7 +5,7 @@
     <service name="shib.user.login">
       <class name=".services.login.ShibLogin" />
 
-      <output forward="home" />
+      <output forward="catalog.search" />
 
       <error id="user-login" sheet="../xslt/common/error.xsl" statusCode="401">
         <xml name="error" file="xml/login-error.xml" />

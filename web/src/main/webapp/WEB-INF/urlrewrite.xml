@@ -18,6 +18,17 @@
 -->
 <urlrewrite use-query-string="true" use-context="false">
 
+    <!-- Cobweb specific -->
+     <rule>
+        <from>^/private/(.*)/(.*)$</from>
+        <to type="permanent-redirect" last="true">%{context-path}/portal/$1/$2</to>
+    </rule>
+     <rule>
+        <from>^/public/(.*)/(.*)$</from>
+        <to type="permanent-redirect" last="true">%{context-path}/portal/$1/$2</to>
+    </rule>
+    <!-- Cobweb specific -->
+
     <!-- Rule to redirect old deprecated @json requests -->
     <rule>
         <condition name="content-type" operator="notequal">multipart/form-data</condition>

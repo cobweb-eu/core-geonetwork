@@ -350,7 +350,6 @@
         <url-pattern>/portal/*</url-pattern>
     </servlet-mapping>
 
-
     <servlet-mapping>
         <servlet-name>private</servlet-name>
         <url-pattern>/home</url-pattern>

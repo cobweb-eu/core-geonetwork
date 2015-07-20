@@ -1,6 +1,8 @@
 .DS_Store
 .checkstyle
 *.iml
+*/.fbExcludeFilterFile
+*/*/.fbExcludeFilterFile
 rebel.xml
 harvesters/harvester_*.log
 web/src/main/webapp/WEB-INF/data/config/schema_plugins/*/schematron/schematron*.xsl

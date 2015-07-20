@@ -31,25 +31,28 @@ import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.fao.geonet.exceptions.UserLoginEx;
-import jeeves.server.ServiceConfig;
-import jeeves.server.context.ServiceContext;
-import org.fao.geonet.Util;
-
 import org.fao.geonet.GeonetContext;
+import org.fao.geonet.Util;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.Group;
 import org.fao.geonet.domain.Profile;
 import org.fao.geonet.domain.User;
 import org.fao.geonet.domain.UserGroup;
+import org.fao.geonet.exceptions.UserLoginEx;
 import org.fao.geonet.kernel.setting.SettingManager;
 import org.fao.geonet.repository.GroupRepository;
 import org.fao.geonet.repository.UserGroupRepository;
 import org.fao.geonet.repository.UserRepository;
 import org.fao.geonet.services.NotInReadOnlyModeService;
+import org.fao.geonet.utils.Log;
 import org.jdom.Element;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
+
+import jeeves.server.ServiceConfig;
+import jeeves.server.UserSession;
+import jeeves.server.context.ServiceContext;
 
 //=============================================================================
 
@@ -87,6 +90,7 @@ public class ShibLogin extends NotInReadOnlyModeService {
      * @see jeeves.interfaces.Service#exec(org.jdom.Element, jeeves.server.context.ServiceContext)
      */
     public Element serviceSpecificExec(Element params, ServiceContext context) throws Exception {
+        Log.error(Geonet.SETTINGS, "Starting Shibboleth authentication");
         // Get the header keys to lookup from the settings
         GeonetContext gc = (GeonetContext) context.getHandlerContext(Geonet.CONTEXT_NAME);
         SettingManager sm = gc.getBean(SettingManager.class);
@@ -105,34 +109,40 @@ public class ShibLogin extends NotInReadOnlyModeService {
         String firstname = Util.getHeader(headers, firstnameKey, "");
         String profileName = Util.getHeader(headers, profileKey, "");
         String group = Util.getHeader(headers, groupKey, "");
+        String email = Util.getHeader(headers, "AJP_mail", "");
 
         // Make sure the profile name is an exact match
         Profile profile = context.getProfileManager().getCorrectCase(profileName);
         if (profile == null) {
-            profile = Profile.Guest;
+            profile = Profile.RegisteredUser;
         }
 
         if (group.equals("")) {
+            if(defGroup == null) {
+                defGroup = "anonsurvey";
+            }
             group = defGroup;
         }
+        
+        Log.info(Geonet.SETTINGS, "Detected user: '" + username + "'");
 
         UserRepository userRepository = context.getBean(UserRepository.class);
 
         // Create or update the user
         if (username != null && username.length() > 0) {
-            User user = updateUser(context, userRepository, username, surname, firstname, profile, group);
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null,
-                    user.getAuthorities());
-            authentication.setDetails(user);
-
-            if (SecurityContextHolder.getContext() == null) {
-                SecurityContextHolder.createEmptyContext();
+            //Cobweb specific
+            UserRepository userRepo = gc.getBean(UserRepository.class);
+            User user = userRepo.findOneByUsername(username);
+            if(user == null) {
+                user = updateUser(context, userRepository, username, 
+                        surname, firstname, profile, group, email);
             }
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            
+            context.getUserSession().loginAs(user);
+            Log.info(Geonet.SETTINGS, "Detected user: '" + context.getUserSession() + "'");
+            //Cobweb specific
 
             context.info("User '" + username + "' logged in as '" + user.getProfile() + "'");
-
             return new Element("ok");
         } else {
             throw new UserLoginEx(username);
@@ -154,7 +164,7 @@ public class ShibLogin extends NotInReadOnlyModeService {
      * @throws java.sql.SQLException If the record cannot be saved.
      */
     private User updateUser(ServiceContext context, UserRepository userRepository, String username, String surname, String firstname,
-            Profile profile, String groupName) throws SQLException {
+            Profile profile, String groupName, String email) throws SQLException {
 
         boolean groupProvided = ((groupName != null) && (!(groupName.equals(""))));
         int groupId = -1;
@@ -182,6 +192,14 @@ public class ShibLogin extends NotInReadOnlyModeService {
 
         user.setName(firstname).setSurname(surname).setProfile(profile).getSecurity().setPassword(VIA_SHIBBOLETH.toCharArray())
                 .setAuthType(SHIBBOLETH_FLAG);
+        
+        user.getEmailAddresses().clear();
+        if(StringUtils.isEmpty(email)) {
+            user.getEmailAddresses().add(username + "@unknownIdp");
+        } else
+        {
+            user.getEmailAddresses().add(email);
+        }
 
         userRepository.save(user);
 
