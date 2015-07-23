@@ -692,6 +692,24 @@
                         //maxFeatures: 10,
                         typename: getCapLayer.name.prefix + ':' +
                                    getCapLayer.name.localPart})));
+                  
+                  //Cobweb specific
+                  //If it is a call behind SAML, do it directly 
+                  
+                  if(parts[0].startsWith(window.location.origin)) {
+                    proxyUrl = gnUrlUtils.append(parts[0],
+                    gnUrlUtils.toKeyValue({
+                      service: 'WFS',
+                      request: 'GetFeature',
+                      version: '1.1.0',
+                      srsName: 'EPSG:3857',
+                      outputFormat: 'json',
+                      //maxFeatures: 10,
+                      typename: getCapLayer.name.prefix + ':' +
+                                 getCapLayer.name.localPart}));
+                  }
+                  
+                  //Cobweb specific
 
                   $.ajax({
                     url: proxyUrl
