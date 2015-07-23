@@ -250,7 +250,8 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
         
         dataMan.batchIndexInThreadPool(context, ids);
         
-        result.totalMetadata = result.addedMetadata + result.unchangedMetadata + result.updatedMetadata;
+        result.totalMetadata = result.addedMetadata + result.layer + result.updatedMetadata;
+
     
       //-----------------------------------------------------------------------
         //--- remove old metadata
@@ -845,8 +846,10 @@ class Harvester extends BaseAligner implements IHarvester<HarvestResult>
                 metadata.getCategories().add(metadataCategory);
             }
             if(!dataMan.existsMetadataUuid(reg.uuid)) {
+                result.addedMetadata++;
                 metadata = dataMan.insertMetadata(context, metadata, xml, true, false, false, UpdateDatestamp.NO, false, false);
             } else {
+                result.updatedMetadata++;
                 String id = dataMan.getMetadataId(reg.uuid);
                 metadata.setId(Integer.valueOf(id));
                 dataMan.updateMetadata(context, id, xml, false, false, false, 
