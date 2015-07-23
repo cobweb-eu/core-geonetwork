@@ -620,15 +620,15 @@
                    break;
                   }
                 }
-              } else {
-                errors.push($translate('layerCRSNotFound'));
-                console.warn($translate('layerCRSNotFound'));
+//              } else {
+//                errors.push($translate('layerCRSNotFound'));
+//                console.warn($translate('layerCRSNotFound'));
               }
               
-              if (!isLayerAvailableInMapProjection) {
-                errors.push($translate('layerNotAvailableInMapProj'));
-                console.warn($translate('layerNotAvailableInMapProj'));
-              }
+//              if (!isLayerAvailableInMapProjection) {
+//                errors.push($translate('layerNotAvailableInMapProj'));
+//                console.warn($translate('layerNotAvailableInMapProj'));
+//              }
 
               // TODO: parse better legend & attribution
               if (angular.isArray(layer.Style) && layer.Style.length > 0) {
