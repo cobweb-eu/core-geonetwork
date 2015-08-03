@@ -148,7 +148,7 @@
               action: addWMTSToMap
             },
             'WFS' : {
-              iconClass: 'fa-link',
+              iconClass: 'fa-globe',
               label: 'webserviceLink',
               action: addWFSToMap
             },

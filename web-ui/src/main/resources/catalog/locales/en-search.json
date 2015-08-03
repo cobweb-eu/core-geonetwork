@@ -38,6 +38,7 @@
   "databaseLayerDetails": "This dataset is published in the database <strong>{{url}}</strong> in table <strong>{{layer}}</strong>.",
   "fileLayerDetails": "{{name}}. This dataset is available in the local network <strong>{{url}}</strong>.",
   "addToMap": "Add to map",
+  "webserviceLinkservices": "Add to map",
   "addToMaponlinesrc": "Add to map",
   "openRecord": "View item",
   "openRecordhasfeaturecat": "Associated item",

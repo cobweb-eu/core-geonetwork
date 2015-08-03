@@ -720,87 +720,120 @@
                   }
                   
                   //Cobweb specific
+                  
+                  var isPublic = false;
+                  var sid = getCapLayer.name.localPart.substring(4);
 
                   $.ajax({
-                    url: proxyUrl
-                  })
-                    .done(function(response) {
-                       //Cobweb specific
-                      var extent = ol.extent.createEmpty();
-                      var geoJSON = new ol.format.GeoJSON();
-                      $.each(response.features, function(key, feature){
-                        
-                         var f = new ol.Feature();
-                         var geometry= geoJSON.readGeometryFromObject(feature.geometry);
-                         
-                         if (!goog.isNull(geometry)) {
-                           ol.extent.extend(extent, geometry.getExtent());
-                         }
-                         
-                         f.setGeometry(geometry);
-                         
-                         
-                         var html = '';
-                         var recordname = feature.properties.qa_name;
-                         
-                         while(recordname.contains("_")) {
-                           recordname = recordname.replace("_", " ");
-                         }
-
-                         var sid = getCapLayer.name.localPart.substring(4);
-                         
-                         $.each(feature.properties, function(key, value) {
-                           f.set(key, value);
-                           
-                           if (key == 'styleUrl' || key == 'userid'
-                                 || key == 'id' || key == 'record_id'
-                                   || key == 'bbox') {
-                             return;
-                            }
-                           
-                           //convert to string:
-                           value = value + "";
-                           
-                           if(value && (value.endsWith(".jpg") || 
-                               value.endsWith(".JPG"))) {
-
-                             var imagefile = value;
+                    url: "q?uuid=" + sid + 
+                        "&fast=index&_content_type=json"
+                  }).done(function(response){
+                    isPublic = response.metadata["geonet:info"]
+                                  .isPublishedToAll == "true";
+                    $.ajax({
+                      url: proxyUrl
+                    })
+                      .done(function(response) {
+                         //Cobweb specific
+                        var extent = ol.extent.createEmpty();
+                        var geoJSON = new ol.format.GeoJSON();
+                        if(response.features) {
+                          $.each(response.features, function(key, feature){
+                            
+                             var f = new ol.Feature();
+                             var geometry= geoJSON.readGeometry(feature.geometry);
                              
-                             if(imagefile.contains("/")) {
-                               imagefile = 
-                                 imagefile.substring(imagefile.lastIndexOf("/") + 1);
+                             ol.extent.extend(extent, geometry.getExtent());
+                             
+                             
+                             f.setGeometry(geometry);
+                             
+                             
+                             var html = '';
+                             var recordname = feature.properties.qa_name;
+                             
+                             while(recordname.contains("_")) {
+                               recordname = recordname.replace("_", " ");
                              }
                              
-                             var url =  "/1.3/pcapi/fs/local/" + 
-                                   sid + "/records/" + 
-                                   recordname + "/" 
-                                   + imagefile;
+                             $.each(feature.properties, function(key, value) {
+                               f.set(key, value);
+                               
+                               if (key == 'styleUrl' || key == 'userid'
+                                     || key == 'id' || key == 'record_id'
+                                       || key == 'bbox') {
+                                 return;
+                                }
+                               
+                               //convert to string:
+                               value = value + "";
+                               
+                               if(value && (value.endsWith(".jpg") || 
+                                   value.endsWith(".JPG"))) {
+  
+                                 var imagefile = value;
+                                 
+                                 if(imagefile.contains("/")) {
+                                   imagefile = 
+                                     imagefile.substring(imagefile.lastIndexOf("/") + 1);
+                                 }
+                                 
+                                 var url =  "/1.3/pcapi/fs/local/" + 
+                                       sid + "/records/" + 
+                                       recordname + "/" 
+                                       + imagefile;
+                                 
+                                 if(isPublic) {
+                                   url =  "/1.3/pcapi/records/local/" + 
+                                       sid + "/" + 
+                                       recordname + "/" 
+                                       + imagefile;
+                                 }
+                                 html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
+                                 html += '<dd><img src="' + url + '"/></dd>';
+                               } else if(value && value.match(/{(.*\.jpg.*)}/) != null) {
+                               //Found on source code of pcapi visor that there 
+                               //can be multiple images on the same field...
+                                 value = value.substring(1, value.length -1);
+                                 $.each(value.split(","), function(i, imagefile) {
+                                   if(imagefile.contains("/")) {
+                                     imagefile = 
+                                       imagefile.substring(imagefile.lastIndexOf("/") + 1);
+                                   }
+                                   
+                                   var url =  "/1.3/pcapi/fs/local/" + 
+                                         sid + "/records/" + 
+                                         recordname + "/" 
+                                         + imagefile;
+                                   
+                                   if(isPublic) {
+                                     url =  "/1.3/pcapi/records/local/" + 
+                                         sid + "/" + 
+                                         recordname + "/" 
+                                         + imagefile;
+                                   }
+                                   html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
+                                   html += '<dd><img src="' + url + '"/></dd>';
+                                   
+                                   });
+                               } else {
+                                 html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
+                                 html += '<dd>' + value + '</dd>';
+                               }
+                             });
+                             html = '<dl class="dl-horizontal">' + html + '</dl>';
+                             f.set("description", html);
                              
-                             //TODO
-                             url =  "/1.3/pcapi/records/local/" + 
-                                   sid + "/" + 
-                                   recordname + "/" 
-                                   + imagefile;
-                             
-                             html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
-                             html += '<dd><img src="' + url + '"/></dd>';
-                           } else {
-                             html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
-                             html += '<dd>' + value + '</dd>';
-                           }
-                         });
-                         html = '<dl class="dl-horizontal">' + html + '</dl>';
-                         f.set("description", html);
-                         
-                         vectorSource.addFeature(f);
-                      });
-                      //Cobweb specific
-                      
-                      map.getView().fitExtent(extent, map.getSize());
-                      })
-                    .then(function() {
-                        this.loadingLayer = false;
-                      });
+                             vectorSource.addFeature(f);
+                          });
+                          //Cobweb specific
+                        }
+                        })
+                      .then(function() {
+                          this.loadingLayer = false;
+                        });
+                    
+                  });
                 },
                 strategy: ol.loadingstrategy.bbox,
                 projection: map.getView().getProjection().getCode()
@@ -822,6 +855,10 @@
               
               if(extent) {
                 map.getView().fitExtent(extent, map.getSize());
+                
+                if(map.getView().getZoom() > 12) {
+                  map.getView().setZoom(12);
+                }
               }
               
               var clusterSource = new ol.source.Cluster({
