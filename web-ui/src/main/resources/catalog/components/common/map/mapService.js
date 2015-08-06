@@ -756,6 +756,8 @@
                                recordname = recordname.replace("_", " ");
                              }
                              
+                             sid = feature.properties["userid"];
+                             
                              $.each(feature.properties, function(key, value) {
                                f.set(key, value);
                                
@@ -790,7 +792,7 @@
                                        + imagefile;
                                  }
                                  html += '<dt>' + (key.startsWith("qa_")? key.substring(3) : key) + '</dt>';
-                                 html += '<dd><img src="' + url + '"/></dd>';
+                                 html += '<dd><img sytle="max-width: 80px;max-height:80px" src="' + url + '"/></dd>';
                                } else if(value && value.match(/{(.*\.jpg.*)}/) != null) {
                                //Found on source code of pcapi visor that there 
                                //can be multiple images on the same field...
