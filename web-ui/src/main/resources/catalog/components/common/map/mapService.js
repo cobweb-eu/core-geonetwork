@@ -597,6 +597,7 @@
           createOlWFSFromCap: function(map, getCapLayer, url) {
 
             var legend, attribution, metadata, errors = [];
+            var doCluster = true;
             if (getCapLayer) {
               var layer = getCapLayer;
 
@@ -748,6 +749,9 @@
                              
                              f.setGeometry(geometry);
                              
+
+                             doCluster = doCluster && (geometry instanceof ol.geom.Point);
+                             
                              
                              var html = '';
                              var recordname = feature.properties.qa_name;
@@ -863,14 +867,18 @@
                 }
               }
               
-              var clusterSource = new ol.source.Cluster({
-                distance: 40, 
-                source: vectorSource
-              });
+              var source = vectorSource;
+              
+              if(doCluster) {
+                source = new ol.source.Cluster({
+                  distance: 40, 
+                  source: vectorSource
+                });
+              }
 
               var styleCache = {};
               var layer = new ol.layer.Vector({
-                source: clusterSource,
+                source: source,
                 extent: extent,
                 style: function(feature, resolution) {
                   var size = feature.get('features').length;
