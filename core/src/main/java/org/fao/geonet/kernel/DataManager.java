@@ -143,6 +143,7 @@ import org.springframework.transaction.NoTransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -163,6 +164,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -422,7 +425,7 @@ public class DataManager implements ApplicationEventPublisherAware {
                 Log.debug(Geonet.INDEX_ENGINE, "Indexing records from " + start + " to " + nbRecords);
             }
 
-            List subList = metadataIds.subList(start, nbRecords);
+            List<?> subList = metadataIds.subList(start, nbRecords);
 
             if (Log.isDebugEnabled(Geonet.INDEX_ENGINE)) {
                 Log.debug(Geonet.INDEX_ENGINE, subList.toString());
@@ -884,7 +887,7 @@ public class DataManager implements ApplicationEventPublisherAware {
         Log.debug(Geonet.EDITOR_SESSION, "Editing session starts for record " + id);
       }
       
-      boolean keepXlinkAttributes = false;
+      boolean keepXlinkAttributes = true;
       boolean forEditing = false;
       boolean withValidationErrors = false;
       Element metadataBeforeAnyChanges = getMetadata(context, id, forEditing, withValidationErrors, keepXlinkAttributes);
@@ -1512,7 +1515,7 @@ public class DataManager implements ApplicationEventPublisherAware {
     //--------------------------------------------------------------------------
 
     /**
-     * Creates a new metadata duplicating an existing template.
+     * Creates a new metadata duplicating an existing template creating a random uuid.
      *
      * @param context
      * @param templateId
@@ -1528,6 +1531,28 @@ public class DataManager implements ApplicationEventPublisherAware {
     public String createMetadata(ServiceContext context, String templateId, String groupOwner,
                                  String source, int owner,
                                  String parentUuid, String isTemplate, boolean fullRightsForGroup) throws Exception {
+
+        return createMetadata(context, templateId, groupOwner, source,
+                owner, parentUuid, isTemplate, fullRightsForGroup, UUID.randomUUID().toString());
+    }
+
+    /**
+     * Creates a new metadata duplicating an existing template with an specified uuid.
+     *
+     * @param context
+     * @param templateId
+     * @param groupOwner
+     * @param source
+     * @param owner
+     * @param parentUuid
+     * @param isTemplate TODO
+     * @param fullRightsForGroup TODO
+     * @return
+     * @throws Exception
+     */
+    public String createMetadata(ServiceContext context, String templateId, String groupOwner,
+                                 String source, int owner,
+                                 String parentUuid, String isTemplate, boolean fullRightsForGroup, String uuid) throws Exception {
         Metadata templateMetadata = getMetadataRepository().findOne(templateId);
         if (templateMetadata == null) {
             throw new IllegalArgumentException("Template id not found : " + templateId);
@@ -1535,7 +1560,6 @@ public class DataManager implements ApplicationEventPublisherAware {
 
         String schema = templateMetadata.getDataInfo().getSchemaId();
         String data   = templateMetadata.getData();
-        String uuid   = UUID.randomUUID().toString();
         Element xml = Xml.loadString(data, false);
         if (templateMetadata.getDataInfo().getType() == MetadataType.METADATA) {
             xml = updateFixedInfo(schema, Optional.<Integer>absent(), uuid, xml, parentUuid, UpdateDatestamp.NO, context);
@@ -1550,7 +1574,14 @@ public class DataManager implements ApplicationEventPublisherAware {
                 .setGroupOwner(Integer.valueOf(groupOwner))
                 .setOwner(owner)
                 .setSourceId(source);
-
+        
+        //If there is a default category for the group, use it:
+        Group group = getApplicationContext()
+                .getBean(GroupRepository.class)
+                .findOne(Integer.valueOf(groupOwner));
+        if(group.getDefaultCategory() != null) {
+            newMetadata.getCategories().add(group.getDefaultCategory());
+        }
         Collection<MetadataCategory> filteredCategories = Collections2.filter(templateMetadata.getCategories(),
                 new Predicate<MetadataCategory>() {
                     @Override
@@ -1623,6 +1654,14 @@ public class DataManager implements ApplicationEventPublisherAware {
                 throw new IllegalArgumentException("No category found with name: "+category);
             }
             newMetadata.getCategories().add(metadataCategory);
+        } else if(groupOwner != null) {
+            //If the group has a default category, use it
+            Group group = getApplicationContext()
+                    .getBean(GroupRepository.class)
+                    .findOne(Integer.valueOf(groupOwner));
+            if(group.getDefaultCategory() != null) {
+                newMetadata.getCategories().add(group.getDefaultCategory());
+            }
         }
 
         boolean fullRightsForGroup = false;
@@ -2125,7 +2164,7 @@ public class DataManager implements ApplicationEventPublisherAware {
                                               String lang, List<MetadataValidation> validations) {
         final SchematronValidator schematronValidator = getApplicationContext().getBean(SchematronValidator.class);
         return schematronValidator.applyCustomSchematronRules(schema, metadataId, md, lang, validations);
-                        }
+    }
 
     /**
      * Saves validation status information into the database for the current record.
@@ -2610,7 +2649,21 @@ public class DataManager implements ApplicationEventPublisherAware {
      */
     public void unsetOperation(ServiceContext context, int mdId, int groupId, int operId) throws Exception {
         checkOperationPermission(context, groupId, context.getBean(UserGroupRepository.class));
+        forceUnsetOperation(context, mdId, groupId, operId);
+    }
 
+    /**
+     * Unset operation without checking if user privileges allows the operation.
+     * This may be useful when a user is an editor and internal operations needs
+     * to update privilages for reserved group. eg. {@link org.fao.geonet.kernel.metadata.DefaultStatusActions}
+     *
+     * @param context
+     * @param mdId
+     * @param groupId
+     * @param operId
+     * @throws Exception
+     */
+    public void forceUnsetOperation(ServiceContext context, int mdId, int groupId, int operId) throws Exception {
         OperationAllowedId id = new OperationAllowedId().setGroupId(groupId).setMetadataId(mdId).setOperationId(operId);
         final OperationAllowedRepository repository = context.getBean(OperationAllowedRepository.class);
         if (repository.exists(id)) {
@@ -2764,6 +2817,43 @@ public class DataManager implements ApplicationEventPublisherAware {
         metatatStatus.setId(mdStatusId);
 
         return getApplicationContext().getBean(MetadataStatusRepository.class).save(metatatStatus);
+    }
+
+    /**
+     * If groupOwner match regular expression defined
+     * in setting metadata/workflow/draftWhenInGroup,
+     * then set status to draft to enable workflow.
+     *
+     * @param context
+     * @param newId
+     * @param groupOwner
+     * @throws Exception
+     */
+    public void activateWorkflowIfConfigured(ServiceContext context, String newId, String groupOwner) throws Exception {
+        if (groupOwner == null) {
+            return;
+        }
+        String groupMatchingRegex =
+                getApplicationContext().getBean(SettingManager.class).
+                        getValue("metadata/workflow/draftWhenInGroup");
+        if (!StringUtils.isEmpty(groupMatchingRegex)) {
+            final Group group = getApplicationContext().getBean(GroupRepository.class)
+                    .findOne(Integer.valueOf(groupOwner));
+            String groupName = "";
+            if (group != null) {
+                groupName = group.getName();
+            }
+
+            final Pattern pattern = Pattern.compile(groupMatchingRegex);
+            final Matcher matcher = pattern.matcher(groupName);
+            if (matcher.find()) {
+                setStatus(context, Integer.valueOf(newId),
+                        Integer.valueOf(Params.Status.DRAFT),
+                        new ISODate(),
+                        String.format("Workflow automatically enabled for record in group %s. Record status is set to %s.",
+                                groupName, Params.Status.DRAFT));
+            }
+        }
     }
 
     //--------------------------------------------------------------------------
@@ -2929,7 +3019,7 @@ public class DataManager implements ApplicationEventPublisherAware {
 
             // Settings were defined as an XML starting with root named config
             // Only second level elements are defined (under system).
-            List config = getSettingManager().getAllAsXML(true).cloneContent();
+            List<?> config = getSettingManager().getAllAsXML(true).cloneContent();
             for (Object c : config) {
                 Element settings = (Element) c;
                 env.addContent(settings);
@@ -3363,6 +3453,10 @@ public class DataManager implements ApplicationEventPublisherAware {
                     }
                 });
 
+    }
+
+    public void forceIndexChanges() throws IOException {
+        getSearchManager().forceIndexChanges();
     }
 
     public int batchDeleteMetadataAndUpdateIndex(Specification<Metadata> specification) throws Exception {

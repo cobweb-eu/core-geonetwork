@@ -77,7 +77,8 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult> {
         
         settingMan.add( "id:"+siteId, "icon", lp.icon);
 		settingMan.add( "id:"+siteId, "recurse", lp.recurse);
-		settingMan.add( "id:"+siteId, "directory", lp.directoryname);
+        settingMan.add( "id:"+siteId, "directory", lp.directoryname);
+        settingMan.add( "id:"+siteId, "recordType", lp.recordType);
 		settingMan.add( "id:"+siteId, "nodelete", lp.nodelete);
         settingMan.add( "id:"+siteId, "checkFileLastModifiedForUpdate", lp.checkFileLastModifiedForUpdate);
 	}
@@ -127,15 +128,15 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult> {
 			}
 		}
 		result = visitor.getResult();
-		List<Integer> idsForHarvestingResult = visitor.getIdsForHarvestingResult();
+        log.debug(String.format("Scan directory is done. %d files analyzed.",
+                result.totalMetadata));
+        List<Integer> idsForHarvestingResult = visitor.getIdsForHarvestingResult();
 		Set<Integer> idsResultHs = Sets.newHashSet(idsForHarvestingResult);
 
 		if (!params.nodelete) {
-			//
-			// delete locally existing metadata from the same source if they
-			// were
-			// not in this harvesting result
-			//
+            log.debug("Starting to delete locally existing metadata " +
+                    "from the same source if they " +
+                    " were not in this harvesting result...");
             List<Integer> existingMetadata = context.getBean(MetadataRepository.class).findAllIdsBy(MetadataSpecs.hasHarvesterUuid(params.getUuid()));
             for (Integer existingId : existingMetadata) {
 
@@ -150,8 +151,9 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult> {
 			}
 		}
 
-		// indexes the harvested MDs
-		dataMan.batchIndexInThreadPool(context, idsForHarvestingResult);
+        log.debug("Starting indexing in batch thread pool...");
+
+        dataMan.batchIndexInThreadPool(context, idsForHarvestingResult);
 		
         log.debug("End of alignment for : " + params.getName());
 		return result;
@@ -218,12 +220,13 @@ public class LocalFilesystemHarvester extends AbstractHarvester<HarvestResult> {
         metadata.getDataInfo().
                 setSchemaId(schema).
                 setRoot(xml.getQualifiedName()).
-                setType(MetadataType.METADATA).
+                setType(MetadataType.lookup(params.recordType)).
                 setCreateDate(new ISODate(createDate)).
                 setChangeDate(new ISODate(createDate));
         metadata.getSourceInfo().
                 setSourceId(params.getUuid()).
-                setOwner(Integer.parseInt(params.getOwnerId()));
+                setOwner(Integer.parseInt(params.getOwnerId())).
+                setGroupOwner(Integer.valueOf(params.getOwnerIdGroup()));
         metadata.getHarvestInfo().
                 setHarvested(true).
                 setUuid(params.getUuid());

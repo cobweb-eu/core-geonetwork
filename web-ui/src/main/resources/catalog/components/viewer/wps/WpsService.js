@@ -44,8 +44,12 @@
     'gnOwsCapabilities',
     'gnUrlUtils',
     'gnGlobalSettings',
+    'gnMap',
     '$q',
-    function($http, gnOwsCapabilities, gnUrlUtils, gnGlobalSettings, $q) {
+    function($http, gnOwsCapabilities, gnUrlUtils, gnGlobalSettings,
+             gnMap, $q) {
+
+      this.WMS_MIMETYPE = 'application/x-ogc-wms';
 
       this.proxyUrl = function(url) {
         return gnGlobalSettings.proxyUrl + encodeURIComponent(url);
@@ -73,29 +77,14 @@
 
         //send request and decode result
         if (gnUrlUtils.isValid(url)) {
-          var defer = $q.defer();
-
           var proxyUrl = this.proxyUrl(url);
-          $http.get(proxyUrl, {
+          return $http.get(proxyUrl, {
             cache: true
           }).then(
-              function(data) {
-                var response = unmarshaller.unmarshalString(data.data).value;
-                if (response.exception != undefined) {
-                  defer.reject({msg: 'wpsDescribeProcessFailed',
-                    owsExceptionReport: response});
-                }
-                else {
-                  defer.resolve(response);
-                }
-              },
-              function(data) {
-                defer.reject({msg: 'wpsDescribeProcessFailed',
-                  httpResponse: data});
+              function(response) {
+                return unmarshaller.unmarshalString(response.data).value;
               }
           );
-
-          return defer.promise;
         }
       };
 
@@ -112,8 +101,10 @@
        * @param {string} processId of the process
        * @param {Object} inputs of the process
        * @param {Object} output of the process
+       * @param {Object} options such as storeExecuteResponse,
+       * lineage and status
        */
-      this.execute = function(uri, processId, inputs, output) {
+      this.execute = function(uri, processId, inputs, responseDocument) {
         var defer = $q.defer();
 
         var me = this;
@@ -141,64 +132,49 @@
               };
 
               var setInputData = function(input, data) {
-                var inputValue;
-                request.value.dataInputs.input.push({
-                  identifier: {
-                    value: input.identifier.value
-                  },
-                  data: {
-                    literalData: {
-                      value: data
+                if (input.literalData) {
+                  request.value.dataInputs.input.push({
+                    identifier: {
+                      value: input.identifier.value
+                    },
+                    data: {
+                      literalData: {
+                        value: data.toString()
+                      }
                     }
-                  }
-                });
+                  });
+                }
+                if (input.boundingBoxData) {
+                  var bbox = data.split(',');
+                  request.value.dataInputs.input.push({
+                    identifier: {
+                      value: input.identifier.value
+                    },
+                    data: {
+                      boundingBoxData: {
+                        dimensions: 2,
+                        lowerCorner: [bbox[0], bbox[1]],
+                        upperCorner: [bbox[2], bbox[3]]
+                      }
+                    }
+                  });
+                }
               };
 
-              for (i = 0, ii = description.dataInputs.input.length;
-                   i < ii; ++i) {
-                input = description.dataInputs.input[i];
+              for (var i = 0; i < description.dataInputs.input.length; ++i) {
+                var input = description.dataInputs.input[i];
                 if (inputs[input.identifier.value] !== undefined) {
                   setInputData(input, inputs[input.identifier.value]);
                 }
               }
 
-              var getOutputIndex = function(outputs, identifier) {
-                var output;
-                if (identifier) {
-                  for (var i = outputs.length - 1; i >= 0; --i) {
-                    if (outputs[i].identifier.value === identifier) {
-                      output = i;
-                      break;
-                    }
-                  }
-                } else {
-                  output = 0;
-                }
-                return output;
+              request.value.responseForm = {
+                responseDocument: $.extend(true, {
+                  lineage: false,
+                  storeExecuteResponse: true,
+                  status: false
+                }, responseDocument)
               };
-
-              var setResponseForm = function(options) {
-                options = options || {};
-                var output =
-                    description.processOutputs.output[options.outputIndex || 0];
-                request.value.responseForm = {
-                  responseDocument: {
-                    lineage: false,
-                    storeExecuteResponse: true,
-                    status: false,
-                    output: [{
-                      asReference: true,
-                      identifier: {
-                        value: output.identifier.value
-                      }
-                    }]
-                  }
-                };
-              };
-
-              var outputIndex = getOutputIndex(
-                  description.processOutputs.output, output);
-              setResponseForm({outputIndex: outputIndex});
 
               var body = marshaller.marshalString(request);
 
@@ -208,20 +184,10 @@
                   function(data) {
                     var response =
                         unmarshaller.unmarshalString(data.data).value;
-                    var status = response.status;
-                    if (status.processFailed != undefined) {
-                      defer.reject({msg: 'wpsExecuteFailed',
-                        owsExceptionReport:
-                            status.processFailed.exceptionReport});
-                    } else {
-                      var url =
-                          response.processOutputs.output[0].reference.href;
-                      defer.resolve(url);
-                    }
+                    defer.resolve(response);
                   },
                   function(data) {
-                    defer.reject({msg: 'wpsExecuteFailed',
-                      httpResponse: data});
+                    defer.reject(data);
                   }
               );
 
@@ -232,6 +198,64 @@
         );
 
         return defer.promise;
+      };
+
+      /**
+       * @ngdoc method
+       * @methodOf gn_viewer.service:gnWpsService
+       * @name gnWpsService#getStatus
+       *
+       * @description
+       * Get prosess status during execution.
+       *
+       * @param {string} url of status document
+       */
+      this.getStatus = function(url) {
+        var defer = $q.defer();
+
+        var proxyUrl = this.proxyUrl(url);
+        $http.get(proxyUrl, {
+          cache: true
+        }).then(
+            function(data) {
+              var response = unmarshaller.unmarshalString(data.data).value;
+              defer.resolve(response);
+            },
+            function(data) {
+              defer.reject(data);
+            }
+        );
+
+        return defer.promise;
+      };
+
+      /**
+       * Try to see if the execute response is a reference with a WMS mimetype.
+       * If yes, the href is a WMS getCapabilities, we load it and add all
+       * the layers on the map.
+       * Those new layers has the property `fromWps` to true, to identify them
+       * in the layer manager.
+       *
+       * @param {object} response excecuteProcess response object.
+       * @param {ol.Map} map
+       */
+      this.extractWmsLayerFromResponse = function(response, map) {
+
+        try {
+          var ref = response.processOutputs.output[0].reference;
+          if(ref.mimeType == this.WMS_MIMETYPE) {
+            gnMap.addWmsAllLayersFromCap(map, ref.href, true).
+                then(function(layers) {
+                  layers.map(function(l) {
+                    l.set('fromWps', true);
+                    map.addLayer(l);
+                  });
+                });
+          }
+        }
+        catch (e) {
+          // no WMS found
+        }
       };
     }
   ]);

@@ -19,12 +19,12 @@
       ['$rootScope', '$timeout', '$q', '$http',
         'gnEditor', 'gnSchemaManagerService',
         'gnEditorXMLService', 'gnHttp', 'gnConfig',
-        'gnCurrentEdit', 'gnConfigService', 'gnElementsMap',
+        'gnCurrentEdit', 'gnConfigService',
         'gnGlobalSettings',
         function($rootScope, $timeout, $q, $http,
                  gnEditor, gnSchemaManagerService,
                  gnEditorXMLService, gnHttp, gnConfig,
-                 gnCurrentEdit, gnConfigService, gnElementsMap,
+                 gnCurrentEdit, gnConfigService,
                  gnGlobalSettings) {
 
           return {
@@ -66,6 +66,8 @@
                     params: {
                       _isTemplate: 's',
                       any: '',
+                      from: 1,
+                      to: 200,
                       _root: 'gmd:CI_ResponsibleParty',
                       sortBy: 'title',
                       sortOrder: 'reverse',
@@ -177,15 +179,17 @@
                        if (usingXlink) {
                          var urlParams = '';
                          angular.forEach(params, function(p, key) {
-                           urlParams += key + '=' + p + '&'
+                           urlParams += key + '=' + p + '&';
                          });
                          snippets.push(gnEditorXMLService.
-                                  buildXMLForXlink(scope.elementName,
+                                  buildXMLForXlink(scope.schema,
+                         scope.elementName,
                                       url +
                                       '?' + urlParams));
                        } else {
                          snippets.push(gnEditorXMLService.
-                                  buildXML(scope.elementName, xml));
+                                  buildXML(scope.schema,
+                         scope.elementName, xml));
                        }
                        checkState();
                      });
@@ -195,8 +199,7 @@
                   };
 
                   gnSchemaManagerService
-                      .getCodelist(gnCurrentEdit.schema + '|' +
-                          gnElementsMap['roleCode'][gnCurrentEdit.schema])
+                      .getCodelist(gnCurrentEdit.schema + '|' + 'roleCode')
                       .then(function(data) {
                         scope.roles = data[0].entry;
                       });

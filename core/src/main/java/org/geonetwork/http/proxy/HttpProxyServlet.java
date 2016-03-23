@@ -158,7 +158,10 @@ public class HttpProxyServlet extends HttpServlet {
                     if (!isValidContentType(contentTypesReturned[0])) {
                         contentTypesReturned = contentType.getValue().split(" ");
                         if (!isValidContentType(contentTypesReturned[0])) {
-                            response.sendError(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Status: 415 Unsupported media type");
+                            response.sendError(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE,
+                                    String.format(
+                                            "Status: 415 Unsupported media type '%s'",
+                                            contentTypesReturned[0]));
                             return;
                         }
                     }
@@ -235,7 +238,9 @@ public class HttpProxyServlet extends HttpServlet {
                     if (!isValidContentType(contentTypesReturned[0])) {
                         contentTypesReturned = contentType.getValue().split(" ");
                         if (!isValidContentType(contentTypesReturned[0])) {
-                            throw new ServletException("Status: 415 Unsupported media type");
+                            throw new ServletException(
+                                    String.format("Status: 415 Unsupported media type '%s'",
+                                            contentTypesReturned[0]));
                         }
                     }
 
@@ -357,7 +362,10 @@ public class HttpProxyServlet extends HttpServlet {
                     if (!isValidContentType(contentTypesReturned[0])) {
                         contentTypesReturned = contentType.getValue().split(" ");
                         if (!isValidContentType(contentTypesReturned[0])) {
-                            throw new ServletException("Status: 415 Unsupported media type");
+                            throw new ServletException(
+                                    String.format(
+                                        "Status: 415 Unsupported media type '%s'",
+                                        contentTypesReturned[0]));
                         }
                     }
 

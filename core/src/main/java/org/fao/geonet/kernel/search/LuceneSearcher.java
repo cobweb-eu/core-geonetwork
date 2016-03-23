@@ -272,6 +272,11 @@ public class LuceneSearcher extends MetaSearcher implements MetadataRecordSelect
         Set<String> extraDumpFields = Sets.newHashSet();
         if (inFastMode) {
             String[] fields = Util.getParam(request, Geonet.SearchResult.EXTRA_DUMP_FIELDS, "").split(",");
+            for (String field : fields) {
+                if (!field.trim().isEmpty()) {
+                    extraDumpFields.add(field);
+                }
+            }
             extraDumpFields.addAll(Arrays.asList(fields));
         }
 
@@ -368,6 +373,7 @@ public class LuceneSearcher extends MetaSearcher implements MetadataRecordSelect
         boolean isOwner = accessManager.isOwner(context, sourceInfo);
 
         HashSet<ReservedOperation> operations;
+        boolean canEdit = false;
         if (isOwner) {
             operations = Sets.newHashSet(Arrays.asList(ReservedOperation.values()));
             if (owner != null) {
@@ -375,12 +381,19 @@ public class LuceneSearcher extends MetaSearcher implements MetadataRecordSelect
             }
         } else {
             final Collection<Integer> groups = accessManager.getUserGroups(context.getUserSession(), context.getIpAddress(), false);
+            final Collection<Integer> editingGroups = accessManager.getUserGroups(context.getUserSession(), context.getIpAddress(), true);
             operations = Sets.newHashSet();
             for (ReservedOperation operation : ReservedOperation.values()) {
                 IndexableField[] opFields = doc.getFields(Geonet.IndexFieldNames.OP_PREFIX + operation.getId());
 
                 for (IndexableField field : opFields) {
                     Integer groupId = Integer.valueOf(field.stringValue());
+                    if (operation == ReservedOperation.editing &&
+                            editingGroups.contains(groupId)) {
+                        canEdit = true;
+                        break;
+                    }
+
                     if (groups.contains(groupId)) {
                         operations.add(operation);
                         break;
@@ -388,7 +401,7 @@ public class LuceneSearcher extends MetaSearcher implements MetadataRecordSelect
                 }
             }
         }
-        if (isOwner || operations.contains(ReservedOperation.editing)) {
+        if (isOwner || canEdit) {
             addElement(infoEl, Edit.Info.Elem.EDIT, "true");
         }
 

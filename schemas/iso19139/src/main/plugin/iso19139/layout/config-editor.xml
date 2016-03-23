@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <editor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="../../config-editor.xsd"
+  xsi:noNamespaceSchemaLocation="../../../../../../config-editor.xsd"
   xmlns:gn="http://www.fao.org/geonetwork"
   xmlns:gco="http://www.isotc211.org/2005/gco"
   xmlns:gmd="http://www.isotc211.org/2005/gmd"
@@ -115,9 +115,11 @@
     <name>gmd:portrayalCatalogueInfo</name>
     <name>gmd:portrayalCatalogueCitation</name>
     <name>gmd:thesaurusName</name>
+    <name>gmd:resourceConstraints</name>
     <name>gmd:spatialRepresentationInfo</name>
     <name>gmd:pointOfContact</name>
     <name>gmd:contact</name>
+    <name>gmd:graphicOverview</name>
     <name>gmd:citedResponsibleParty</name>
     <name>gmd:dataQualityInfo</name>
     <name>gmd:contentInfo</name>
@@ -145,6 +147,7 @@
     <name>gml:verticalCS</name>
     <name>gml:verticalDatum</name>
     <name>gmd:identifier</name>
+    <name>gmd:topicCategory</name>
   </fieldsWithFieldset>
 
   <multilingualFields>
@@ -228,8 +231,6 @@
 
   <!-- View configuration -->
   <views>
-    <!-- TODO: Add option to configure if view should be displayed or not 
-    based on xpath expression ? -->
     <!--Turn off INSPIRE view by default -->
     <view name="inspire" upAndDownControlHidden="true" disabled="true">
       <tab id="inspire" default="true" mode="flat">
@@ -320,6 +321,7 @@
                     <gn:copy select="gmd:authority"/>
                     <gmd:code>
                       <gco:CharacterString>{{code}}</gco:CharacterString>
+                      <gn:copy select="gmd:PT_FreeText"/>
                     </gmd:code>
                   </gmd:MD_Identifier>
                 </gmd:identifier>
@@ -341,6 +343,7 @@
                   <gmd:MD_Identifier>
                     <gmd:code>
                       <gco:CharacterString>{{code}}</gco:CharacterString>
+                      <gn:copy select="gmd:PT_FreeText"/>
                     </gmd:code>
                   </gmd:MD_Identifier>
                 </gmd:identifier>
@@ -388,6 +391,7 @@
                   <gmd:MD_Format>
                     <gmd:name>
                       <gco:CharacterString>{{format}}</gco:CharacterString>
+                      <gn:copy select="gmd:PT_FreeText"/>
                     </gmd:name>
                     <gmd:version>
                       <gco:CharacterString>{{format_version}}</gco:CharacterString>
@@ -947,6 +951,7 @@
                       <gmd:CI_Citation>
                         <gmd:title>
                           <gco:CharacterString>{{conformity_title}}</gco:CharacterString>
+                          <gn:copy select="gmd:PT_FreeText"/>
                         </gmd:title>
                         <gn:copy select="gmd:alternateTitle"/>
                         <gmd:date>
@@ -975,6 +980,7 @@
                     </gmd:specification>
                     <gmd:explanation>
                       <gco:CharacterString>{{explanation}}</gco:CharacterString>
+                      <gn:copy select="gmd:PT_FreeText"/>
                     </gmd:explanation>
                     {{pass}}
                   </gmd:DQ_ConformanceResult>
@@ -1160,6 +1166,7 @@
                     <gn:copy select="gmd:individualName"/>
                     <gmd:organisationName>
                       <gco:CharacterString>{{organisationName}}</gco:CharacterString>
+                      <gn:copy select="gmd:PT_FreeText"/>
                     </gmd:organisationName>
                     <gn:copy select="gmd:positionName"/>
                     <gmd:contactInfo>
@@ -1174,6 +1181,7 @@
                             <gn:copy select="gmd:country"/>
                             <gmd:electronicMailAddress>
                               <gco:CharacterString>{{electronicMailAddress}}</gco:CharacterString>
+                              <gn:copy select="gmd:PT_FreeText"/>
                             </gmd:electronicMailAddress>
                           </gmd:CI_Address>
                         </gmd:address>
@@ -1227,6 +1235,7 @@
                     <gn:copy select="gmd:individualName"/>
                     <gmd:organisationName>
                       <gco:CharacterString>{{organisationName}}</gco:CharacterString>
+                      <gn:copy select="gmd:PT_FreeText"/>
                     </gmd:organisationName>
                     <gn:copy select="gmd:positionName"/>
                     <gmd:contactInfo>
@@ -1241,6 +1250,7 @@
                             <gn:copy select="gmd:country"/>
                             <gmd:electronicMailAddress>
                               <gco:CharacterString>{{electronicMailAddress}}</gco:CharacterString>
+                              <gn:copy select="gmd:PT_FreeText"/>
                             </gmd:electronicMailAddress>
                           </gmd:CI_Address>
                         </gmd:address>
@@ -1296,6 +1306,7 @@
                     <gn:copy select="gmd:individualName"/>
                     <gmd:organisationName>
                       <gco:CharacterString>{{organisationName}}</gco:CharacterString>
+                      <gn:copy select="gmd:PT_FreeText"/>
                     </gmd:organisationName>
                     <gn:copy select="gmd:positionName"/>
                     <gmd:contactInfo>
@@ -1310,6 +1321,7 @@
                             <gn:copy select="gmd:country"/>
                             <gmd:electronicMailAddress>
                               <gco:CharacterString>{{electronicMailAddress}}</gco:CharacterString>
+                              <gn:copy select="gmd:PT_FreeText"/>
                             </gmd:electronicMailAddress>
                           </gmd:CI_Address>
                         </gmd:address>
@@ -1660,7 +1672,6 @@
         <for name="gmd:distributor"/>
         <for name="gmd:contact"/>
         <for name="gmd:processor"/>
-        <for name="gmd:citedResponsibleParty"/>
         <for name="gmd:topicCategory"/>
       </flatModeExceptions>
 

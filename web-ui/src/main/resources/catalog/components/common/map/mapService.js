@@ -338,7 +338,7 @@
            *
            * @param {Array} extent to transform
            */
-          getDcExtent: function(extent) {
+          getDcExtent: function(extent, location) {
             if (angular.isArray(extent)) {
               var dc = 'North ' + extent[3] + ', ' +
                   'South ' + extent[1] + ', ' +
@@ -612,20 +612,20 @@
                     break;
                   }
                 }
-              } else if (layer.otherSRS){
+              } else if (layer.otherSRS) {
                 var mapProjection = map.getView().
-                                getProjection().getCode();
+                    getProjection().getCode();
                 for (var i = 0; i < layer.otherSRS.length; i++) {
                   if (layer.otherSRS[i] === mapProjection) {
-                   isLayerAvailableInMapProjection = true;
-                   break;
+                    isLayerAvailableInMapProjection = true;
+                    break;
                   }
                 }
 //              } else {
 //                errors.push($translate('layerCRSNotFound'));
 //                console.warn($translate('layerCRSNotFound'));
               }
-              
+
 //              if (!isLayerAvailableInMapProjection) {
 //                errors.push($translate('layerNotAvailableInMapProj'));
 //                console.warn($translate('layerNotAvailableInMapProj'));
@@ -875,7 +875,6 @@
                   source: vectorSource
                 });
               }
-
               var styleCache = {};
               var layer = new ol.layer.Vector({
                 source: source,
@@ -1080,6 +1079,36 @@
               defer.reject(o);
             });
             return defer.promise;
+          },
+
+          /**
+           * Call a WMS getCapabilities and create ol3 layers for all items.
+           * Add them to the map if `createOnly` is false;
+           *
+           * @param {ol.Map} map to add the layer
+           * @param {string} url of the service
+           * @param {string} name of the layer
+           * @param {boolean} createOnly or add it to the map
+           */
+          addWmsAllLayersFromCap: function(map, url, createOnly) {
+            var $this = this;
+
+            return gnOwsCapabilities.getWMSCapabilities(url).
+                then(function(capObj) {
+
+                  var createdLayers = [];
+
+                  var layers = capObj.layers || capObj.Layer;
+                  for (var i = 0, len = layers.length; i < len; i++) {
+                    var capL = layers[i];
+                    var olL = $this.createOlWMSFromCap(map, capL);
+                    if (!createOnly) {
+                      map.addLayer(olL);
+                    }
+                    createdLayers.push(olL);
+                  }
+                  return createdLayers;
+                });
           },
 
           /**
@@ -1390,7 +1419,7 @@
            */
           zoomLayerToExtent: function(layer, map) {
             if (layer.get('cextent')) {
-              map.getView().fitExtent(layer.get('cextent'), map.getSize());
+              map.getView().fit(layer.get('cextent'), map.getSize());
             }
           },
 

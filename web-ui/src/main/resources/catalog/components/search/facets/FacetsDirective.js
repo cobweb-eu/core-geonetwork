@@ -17,12 +17,25 @@
           facetResults: '=gnFacet',
           facet: '@',
           indexKey: '@',
-          currentFacets: '='
+          params: '=',
+          currentFacets: '=',
+          noCollapse: '@'
         },
         link: function(scope, element, attrs, controller) {
 
           var initialMaxItems = 5;
 
+          // Facet is collapsed if not in current search criteria
+          function isFacetsCollapse(facetKey) {
+            if (scope.noCollapse) {
+              return false;
+            } else {
+              return !(scope.params &&
+                  angular.isDefined(scope.params[facetKey]));
+            }
+          };
+
+          scope.collapsed = isFacetsCollapse(scope.indexKey);
           scope.add = function(f, reset) {
             gnFacetService.add(scope.currentFacets, scope.indexKey,
                 f['@name'], f['@label']);
@@ -49,10 +62,17 @@
         scope: {
           facets: '=gnFacetList',
           summaryType: '=facetConfig',
+          params: '=',
           currentFacets: '='
         },
         link: function(scope) {
           scope.facetConfig = [];
+
+          // Facet is collapsed if not in current search criteria
+          scope.isFacetsCollapse = function(facetKey) {
+            return !angular.isDefined(scope.params[facetKey]);
+          };
+
           gnFacetConfigService.loadConfig(scope.summaryType).
               then(function(data) {
                 scope.facetConfig = data;

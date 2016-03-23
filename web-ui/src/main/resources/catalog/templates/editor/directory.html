@@ -36,9 +36,11 @@
                         title="{{'filterSearch' | translate}}">
                   &nbsp;<span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu pull-right">
+                <ul class="dropdown-menu gn-facet-dropdown">
                   <li>
                   <div data-gn-facet="searchResults.facet"
+                       data-current-facets="currentFacets"
+                       data-no-collapse="true"
                        data-facet="groupOwners"
                        data-index-key="_groupOwner"></div>
                   <div data-gn-facet-breadcrumb=""></div>
@@ -123,7 +125,8 @@
         <div class="panel-heading">
           <span data-translate="">{{activeEntry.title || activeEntry.defaultTitle}}</span>
           <div class="pull-right">
-            <div data-gn-metadata-group-updater="activeEntry.groupOwner"/>
+            <div data-gn-metadata-group-updater="activeEntry.groupOwner"
+                 data-metadata-id="activeEntry['geonet:info'].id"/>
 
             <button type="button" class="btn btn-default"
                     data-ng-click="startSharing()"

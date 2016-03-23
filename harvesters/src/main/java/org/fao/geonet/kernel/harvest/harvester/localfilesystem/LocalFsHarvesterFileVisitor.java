@@ -2,6 +2,7 @@ package org.fao.geonet.kernel.harvest.harvester.localfilesystem;
 
 import com.google.common.collect.Lists;
 import jeeves.server.context.ServiceContext;
+import org.apache.commons.lang.time.DateUtils;
 import org.fao.geonet.Logger;
 import org.fao.geonet.constants.Geonet;
 import org.fao.geonet.domain.ISODate;
@@ -22,8 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -46,6 +47,7 @@ class LocalFsHarvesterFileVisitor extends SimpleFileVisitor<Path> {
     private final CategoryMapper localCateg;
     private final GroupMapper localGroups;
     private final List<Integer> idsForHarvestingResult = Lists.newArrayList();
+    private long startTime;
 
     public LocalFsHarvesterFileVisitor(AtomicBoolean cancelMonitor, ServiceContext context, LocalFilesystemParams params, Logger log, LocalFilesystemHarvester harvester) throws Exception {
         this.aligner = new BaseAligner(cancelMonitor) {};
@@ -64,6 +66,9 @@ class LocalFsHarvesterFileVisitor extends SimpleFileVisitor<Path> {
         this.dataMan = context.getBean(DataManager.class);
         this.harvester = harvester;
         this.repo = context.getBean(MetadataRepository.class);
+        this.startTime = System.currentTimeMillis();
+        log.debug(String.format("Start visiting files at %d.",
+                this.startTime));
     }
 
     @Override
@@ -73,8 +78,18 @@ class LocalFsHarvesterFileVisitor extends SimpleFileVisitor<Path> {
         }
 
         try {
-            if (file.getFileName().toString().endsWith(".xml")) {
+            if (file != null &&
+                    file.getFileName() != null && 
+                    file.getFileName().toString() != null && 
+                    file.getFileName().toString().endsWith(".xml")) {
                 result.totalMetadata++;
+                if (log.isDebugEnabled() && result.totalMetadata % 1000 == 0) {
+                    long elapsedTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime);
+                    log.debug(String.format("%d records inserted in %d s (%d records/s).",
+                            result.totalMetadata,
+                            elapsedTime,
+                            result.totalMetadata / elapsedTime));
+                }
                 Element xml;
                 Path filePath = file.toAbsolutePath().normalize();
 
@@ -123,7 +138,29 @@ class LocalFsHarvesterFileVisitor extends SimpleFileVisitor<Path> {
                         return FileVisitResult.CONTINUE; // skip this one
                     }
 
-                    String uuid = dataMan.extractUUID(schema, xml);
+                    String uuid = null;
+                    try {
+                        uuid = dataMan.extractUUID(schema, xml);
+                    } catch (Exception e) {
+                        log.debug("Failed to extract metadata UUID for file " + filePath +
+                                " using XSL extract-uuid. The record is probably " +
+                                "a subtemplate. Will check uuid attribute on root element.");
+
+                        // Extract UUID from uuid attribute in subtemplates
+                        String uuidAttribute = xml.getAttributeValue("uuid");
+                        if (uuidAttribute != null) {
+                            log.debug("Found uuid attribute " + uuidAttribute +
+                                    " for file " + filePath +
+                                    ".");
+                            uuid = uuidAttribute;
+                        } else {
+                            // Assigning a new UUID
+                            uuid = UUID.randomUUID().toString();
+                            log.debug("No UUID found, the record will be assigned a random uuid " + uuid +
+                                    " for file " + filePath +
+                                    ".");
+                        }
+                    }
                     if (uuid == null || uuid.equals("")) {
                         result.badFormat++;
                     } else {
@@ -168,7 +205,9 @@ class LocalFsHarvesterFileVisitor extends SimpleFileVisitor<Path> {
                                 String changeDate = new ISODate(fileDate.getTime(), false).getDateAndTime();
 
                                 log.debug(" File date is: " + fileDate.toString() + " / record date is: " + modified);
-                                if (recordDate.before(fileDate)) {
+
+                                if (DateUtils.truncate(recordDate, Calendar.SECOND)
+                                        .before(DateUtils.truncate(fileDate, Calendar.SECOND))) {
                                     log.debug("  Db record is older than file. Updating record with id: " + id);
                                     harvester.updateMetadata(xml, id, localGroups, localCateg, changeDate, aligner);
                                     result.updatedMetadata++;
@@ -203,7 +242,6 @@ class LocalFsHarvesterFileVisitor extends SimpleFileVisitor<Path> {
         }
         return FileVisitResult.CONTINUE;
     }
-
     public HarvestResult getResult() {
         return result;
     }
