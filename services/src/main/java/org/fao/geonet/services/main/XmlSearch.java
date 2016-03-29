@@ -160,38 +160,6 @@ public class XmlSearch implements Service
         } else {
 			searcher = searchMan.newSearcher(SearcherType.LUCENE, Geonet.File.SEARCH_LUCENE);
         }
-        
-        // Cobweb - cookie with list of surveys
-        Cookie cookie = new Cookie("surveys", "{}");
-        cookie.setMaxAge(60 * 60 * 24 * 365); //set expire time to 1 year
-
-        EntityManager em = gc.getBean(EntityManagerFactory.class).createEntityManager();
-
-        
-        Query query = em.createNativeQuery("select distinct m.uuid from Metadata m, "
-                + "UserGroups ug where m.groupowner = ug.groupid "
-                + " and ug.userid = " + context.getUserSession().getUserId()
-                + " and ug.profile < 5;");
-        
-        List<Object> cookieContent = query.getResultList(); 
-        StringBuilder array = null;
-        for(Object tmp : cookieContent) {
-            if(array == null) {
-                array = new StringBuilder();
-                array.append(tmp);
-            } else {
-                array.append("," + tmp.toString());
-            }
-        }
-        
-        em.close();
-        
-        cookie.setPath("/");
-        cookie.setSecure(true);
-        cookie.setValue((array != null? array.toString() : ""));
-        
-        context.addOrUpdateCookie(cookie);
-        // Cobweb - cookie with list of surveys!
 		
 		try {
 			
