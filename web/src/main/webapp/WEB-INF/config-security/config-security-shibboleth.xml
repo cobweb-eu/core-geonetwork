@@ -66,24 +66,24 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="filterChainFilters" class="java.util.ArrayList">
-		<constructor-arg>
-			<list>
-				<ref bean="securityContextPersistenceFilter" />
-				<ref bean="exceptionTranslationFilter" />
-				<!--<ref bean="requestCacheFilter" /> -->
-				<ref bean="logoutFilter" />
-
-				<ref bean="shibbolethPreAuthFilter" />
-
-				<ref bean="basicAuthenticationFilter" />
-				<ref bean="requestCacheFilter" />
-				<ref bean="anonymousFilter" />
-				<ref bean="sessionMgmtFilter" />
-				<ref bean="exceptionTranslationFilter" />
-				<ref bean="filterSecurityInterceptor" />
-			</list>
-		</constructor-arg>
-	</bean>
-
+    <bean id="filterChainFilters" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <ref bean="securityContextPersistenceFilter" />
+                <ref bean="logoutFilter" />
+                <!-- A filter that check if an external service already authenticated user
+                     (default implementation does nothing but can be overridden) -->
+                <ref bean="multiNodeAuthenticationFilter" />
+                <ref bean="preAuthenticationFilter" />
+                <ref bean="shibbolethPreAuthFilter" />
+                <ref bean="basicAuthenticationFilter" />
+                <ref bean="formLoginFilter" />
+                <ref bean="requestCacheFilter" />
+                <ref bean="anonymousFilter" />
+                <ref bean="sessionMgmtFilter" />
+                <ref bean="exceptionTranslationFilter" />
+                <ref bean="filterSecurityInterceptor" />
+            </list>
+        </constructor-arg>
+    </bean>
 </beans>
