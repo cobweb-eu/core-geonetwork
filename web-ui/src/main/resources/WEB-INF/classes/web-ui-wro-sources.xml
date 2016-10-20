@@ -4,12 +4,12 @@
       <jsSource webappPath="/cobweb/js/" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
       <jsSource webappPath="/cobweb/components/" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />  
       <jsSource webappPath="/catalog/js/" />
-      <jsSource webappPath="/catalog/views/" />
-      <!-- <jsSource webappPath="/catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" /> -->
+      <jsSource webappPath="/catalog/views/default" />
+      <jsSource webappPath="/catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
       <jsSource webappPath="/catalog/components/" />
       <cssSource webappPath="/cobweb/style/" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
-      <cssSource webappPath="/catalog/views/" />
-      <!-- <cssSource webappPath="/catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" /> -->
+      <cssSource webappPath="/catalog/views/default" />
+      <cssSource webappPath="/catalog/views/cobweb" pathOnDisk="${project.basedir}/../cobweb/src/main/resources" />
       <cssSource webappPath="/catalog/style/" />
       <cssSource webappPath="/catalog/lib/bootstrap-table/dist" />
   </require>

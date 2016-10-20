@@ -18,20 +18,6 @@
                  <tab-heading><span class="fa fa-list"></span> {{'recentSurveys' | translate}}</tab-heading>
                     <div data-ng-include="'../../catalog/views/cobweb/templates/surveyscarousel.html'"></div>
             </tab>
-            <tab active="infoTabs.takeTheTour.active">
-                 <tab-heading><span class='fa fa-video-camera'></span> {{'TakeTour' | translate}}</tab-heading>
-               {{'TourText' | translate}}
-            </tab>
-            <tab active="infoTabs.calendar.active">
-                 <tab-heading><span class='fa fa-table'></span> {{'Calendar' | translate}}</tab-heading>
-              <ul class="list-group">
-                <li class="list-group-item" data-ng-repeat="md in events">
-                    <a href="#metadata/{{md.getUuid()}}">
-                        <i>{{md.tempExtentBegin | date:"yyyy/M/d"}}</i> {{md.title | limitTo:75}}</a>
-                    <br/>{{md.abstract | limitTo:150}}
-                </li>
-              </ul>
-            </tab>
           </tabset>
         </div>
       </div>		
@@ -45,8 +31,8 @@
                   data-ng-search-form=""
                   data-runSearch="true"
                   data-ng-show="searchResults.records.length > 0">
-              <div data-gn-info-list=""></div>-->
-            </form>
+              <div data-gn-info-list=""></div>
+            </form>-->
 			   
 		       </div>
 			</div>

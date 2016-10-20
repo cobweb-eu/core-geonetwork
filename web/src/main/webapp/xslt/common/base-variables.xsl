@@ -57,6 +57,8 @@
 
   <xsl:variable name="customFilename" select="concat($angularApp, '_', $searchView)"></xsl:variable>
 
+  <xsl:variable name="defaultFilename" select="concat($angularApp, '_', 'default')"></xsl:variable>
+
     <!-- Catalog settings -->
   <xsl:variable name="env" select="/root/gui/systemConfig"/>
   
