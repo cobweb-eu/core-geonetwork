@@ -233,7 +233,7 @@
 			mapUrl = "/secure/viewer"
 		}
 		
-		return mapUrl + '/index.html?sid='+mdView.current.record['geonet:info'].uuid+'&pos=' + mdView.current.record.getBoundsYX().replace(' ','');
+		return mapUrl + '/pcapi.html?sid='+mdView.current.record['geonet:info'].uuid+'&pos=' + mdView.current.record.getBoundsYX().replace(' ','');
 	   
 	     }
 	   }
