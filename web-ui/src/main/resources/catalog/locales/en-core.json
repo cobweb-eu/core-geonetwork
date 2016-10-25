@@ -286,7 +286,10 @@
 	"thisMonth":"This month",
 	"last3Months":"Last 3 months",
 	"last6Months":"Last 6 months",
-	"lastYear":"Last year"
+	"lastYear":"Last year",
     "typeOfRecord": "Type of record",
-    "load": "Load"
+    "load": "Load",
+    "hotkeyHome": "Cobweb",
+    "editorBoard": "add new survey",
+    "adminConsole": "administration"
 }

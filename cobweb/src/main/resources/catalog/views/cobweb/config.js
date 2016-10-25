@@ -82,8 +82,9 @@
         })
       });
 
-      /** Facets configuration */
-      searchSettings.facetsSummaryType = 'hits';
+
+          /** Facets configuration */
+          searchSettings.facetsSummaryType = 'details';
 
           /*
              * Hits per page combo values configuration. The first one is the

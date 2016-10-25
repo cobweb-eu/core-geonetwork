@@ -1,3 +1,26 @@
+/*
+ * Copyright (C) 2001-2016 Food and Agriculture Organization of the
+ * United Nations (FAO-UN), United Nations World Food Programme (WFP)
+ * and United Nations Environment Programme (UNEP)
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
+ *
+ * Contact: Jeroen Ticheler - FAO - Viale delle Terme di Caracalla 2,
+ * Rome - Italy. email: geonetwork@osgeo.org
+ */
+
 (function() {
   goog.provide('gn_map_service');
 
@@ -37,10 +60,11 @@
       'Metadata',
       'gnWfsService',
       'gnGlobalSettings',
-      function(ngeoDecorateLayer, gnOwsCapabilities, gnConfig, $log, 
+      'gnViewerSettings',
+      function(ngeoDecorateLayer, gnOwsCapabilities, gnConfig, $log,
           gnSearchLocation, $rootScope, gnUrlUtils, $q, $translate,
           gnWmsQueue, gnSearchManagerService, Metadata, gnWfsService,
-          gnGlobalSettings) {
+          gnGlobalSettings, viewerSettings) {
 
         var defaultMapConfig = {
           'useOSM': 'true',
@@ -52,6 +76,45 @@
             'code': 'EPSG:3857',
             'label': 'Google mercator (EPSG:3857)'
           }]
+        };
+
+        /**
+         * @description
+         * Check if the layer is in the map to avoid adding duplicated ones.
+         *
+         * @param {ol.Map} map obj
+         * @param {string} name of the layer
+         * @param {string} url of the service
+         */
+        var isLayerInMap = function(map, name, url) {
+          if (gnWmsQueue.isPending(url, name)) {
+            return true;
+          }
+          for (var i = 0; i < map.getLayers().getLength(); i++) {
+            var l = map.getLayers().item(i);
+            var source = l.getSource();
+            if (source instanceof ol.source.WMTS &&
+                l.get('url') == url) {
+              if (l.get('name') == name) {
+                return true;
+              }
+            }
+            else if (source instanceof ol.source.TileWMS ||
+                source instanceof ol.source.ImageWMS) {
+              if (source.getParams().LAYERS == name &&
+                  l.get('url').split('?')[0] == url.split('?')[0]) {
+                return true;
+              }
+            }
+          }
+          return false;
+        };
+
+        var getImageSourceRatio = function(map, maxWidth) {
+          var width = map.getSize()[0] || $('.gn-full').width();
+          var ratio = maxWidth / width;
+          ratio = Math.floor(ratio * 100) / 100;
+          return Math.min(1.5, Math.max(1, ratio));
         };
 
         return {
@@ -442,9 +505,11 @@
               source: source,
               legend: options.legend,
               attribution: options.attribution,
+              attributionUrl: options.attributionUrl,
               label: options.label,
               group: options.group,
               isNcwms: options.isNcwms,
+              advanced: options.advanced,
               minResolution: options.minResolution,
               maxResolution: options.maxResolution,
               cextent: options.extent
@@ -464,6 +529,14 @@
 
             var unregisterEventKey = olLayer.getSource().on('tileloaderror',
                 function(tileEvent, target) {
+                  var url = tileEvent.tile && tileEvent.tile.getKey ?
+                      tileEvent.tile.getKey() : '- no tile URL found-';
+
+                  var layer = tileEvent.currentTarget &&
+                      tileEvent.currentTarget.getParams ?
+                      tileEvent.currentTarget.getParams().LAYERS :
+                      layerParams.LAYERS;
+
                   var msg = $translate('layerTileLoadError', {
                     url: tileEvent.tile && tileEvent.tile.getKey ?
                         tileEvent.tile.getKey() : '- no tile URL found-',
@@ -555,6 +628,9 @@
                   }
                 }
               }
+              if (angular.isArray(getCapLayer.MetadataURL)) {
+                metadata = getCapLayer.MetadataURL[0].OnlineResource;
+              }
 
               var layer = this.createOlWMS(map, {
                 LAYERS: layer.Name
@@ -562,6 +638,7 @@
                 url: layer.url,
                 label: layer.Title,
                 attribution: attribution,
+                attributionUrl: attributionUrl,
                 legend: legend,
                 group: layer.group,
                 metadata: metadata,
@@ -572,6 +649,27 @@
                 maxResolution: this.getResolutionFromScale(
                     map.getView().getProjection(), layer.MaxScaleDenominator)
               });
+
+              if (angular.isArray(getCapLayer.Dimension)) {
+                for (var i = 0; i < getCapLayer.Dimension.length; i++) {
+                  if (getCapLayer.Dimension[i].name == 'elevation') {
+                    layer.set('elevation',
+                        getCapLayer.Dimension[i].values.split(','));
+                  }
+                  if (getCapLayer.Dimension[i].name == 'time') {
+                    layer.set('time',
+                        getCapLayer.Dimension[i].values.split(','));
+                  }
+                }
+              }
+              if (angular.isArray(getCapLayer.Style) &&
+                  getCapLayer.Style.length > 1) {
+                layer.set('style', getCapLayer.Style);
+              }
+
+              layer.set('advanced', !!(layer.get('elevation') ||
+                  layer.get('time') || layer.get('style')));
+
               layer.set('errors', errors);
               return layer;
             }
@@ -915,6 +1013,7 @@
               });
               
               layer.set('errors', errors);
+              layer.set('featureTooltip', true);
               ngeoDecorateLayer(layer);
               layer.displayInLayerManager = true;
               layer.set('label', getCapLayer.name.prefix + ':' +
@@ -1354,7 +1453,9 @@
                 label: layer.Title,
                 source: source,
                 url: url,
-                urlCap: urlCap
+                urlCap: urlCap,
+                cextent: gnOwsCapabilities.getLayerExtentFromGetCap(map,
+                    getCapLayer)
               });
               ngeoDecorateLayer(olLayer);
               olLayer.displayInLayerManager = true;
@@ -1543,8 +1644,40 @@
                 return layer;
               });
             }
-          }
+          },
 
+          /**
+           * Check for online resource that could be bound to the layer.
+           * WPS, downloads, WFS etc..
+           *
+           * @param {ol.Layer} layer
+           * @param {string} linkGroup
+           */
+          feedLayerWithRelated: function(layer, linkGroup) {
+            var md = layer.get('md');
+
+            if (!linkGroup) {
+              console.warn('The layer has not been found in any group: ' +
+                  layer.getSource().getParams().LAYERS);
+              return;
+            }
+
+            // We can bind layer and download/process
+            if (md.getLinksByType(linkGroup, '#OGC:WMTS',
+                '#OGC:WMS', '#OGC:WMS-1.1.1-http-get-map').length == 1) {
+
+              var downloads = md && md.getLinksByType(linkGroup,
+                  'WWW:DOWNLOAD-1.0-link--download', 'FILE', 'DB',
+                  'WFS', 'WCS', 'COPYFILE');
+              layer.set('downloads', downloads);
+
+              var wfs = md && md.getLinksByType(linkGroup, '#WFS');
+              layer.set('wfs', wfs);
+
+              var process = md && md.getLinksByType(linkGroup, 'OGC:WPS');
+              layer.set('processes', process);
+            }
+          }
         };
       }];
   });
