@@ -20,7 +20,7 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
     <import resource="config-security-shibboleth.xml"/> 
     <ctx:property-placeholder
         location="WEB-INF/config-security/config-security.properties,file:///etc/geocat/live/config-security-overrides.properties"
-        file-encoding="UTF-8" ignore-unresolvable="true" order="100"/>
+        file-encoding="UTF-8" ignore-unresolvable="true" order="100" ignore-resource-not-found="true"/>
     
 
 </beans>
