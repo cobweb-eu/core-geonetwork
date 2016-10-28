@@ -1,0 +1,45 @@
+version: '2'
+services:
+
+#TODO: export this environmental variables first: $gitlab_user:$gitlab_pass
+
+    gn:
+        build:
+           context: https://$gitlab_user:$gitlab_pass@eos.geocat.net/gitlab/live/live_gn.git#cobweb
+        expose:
+            - "8009"
+        links:
+            - db
+        volumes_from:
+            - data
+        container_name: "geonetwork"
+
+    gs:
+        build:
+           context: https://$gitlab_user:$gitlab_pass@eos.geocat.net/gitlab/live/live_gs.git#cobweb
+        expose:
+            - "8009"
+        links:
+            - db
+        volumes_from:
+            - data
+        container_name: "geoserver"
+
+    db:
+        build: ./live_db
+        volumes_from:
+            - data
+
+    data:
+        build: ./live_data
+        ports:
+            - "9102:9102"
+
+    apache:
+        build: 
+            context: ./live_httpd
+        ports:
+            - "80:80"
+            - "443:443"
+        container_name: "apache"
+
