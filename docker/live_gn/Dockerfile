@@ -18,7 +18,7 @@ WORKDIR /usr/local/tomcat/
 WORKDIR /usr/local/tomcat/webapps
 
 RUN wget -O geonetwork-cobweb.war \
-     https://eos.geocat.net/gitlab/joana.simoes/cobweb-gn/raw/master/geonetwork-cobweb.war
+     https://github.com/doublebyte1/cobweb-gn/raw/master/geonetwork-cobweb.war
 RUN  echo "$GN_DOWNLOAD_MD5 *geonetwork-cobweb.war" | md5sum -c
 
 RUN mkdir -p /usr/local/tomcat/webapps/geonetwork && \

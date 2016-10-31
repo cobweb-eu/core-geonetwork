@@ -69,16 +69,7 @@ After creating the containers, you can start the system at any time with:
 ```bash
 docker-compose start
 ```
-The current version of this system, uses a base image for the database, which is **not** available on the public Docker Hub repository. Before calling _docker-compose_, you need to **ensure that this image is built on your system**. You can build it manually with:
 
-```bash
-docker build -t live_db https://$gitlab_user:$gitlab_pass@eos.geocat.net/gitlab/live/live_db.git#master
-```
-For convenience, a script is provided, which will check if this image is present, and build it otherwise, before launching the compose. To build & run the system, type:
-
-```bash
-./run.sh
-```
 Data Container
 --------------
 As mentioned before, the _data volumes_ are dettached from the containers and mounted in a data container. This allows the service containers to be stopped, restarted or killed, without any loss of data.
@@ -88,7 +79,6 @@ Network and Security
 --------------------
 Docker creates an internal network, which is then used to communicate between containers. All containers are binded to the same host, which is _localhost_ on Linux and the address of the docker machine on OsX and Windows.
 Only two ports are exposed outside this internal network: 80 and 443 on the apache container.
-The data container exposes port 9102, which is used by the bacula-client to communicate with the server. If you want to take advantage of the backup funcionality, be sure to open this port in any firewall.
 
 The PostgreSQL DB accepts passwordless local conections from _postgres_ user. It also accepts authenticated remote connections, but these are limited to the internal network, as we do not expose the PostgreSQL port.
 Currently, we use a set of default username and passwords, which should be *changed* for increased security:
