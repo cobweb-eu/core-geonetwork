@@ -163,4 +163,4 @@ License
 ========
 This software is released under the GPL v2 license and can be used and modified free of charge. A complete copy of the license can be found on [this](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html) link.
 
-![](https://eos.geocat.net/gitlab/live/live_gn/raw/cobweb/heckert_gnu.small.png)
+![](./heckert_gnu.small.png)
